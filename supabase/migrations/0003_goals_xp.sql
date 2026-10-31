@@ -1,7 +1,10 @@
 -- 0003: Өдрийн зорилгын биелэлт + XP/streak. Бүх бичилт сервер талд (security definer).
 
 -- Client шууд insert хийхгүй; complete_goal()-оор л орно.
-revoke insert on goal_completions from authenticated, anon;
+-- XP/progress хүснэгтэд client бичих эрхгүй (зөвхөн функц бичнэ).
+revoke insert, update, delete on goal_completions from authenticated, anon;
+revoke insert, update, delete on xp_transactions from authenticated, anon;
+revoke insert, update, delete on user_progress from authenticated, anon;
 
 -- Биелэлт бүртгэж, XP олгож, streak-ийг шинэчилнэ.
 -- Давхар олголт: goal_completions (goal_id, completed_on) unique + xp_transactions idempotency key.
@@ -59,8 +62,10 @@ begin
   values (v_uid, 'goal_completion', v_completion, v_xp_per_goal)
   on conflict (user_id, source_type, source_id) do nothing;
 
-  -- Streak: p_completed_on-оос эхлэн өдөр бүр биелэлттэй байгаа тоо
-  v_day := p_completed_on;
+  -- Streak: хамгийн сүүлийн биелэлтийн өдрөөс эхлэн өдөр бүр биелэлттэй байгаа тоо.
+  -- (Өчигдрийг backfill хийхэд streak буурахгүй.)
+  select max(c.completed_on) into v_day
+  from goal_completions c where c.user_id = v_uid;
   loop
     exit when not exists (
       select 1 from goal_completions c

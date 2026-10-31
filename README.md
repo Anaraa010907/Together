@@ -24,7 +24,17 @@ tests/          E2E тестүүд (хийгдээгүй)
 4. Supabase CLI-аар локал стек асаана: `supabase start`, дараа нь `supabase db reset` (migrations ажиллана).
 5. `npm run mobile` — Expo dev server.
 
-> Анхаар: Энэ scaffold-ыг бүрэн суулгаж, ажиллуулж шалгаагүй байна. Эхний ажил нь `npx expo install --fix`-ээр хувилбаруудыг SDK-тай зөрчилгүй болгох.
+### DB тест (Supabase шаардахгүй)
+
+Локал PostgreSQL дээр migration бүрийг дараалан ажиллуулж, RLS, баганын эрх, функцийн дүрмийг шалгана:
+
+```bash
+PGHOST=/tmp PGPORT=5432 PGUSER=postgres tests/db/run.sh
+```
+
+`tests/db/00_supabase_shim.sql` нь Supabase-ийн `auth` схем, роль, default grant-ийг дуурайна.
+
+> Анхаар: Mobile app-ийг (`npm install`, typecheck, төхөөрөмж дээрх ажиллагаа) бүрэн шалгаагүй байна. Эхний ажил нь `npx expo install --fix`-ээр хувилбаруудыг SDK-тай зөрчилгүй болгох.
 
 ## Баримт
 
