@@ -33,8 +33,16 @@
     "save": "Continue"
   },
   "home": {
-    "placeholder": "Welcome! Home is coming soon.",
+    "level": "Level",
+    "streak": "Streak",
+    "todayGoals": "Today's goals",
+    "noGoals": "No goals yet. Add one below.",
+    "doneLabel": "Done ✓",
+    "addPlaceholder": "New goal…",
     "logout": "Log out"
+  },
+  "goals": {
+    "titleInvalid": "Goal title must be 1–120 characters."
   },
   "common": {
     "loading": "Loading…",
