@@ -39,15 +39,51 @@
     "noGoals": "Одоохондоо зорилго алга. Доор нэмнэ үү.",
     "doneLabel": "Биелсэн ✓",
     "addPlaceholder": "Шинэ зорилго…",
+    "groups": "Группууд",
     "logout": "Гарах"
   },
   "goals": {
     "titleInvalid": "Зорилгын нэр 1–120 тэмдэгт байна."
   },
+  "groups": {
+    "title": "Группууд",
+    "create": "+ Шинэ",
+    "createTitle": "Шинэ group",
+    "createAction": "Үүсгэх",
+    "mine": "Миний группууд",
+    "discover": "Нээлттэй группууд",
+    "noMine": "Та одоогоор group-д байхгүй.",
+    "noDiscover": "Одоохондоо нийтийн group алга.",
+    "name": "Нэр",
+    "description": "Тайлбар",
+    "nameInvalid": "Нэрээ 2–60 тэмдэгтээр оруулна уу.",
+    "slugTaken": "Ийм нэртэй group аль хэдийн байна. Өөр нэр оруулна уу.",
+    "private": "Хаалттай",
+    "public": "Нийтийн",
+    "approval": "Зөвшөөрөл шаардах",
+    "privateHint": "Хаалттай group-д нэгдэхэд эзний зөвшөөрөл хэрэгтэй.",
+    "join": "Нэгдэх",
+    "requestJoin": "Нэгдэх хүсэлт илгээх",
+    "inviteOnly": "Зөвхөн урилгаар",
+    "joinPending": "Хүсэлт илгээгдлээ. Эзний зөвшөөрлийг хүлээнэ үү.",
+    "joinedTitle": "Амжилттай",
+    "joinedNow": "Та group-д нэгдлээ.",
+    "pendingLabel": "Хүсэлт хүлээгдэж байна",
+    "banned": "Та энэ group-д хориглогдсон байна.",
+    "requests": "Нэгдэх хүсэлтүүд",
+    "membersTitle": "Гишүүд",
+    "members": "гишүүн",
+    "owner": "Эзэн",
+    "leave": "Гарах",
+    "leaveConfirmTitle": "Group-ээс гарах уу?",
+    "leaveConfirm": "Та энэ group-ийн гишүүнчлэлээ орхино.",
+    "notFound": "Group олдсонгүй."
+  },
   "common": {
     "loading": "Ачаалж байна…",
     "error": "Алдаа гарлаа. Дахин оролдоно уу.",
-    "retry": "Дахин оролдох"
+    "retry": "Дахин оролдох",
+    "cancel": "Болих"
   },
   "xp": { "label": "XP", "level": "Түвшин {{level}}" }
 }

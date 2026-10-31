@@ -39,15 +39,51 @@
     "noGoals": "No goals yet. Add one below.",
     "doneLabel": "Done ✓",
     "addPlaceholder": "New goal…",
+    "groups": "Groups",
     "logout": "Log out"
   },
   "goals": {
     "titleInvalid": "Goal title must be 1–120 characters."
   },
+  "groups": {
+    "title": "Groups",
+    "create": "+ New",
+    "createTitle": "New group",
+    "createAction": "Create",
+    "mine": "My groups",
+    "discover": "Open groups",
+    "noMine": "You are not in any group yet.",
+    "noDiscover": "No public groups yet.",
+    "name": "Name",
+    "description": "Description",
+    "nameInvalid": "Name must be 2–60 characters.",
+    "slugTaken": "A group with this name already exists. Try another name.",
+    "private": "Private",
+    "public": "Public",
+    "approval": "Require approval",
+    "privateHint": "Joining a private group requires the owner's approval.",
+    "join": "Join",
+    "requestJoin": "Request to join",
+    "inviteOnly": "Invite only",
+    "joinPending": "Request sent. Waiting for the owner's approval.",
+    "joinedTitle": "Done",
+    "joinedNow": "You joined the group.",
+    "pendingLabel": "Request pending",
+    "banned": "You are banned from this group.",
+    "requests": "Join requests",
+    "membersTitle": "Members",
+    "members": "members",
+    "owner": "Owner",
+    "leave": "Leave",
+    "leaveConfirmTitle": "Leave the group?",
+    "leaveConfirm": "You will give up your membership of this group.",
+    "notFound": "Group not found."
+  },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "cancel": "Cancel"
   },
   "xp": { "label": "XP", "level": "Level {{level}}" }
 }
