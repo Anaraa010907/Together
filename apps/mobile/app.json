@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "TOGETHER",
+    "slug": "together",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "together",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#F4F0E7"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "mn.together.app"
+    },
+    "android": {
+      "package": "mn.together.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F4F0E7"
+      }
+    },
+    "plugins": ["expo-router", "expo-localization"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

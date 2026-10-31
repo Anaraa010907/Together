@@ -1,0 +1,17 @@
+{
+  "name": "together",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TOGETHER — goal-first social growth platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace @together/mobile",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

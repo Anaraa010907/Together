@@ -1,0 +1,15 @@
+{
+  "app": { "name": "TOGETHER" },
+  "welcome": {
+    "title": "Grow together",
+    "subtitle": "Bring your goals together and grow a little every day.",
+    "login": "Log in",
+    "register": "Sign up"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong. Please try again.",
+    "retry": "Retry"
+  },
+  "xp": { "label": "XP", "level": "Level {{level}}" }
+}
