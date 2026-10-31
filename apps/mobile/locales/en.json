@@ -6,6 +6,36 @@
     "login": "Log in",
     "register": "Sign up"
   },
+  "login": {
+    "title": "Log in",
+    "google": "Continue with Google",
+    "apple": "Continue with Apple",
+    "or": "or",
+    "phoneLabel": "Phone number",
+    "sendCode": "Send code",
+    "phoneInvalid": "Please enter a valid 8-digit number."
+  },
+  "otp": {
+    "title": "Verification code",
+    "sentTo": "Enter the 6-digit code sent to {{phone}}.",
+    "verify": "Verify",
+    "invalid": "Please enter the 6-digit code."
+  },
+  "profile": {
+    "title": "Introduce yourself",
+    "subtitle": "This is how others will see you.",
+    "displayName": "Name",
+    "username": "Username",
+    "usernameHint": "Lowercase letters, numbers and underscores only. 3–20 characters.",
+    "usernameInvalid": "Username must be 3–20 characters: lowercase letters, numbers, _.",
+    "usernameTaken": "This username is already taken.",
+    "nameInvalid": "Please enter your name (1–40 characters).",
+    "save": "Continue"
+  },
+  "home": {
+    "placeholder": "Welcome! Home is coming soon.",
+    "logout": "Log out"
+  },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong. Please try again.",

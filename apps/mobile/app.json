@@ -13,7 +13,8 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "mn.together.app"
+      "bundleIdentifier": "mn.together.app",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "mn.together.app",
@@ -21,7 +22,12 @@
         "backgroundColor": "#F4F0E7"
       }
     },
-    "plugins": ["expo-router", "expo-localization"],
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      "expo-apple-authentication",
+      "expo-web-browser"
+    ],
     "experiments": {
       "typedRoutes": true
     }
