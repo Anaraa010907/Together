@@ -87,6 +87,8 @@ Migration `supabase/migrations/0001_init.sql`-д эдгээрийг хэрэгж
 - **Rank system:** Хойшлуулав (хэрэгжүүлэхгүй). `rank_seasons`, `rank_results`, `leaderboard_snapshots` хүснэгт MVP-д байхгүй. XP, Level, streak үлдэнэ.
 - **Үнэ:** Эхэндээ бүрэн үнэгүй. Premium-ийн загвар (IAP) дараа шийдэгдэнэ.
 
+- **Хэл:** Монгол default, Англи хоёр дахь (`profiles.locale` default `mn`, i18n fallback `en`).
+
 ## Шийдвэр хүлээгдэж буй асуудал
 
-1. Хэл: Монгол default, Англи хоёр дахь — тийм үү?
+Одоогоор нээлттэй асуулт байхгүй.
