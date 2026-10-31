@@ -1,0 +1,24 @@
+{
+  "name": "TOGETHER",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [8081, 54321, 54323],
+  "portsAttributes": {
+    "8081": { "label": "Expo dev server", "onAutoForward": "notify" },
+    "54321": { "label": "Supabase API", "onAutoForward": "silent" },
+    "54323": { "label": "Supabase Studio", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "npm install && cp -n apps/mobile/.env.example apps/mobile/.env || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "supabase.vscode-supabase"
+      ]
+    }
+  }
+}

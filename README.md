@@ -45,3 +45,12 @@ PGHOST=/tmp PGPORT=5432 PGUSER=postgres tests/db/run.sh
 
 - XP, Rank, төлбөр, эрхийн шалгалтыг **сервер талд** (RLS, security definer функц, Edge Function) баталгаажуулна. Client-д итгэхгүй.
 - Android APK-г зөвхөн хэрэглэгч шууд хүсэх үед бүтээнэ.
+
+## Codespace
+
+Repo-д `.devcontainer/` байгаа тул GitHub Codespace нээхэд Node 20, Docker бэлэн болно. Codespace-д:
+
+1. `npm install` автоматаар ажиллана (postCreate).
+2. `npx supabase start` — локал Supabase стек (Docker).
+3. `supabase/migrations`-ийг `npx supabase db reset`-ээр ажиллуулна.
+4. `npm run mobile` → Expo tunnel, QR-ийг Expo Go-оор уншуулна.
