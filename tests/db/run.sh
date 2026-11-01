@@ -9,7 +9,7 @@ DB="together_test"
 
 psql -v ON_ERROR_STOP=1 -q -d postgres -c "drop database if exists $DB" -c "create database $DB"
 
-for f in tests/db/00_supabase_shim.sql supabase/migrations/*.sql tests/db/10_rules.sql; do
+for f in tests/db/00_supabase_shim.sql supabase/migrations/*.sql tests/db/[1-9]*.sql; do
   echo "== $f"
   psql -v ON_ERROR_STOP=1 -q -d "$DB" -f "$f"
 done

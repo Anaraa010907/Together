@@ -24,7 +24,10 @@ function AuthGate() {
       if (!isSetup) router.replace('/profile-setup' as never);
       return;
     }
-    if (isAuthScreen || isSetup) router.replace('/home' as never);
+    // Нэвтэрсэн + профайлтай: Welcome / auth дэлгэц дээр үлдэхгүй.
+    if (isAuthScreen || isSetup || current === undefined || current === 'index') {
+      router.replace('/home' as never);
+    }
   }, [session, hasProfile, loading, segments, router]);
 
   return null;
@@ -35,7 +38,13 @@ export default function RootLayout() {
     <SessionProvider>
       <StatusBar style="dark" />
       <AuthGate />
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        {/* Дэд дэлгэцүүдэд буцах товчтой header */}
+        <Stack.Screen name="group/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="group/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="join" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+      </Stack>
     </SessionProvider>
   );
 }

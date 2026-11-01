@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { useSession } from '../../lib/session';
+import { fetchBlockedIds } from '../../lib/account';
+import { promptMemberActions, promptReport } from '../../lib/moderation';
 import {
+  createInvite,
   fetchGroup,
   fetchMembers,
   fetchMyMembership,
@@ -14,32 +18,40 @@ import {
   type MemberRow,
 } from '../../lib/groups';
 
-// Group дэлгэрэнгүй: гишүүд, нэгдэх/гарах, эзэнд хүсэлтүүд.
+// Group дэлгэрэнгүй: гишүүд, нэгдэх/гарах, эзэнд хүсэлт + урилга, report/block.
 export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const groupId = String(id);
   const { t: tr } = useTranslation();
   const router = useRouter();
+  const { session } = useSession();
+  const myId = session?.user.id;
 
   const [group, setGroup] = useState<GroupSummary | null>(null);
   const [membership, setMembership] = useState<{ role: string; status: string } | null>(null);
   const [members, setMembers] = useState<MemberRow[]>([]);
+  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const g = await fetchGroup(String(id));
+      const [g, m, b] = await Promise.all([
+        fetchGroup(groupId),
+        fetchMyMembership(groupId),
+        fetchBlockedIds().catch(() => new Set<string>()),
+      ]);
       setGroup(g);
-      const m = await fetchMyMembership(String(id));
       setMembership(m);
+      setBlockedIds(b);
       // Гишүүдийн жагсаалт зөвхөн харах эрхтэй үед (RLS шалгана).
-      setMembers(await fetchMembers(String(id)).catch(() => []));
+      setMembers(await fetchMembers(groupId).catch(() => []));
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e.message ?? e));
     } finally {
       setLoading(false);
     }
-  }, [id, tr]);
+  }, [groupId, tr]);
 
   useEffect(() => {
     load();
@@ -52,11 +64,8 @@ export default function GroupDetail() {
   const onJoin = async () => {
     setBusy(true);
     try {
-      const status = await joinGroup(String(id));
-      Alert.alert(
-        tr('groups.joinedTitle'),
-        status === 'active' ? tr('groups.joinedNow') : tr('groups.joinPending'),
-      );
+      const status = await joinGroup(groupId);
+      Alert.alert(tr('groups.joinedTitle'), status === 'active' ? tr('groups.joinedNow') : tr('groups.joinPending'));
       await load();
     } catch (e: any) {
       const msg = String(e.message ?? e);
@@ -78,7 +87,7 @@ export default function GroupDetail() {
         onPress: async () => {
           setBusy(true);
           try {
-            await leaveGroup(String(id));
+            await leaveGroup(groupId);
             router.back();
           } catch (e: any) {
             Alert.alert(tr('common.error'), String(e.message ?? e));
@@ -93,8 +102,21 @@ export default function GroupDetail() {
   const onReview = async (userId: string, approve: boolean) => {
     setBusy(true);
     try {
-      await reviewJoinRequest(String(id), userId, approve);
+      await reviewJoinRequest(groupId, userId, approve);
       await load();
+    } catch (e: any) {
+      Alert.alert(tr('common.error'), String(e.message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onInvite = async () => {
+    if (!group) return;
+    setBusy(true);
+    try {
+      const code = await createInvite(groupId);
+      await Share.share({ message: tr('groups.inviteShare', { name: group.name, code }) });
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e.message ?? e));
     } finally {
@@ -118,15 +140,18 @@ export default function GroupDetail() {
     );
   }
 
-  const pending = members.filter((m) => m.status === 'pending');
-  const active = members.filter((m) => m.status === 'active');
+  // Блоклосон хэрэглэгчдийг жагсаалтаас нууна.
+  const visible = members.filter((m) => !blockedIds.has(m.user_id));
+  const pending = visible.filter((m) => m.status === 'pending');
+  const active = visible.filter((m) => m.status === 'active');
 
   return (
-    <View style={[styles.screen, { backgroundColor: t.background }]}>
+    <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
       <Text style={[styles.title, { color: t.text }]}>{group.name}</Text>
       {!!group.description && <Text style={{ color: t.textMuted }}>{group.description}</Text>}
       <Text style={[styles.meta, { color: t.textMuted }]}>
-        {group.visibility === 'private' ? tr('groups.private') : tr('groups.public')} · {active.length} {tr('groups.members')}
+        {group.visibility === 'private' ? tr('groups.private') : tr('groups.public')} · {active.length}{' '}
+        {tr('groups.members')}
       </Text>
 
       {!isActive && !isPending && (
@@ -148,6 +173,17 @@ export default function GroupDetail() {
 
       {isPending && <Text style={[styles.meta, { color: t.textMuted }]}>{tr('groups.pendingLabel')}</Text>}
 
+      {isOwner && (
+        <Pressable
+          style={[styles.secondary, { borderColor: t.border }]}
+          onPress={onInvite}
+          disabled={busy}
+          accessibilityRole="button"
+        >
+          <Text style={{ color: t.text, fontWeight: '600' }}>{tr('groups.invite')}</Text>
+        </Pressable>
+      )}
+
       {isOwner && pending.length > 0 && (
         <>
           <Text style={[styles.section, { color: t.text }]}>{tr('groups.requests')}</Text>
@@ -168,36 +204,47 @@ export default function GroupDetail() {
       {isActive && (
         <>
           <Text style={[styles.section, { color: t.text }]}>{tr('groups.membersTitle')}</Text>
-          <FlatList
-            data={active}
-            keyExtractor={(m) => m.user_id}
-            contentContainerStyle={{ gap: space.sm }}
-            renderItem={({ item }) => (
-              <View style={[styles.row, { borderColor: t.border, backgroundColor: t.surface }]}>
-                <Text style={{ color: t.text, flex: 1 }}>{item.profiles?.display_name ?? '—'}</Text>
-                {item.role === 'owner' && <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr('groups.owner')}</Text>}
-              </View>
-            )}
-          />
+          <Text style={[styles.hint, { color: t.textMuted }]}>{tr('groups.memberHint')}</Text>
+          {active.map((item) => (
+            <Pressable
+              key={item.user_id}
+              onLongPress={() =>
+                item.user_id !== myId &&
+                promptMemberActions(item.profiles?.display_name ?? '—', item.user_id, load)
+              }
+              style={[styles.row, { borderColor: t.border, backgroundColor: t.surface }]}
+            >
+              <Text style={{ color: t.text, flex: 1 }}>{item.profiles?.display_name ?? '—'}</Text>
+              {item.role === 'owner' && <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr('groups.owner')}</Text>}
+            </Pressable>
+          ))}
           {!isOwner && (
-            <Pressable onPress={onLeave} disabled={busy} accessibilityRole="button" style={styles.leave}>
+            <Pressable onPress={onLeave} disabled={busy} accessibilityRole="button" style={styles.textBtn}>
               <Text style={{ color: t.warning }}>{tr('groups.leave')}</Text>
             </Pressable>
           )}
         </>
       )}
-    </View>
+
+      {!isOwner && (
+        <Pressable onPress={() => promptReport('group', groupId)} accessibilityRole="button" style={styles.textBtn}>
+          <Text style={{ color: t.textMuted }}>{tr('groups.reportGroup')}</Text>
+        </Pressable>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: space.lg, gap: space.sm, paddingTop: 64 },
+  screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 26, fontWeight: '700' },
   meta: { fontSize: 13 },
+  hint: { fontSize: 12 },
   section: { fontSize: 16, fontWeight: '600', marginTop: space.md },
   primary: { borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.md },
   primaryText: { fontSize: 16, fontWeight: '600' },
+  secondary: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: space.md },
   row: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: radius.md, padding: space.md },
-  leave: { alignItems: 'center', paddingVertical: space.md },
+  textBtn: { alignItems: 'center', paddingVertical: space.md },
 });

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
-import { signOut } from '../lib/auth';
 import {
+  archiveGoal,
   completeGoal,
   createGoal,
   fetchActiveGoals,
@@ -13,14 +12,13 @@ import {
   todayIso,
   type Goal,
   type Progress,
-} from '../lib/goals';
+} from '../../lib/goals';
 
 const EMPTY_PROGRESS: Progress = { total_xp: 0, current_level: 1, current_streak: 0, longest_streak: 0 };
 
 // Өдрийн Home: XP/level/streak, өнөөдрийн зорилгууд, шинэ зорилго нэмэх.
 export default function Home() {
   const { t: tr } = useTranslation();
-  const router = useRouter();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [doneToday, setDoneToday] = useState<Set<string>>(new Set());
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
@@ -71,6 +69,25 @@ export default function Home() {
     }
   };
 
+  // Удаан дарж архивлах: өмнөх биелэлт ба XP хэвээр үлдэнэ.
+  const onArchive = (goal: Goal) => {
+    Alert.alert(tr('goals.archiveTitle'), tr('goals.archiveConfirm'), [
+      { text: tr('common.cancel'), style: 'cancel' },
+      {
+        text: tr('goals.archive'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await archiveGoal(goal.id);
+            setGoals((prev) => prev.filter((g) => g.id !== goal.id));
+          } catch (e: any) {
+            Alert.alert(tr('common.error'), String(e.message ?? e));
+          }
+        },
+      },
+    ]);
+  };
+
   const onAdd = async () => {
     const title = newTitle.trim();
     if (title.length < 1 || title.length > 120) {
@@ -114,7 +131,8 @@ export default function Home() {
           return (
             <Pressable
               onPress={() => !done && busyId === null && onComplete(item)}
-              disabled={done || busyId !== null}
+              onLongPress={() => onArchive(item)}
+              disabled={busyId !== null}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: done }}
               style={[
@@ -146,17 +164,7 @@ export default function Home() {
         </Pressable>
       </View>
 
-      <Pressable
-        style={[styles.addBtnWide, { borderColor: t.border }]}
-        onPress={() => router.push('/groups' as never)}
-        accessibilityRole="button"
-      >
-        <Text style={{ color: t.text, fontWeight: '600' }}>{tr('home.groups')}</Text>
-      </Pressable>
-
-      <Pressable onPress={() => signOut().catch(() => {})} accessibilityRole="button" style={styles.logout}>
-        <Text style={{ color: t.textMuted }}>{tr('home.logout')}</Text>
-      </Pressable>
+      {goals.length > 0 && <Text style={[styles.hint, { color: t.textMuted }]}>{tr('goals.hint')}</Text>}
     </View>
   );
 }
@@ -185,6 +193,5 @@ const styles = StyleSheet.create({
   input: { flex: 1, borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
   addBtn: { width: 48, height: 48, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   addText: { fontSize: 24, fontWeight: '700' },
-  logout: { alignItems: 'center', paddingVertical: space.sm },
-  addBtnWide: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center' },
+  hint: { fontSize: 12, textAlign: 'center' },
 });

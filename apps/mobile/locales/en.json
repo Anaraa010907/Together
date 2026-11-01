@@ -1,5 +1,10 @@
 {
   "app": { "name": "TOGETHER" },
+  "tabs": {
+    "home": "Today",
+    "groups": "Groups",
+    "profile": "Profile"
+  },
   "welcome": {
     "title": "Grow together",
     "subtitle": "Bring your goals together and grow a little every day.",
@@ -38,16 +43,19 @@
     "todayGoals": "Today's goals",
     "noGoals": "No goals yet. Add one below.",
     "doneLabel": "Done ✓",
-    "addPlaceholder": "New goal…",
-    "groups": "Groups",
-    "logout": "Log out"
+    "addPlaceholder": "New goal…"
   },
   "goals": {
-    "titleInvalid": "Goal title must be 1–120 characters."
+    "titleInvalid": "Goal title must be 1–120 characters.",
+    "hint": "Long-press a goal to archive it.",
+    "archiveTitle": "Archive this goal?",
+    "archiveConfirm": "It will be hidden from your list. XP you earned stays.",
+    "archive": "Archive"
   },
   "groups": {
     "title": "Groups",
     "create": "+ New",
+    "joinByCode": "Code",
     "createTitle": "New group",
     "createAction": "Create",
     "mine": "My groups",
@@ -61,7 +69,7 @@
     "private": "Private",
     "public": "Public",
     "approval": "Require approval",
-    "privateHint": "Joining a private group requires the owner's approval.",
+    "privateHint": "Joining a private group needs the owner's approval or an invite code.",
     "join": "Join",
     "requestJoin": "Request to join",
     "inviteOnly": "Invite only",
@@ -72,12 +80,51 @@
     "banned": "You are banned from this group.",
     "requests": "Join requests",
     "membersTitle": "Members",
+    "memberHint": "Long-press a member to report or block.",
     "members": "members",
     "owner": "Owner",
     "leave": "Leave",
     "leaveConfirmTitle": "Leave the group?",
     "leaveConfirm": "You will give up your membership of this group.",
-    "notFound": "Group not found."
+    "notFound": "Group not found.",
+    "invite": "Share invite code",
+    "inviteShare": "Join \"{{name}}\" on TOGETHER. Code: {{code}} (valid for 7 days)",
+    "reportGroup": "Report this group"
+  },
+  "join": {
+    "title": "Join with an invite code",
+    "action": "Join",
+    "invalid": "Invalid code. Check the 8-character code.",
+    "expired": "This code has expired.",
+    "exhausted": "This code has reached its usage limit."
+  },
+  "report": {
+    "title": "Why are you reporting this?",
+    "spam": "Spam",
+    "inappropriate": "Inappropriate content",
+    "action": "Report",
+    "block": "Block",
+    "sent": "Report sent. Thank you.",
+    "blocked": "Blocked."
+  },
+  "settings": {
+    "edit": "Edit profile",
+    "bio": "Bio",
+    "bioInvalid": "Bio must be under 300 characters.",
+    "save": "Save",
+    "saved": "Saved.",
+    "longest": "Best streak",
+    "language": "Language",
+    "mn": "Монгол",
+    "en": "English",
+    "blockedUsers": "Blocked users",
+    "noBlocked": "None.",
+    "unblock": "Unblock",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "deleteTitle": "Delete your account?",
+    "deleteConfirm": "Your profile, goals, XP and groups you own will be permanently deleted. This cannot be undone.",
+    "delete": "Delete"
   },
   "common": {
     "loading": "Loading…",

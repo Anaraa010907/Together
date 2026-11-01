@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View }
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
-import { fetchMyGroups, fetchPublicGroups, type GroupSummary } from '../lib/groups';
+import { fetchMyGroups, fetchPublicGroups, type GroupSummary } from '../../lib/groups';
 
 // Миний group-ууд + нийтийн group-ууд (Discover).
 export default function Groups() {
@@ -44,13 +44,22 @@ export default function Groups() {
     <View style={[styles.screen, { backgroundColor: t.background }]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: t.text }]}>{tr('groups.title')}</Text>
-        <Pressable
-          style={[styles.createBtn, { backgroundColor: t.accent }]}
-          onPress={() => router.push('/group/new' as never)}
-          accessibilityRole="button"
-        >
-          <Text style={[styles.createText, { color: t.onAccent }]}>{tr('groups.create')}</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: space.sm }}>
+          <Pressable
+            style={[styles.createBtn, { borderWidth: 1, borderColor: t.border }]}
+            onPress={() => router.push('/join' as never)}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.createText, { color: t.text }]}>{tr('groups.joinByCode')}</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.createBtn, { backgroundColor: t.accent }]}
+            onPress={() => router.push('/group/new' as never)}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.createText, { color: t.onAccent }]}>{tr('groups.create')}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <Text style={[styles.section, { color: t.text }]}>{tr('groups.mine')}</Text>

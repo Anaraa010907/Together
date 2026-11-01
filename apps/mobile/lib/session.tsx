@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import i18n from './i18n';
 import { supabase } from './supabase';
 
 type SessionState = {
@@ -30,10 +31,14 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
     const { data, error } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, locale')
       .eq('id', userData.user.id)
       .maybeSingle();
     setHasProfile(!error && !!data);
+    // Профайлд хадгалсан хэлийг ачаална.
+    if (data?.locale && data.locale !== i18n.language) {
+      await i18n.changeLanguage(data.locale);
+    }
   };
 
   useEffect(() => {

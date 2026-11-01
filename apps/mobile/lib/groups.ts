@@ -116,6 +116,20 @@ export async function leaveGroup(groupId: string) {
   if (error) throw error;
 }
 
+// Эзэн: 8 тэмдэгттэй урилгын код (7 хоног, 50 удаа).
+export async function createInvite(groupId: string) {
+  const { data, error } = await supabase.rpc('create_group_invite', { p_group_id: groupId });
+  if (error) throw error;
+  return data as string;
+}
+
+// Кодоор нэгдэх: private / invite_only group-д шууд гишүүн болно. Group id буцаана.
+export async function redeemInvite(code: string) {
+  const { data, error } = await supabase.rpc('redeem_group_invite', { p_code: code.trim() });
+  if (error) throw error;
+  return data as string;
+}
+
 export async function reviewJoinRequest(groupId: string, userId: string, approve: boolean) {
   const { error } = await supabase.rpc('review_join_request', {
     p_group_id: groupId,

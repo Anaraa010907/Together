@@ -63,6 +63,12 @@ export async function createGoal(title: string) {
   if (error) throw error;
 }
 
+// Архивлах: жагсаалтаас нуугдана, өмнөх биелэлт ба XP хэвээр үлдэнэ.
+export async function archiveGoal(goalId: string) {
+  const { error } = await supabase.from('goals').update({ status: 'archived' }).eq('id', goalId);
+  if (error) throw error;
+}
+
 // Server-side: XP, streak, level бүгд complete_goal() дотор тооцогдоно.
 export async function completeGoal(goalId: string, date: string) {
   const { data, error } = await supabase.rpc('complete_goal', {
