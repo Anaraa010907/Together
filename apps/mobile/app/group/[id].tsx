@@ -158,6 +158,16 @@ export default function GroupDetail() {
         {tr('groups.members')}
       </Text>
 
+      {isActive && (
+        <Pressable
+          style={[styles.primary, { backgroundColor: t.accent }]}
+          onPress={() => router.push(`/feed/${groupId}` as never)}
+          accessibilityRole="button"
+        >
+          <Text style={[styles.primaryText, { color: t.onAccent }]}>💬 {tr('feed.open')}</Text>
+        </Pressable>
+      )}
+
       {!isActive && !isPending && (
         <Pressable
           style={[styles.primary, { backgroundColor: t.accent, opacity: busy ? 0.6 : 1 }]}

@@ -26,7 +26,13 @@
       "expo-router",
       "expo-localization",
       "expo-apple-authentication",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Group-тэйгээ зураг, слайд хуваалцахад зургийн санг ашиглана."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

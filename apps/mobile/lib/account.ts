@@ -2,6 +2,7 @@ import i18n from './i18n';
 import { supabase } from './supabase';
 
 export type Locale = 'mn' | 'en';
+export type ReportType = 'profile' | 'group' | 'goal' | 'post' | 'comment';
 
 export type MyProfile = {
   id: string;
@@ -47,7 +48,7 @@ export async function deleteMyAccount() {
   await supabase.auth.signOut().catch(() => {});
 }
 
-export async function reportTarget(type: 'profile' | 'group' | 'goal', targetId: string, reason: string) {
+export async function reportTarget(type: ReportType, targetId: string, reason: string) {
   const reporterId = await requireUserId();
   const { error } = await supabase.from('user_reports').insert({
     reporter_id: reporterId,

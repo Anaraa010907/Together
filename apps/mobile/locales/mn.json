@@ -1,5 +1,7 @@
 {
-  "app": { "name": "TOGETHER" },
+  "app": {
+    "name": "TOGETHER"
+  },
   "tabs": {
     "home": "Өнөөдөр",
     "groups": "Группууд",
@@ -111,7 +113,11 @@
     "statusUpcoming": "Эхлэх: {{date}}",
     "statusActive": "Өдөр {{day}} / {{total}}",
     "statusEnded": "Дууссан",
-    "badge": { "upcoming": "Удахгүй", "active": "Явагдаж байна", "ended": "Дууссан" },
+    "badge": {
+      "upcoming": "Удахгүй",
+      "active": "Явагдаж байна",
+      "ended": "Дууссан"
+    },
     "myProgress": "Таны ахиц: {{done}} / {{total}} өдөр",
     "join": "Нэгдэх",
     "leave": "Challenge-ээс гарах",
@@ -170,11 +176,77 @@
     "deleteConfirm": "Таны профайл, зорилго, XP болон эзэмшдэг group-ууд бүрмөсөн устна. Буцаах боломжгүй.",
     "delete": "Устгах"
   },
+  "feed": {
+    "open": "Group feed",
+    "newPost": "Пост",
+    "empty": "Одоохондоо пост алга. Эхнийхийг нь бичээрэй!",
+    "kind": {
+      "share": "Хуваалцах",
+      "proposal": "Санал",
+      "question": "Асуулт"
+    },
+    "kindHint": {
+      "share": "Хийсэн зүйл, үзсэн хичээл, presentation-оо хуваалцаарай.",
+      "proposal": "Хамтрагчдадаа санал тавиад дэмжих эсэхийг асуугаарай.",
+      "question": "Ойлгоогүй зүйлээ group-ээсээ асуугаарай."
+    },
+    "placeholder": {
+      "share": "Юу хийсэн, юу сурсан бэ?",
+      "proposal": "Таны санал юу вэ?",
+      "question": "Таны асуулт…"
+    },
+    "body": "Текст",
+    "bodyInvalid": "Текст 1–4000 тэмдэгт байна.",
+    "linkPlaceholder": "Линк (YouTube, Google Slides…) — заавал биш",
+    "linkInvalid": "Линк https:// -ээр эхлэх ёстой.",
+    "deadline": "Санал авах хугацаа",
+    "noDeadline": "Хугацаагүй",
+    "deadlineDays": "{{n}} хоног",
+    "addImages": "Зураг / слайд",
+    "filesHint": "Хамгийн ихдээ {{max}} файл, тус бүр 20MB хүртэл.",
+    "fileTooBig": "20MB-аас том файлыг алгаслаа.",
+    "removeFile": "Файл хасах",
+    "helpfulHint": "3 гишүүн \"Тустай\" гэж тэмдэглэвэл та +15 XP авна.",
+    "publish": "Нийтлэх",
+    "openLink": "Линк нээх",
+    "vote": {
+      "support": "Дэмжих",
+      "against": "Эсрэг",
+      "question": "Асуулттай"
+    },
+    "votingOpen": "Санал авч байна",
+    "votingUntil": "Санал авах хугацаа: {{date}}",
+    "votingClosed": "Санал авч дууссан",
+    "helpful": "Тустай",
+    "comments": "Сэтгэгдэл",
+    "noComments": "Сэтгэгдэл алга.",
+    "commentPlaceholder": "Сэтгэгдэл бичих…",
+    "commentInvalid": "Сэтгэгдэл 2000 тэмдэгтээс бага байна.",
+    "send": "Илгээх",
+    "actions": "Үйлдэл",
+    "delete": "Устгах",
+    "deleteTitle": "Устгах уу? Буцаах боломжгүй.",
+    "errors": {
+      "own_post": "Өөрийн постыг \"Тустай\" гэж тэмдэглэх боломжгүй.",
+      "post_not_found": "Пост олдсонгүй.",
+      "not_proposal": "Энэ пост санал биш байна.",
+      "voting_closed": "Санал авах хугацаа дууссан."
+    }
+  },
+  "time": {
+    "now": "одоо",
+    "minutes": "{{n}} мин",
+    "hours": "{{n}} цаг",
+    "days": "{{n}} өдөр"
+  },
   "common": {
     "loading": "Ачаалж байна…",
     "error": "Алдаа гарлаа. Дахин оролдоно уу.",
     "retry": "Дахин оролдох",
     "cancel": "Болих"
   },
-  "xp": { "label": "XP", "level": "Түвшин {{level}}" }
+  "xp": {
+    "label": "XP",
+    "level": "Түвшин {{level}}"
+  }
 }

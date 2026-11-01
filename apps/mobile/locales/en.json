@@ -1,5 +1,7 @@
 {
-  "app": { "name": "TOGETHER" },
+  "app": {
+    "name": "TOGETHER"
+  },
   "tabs": {
     "home": "Today",
     "groups": "Groups",
@@ -111,7 +113,11 @@
     "statusUpcoming": "Starts {{date}}",
     "statusActive": "Day {{day}} of {{total}}",
     "statusEnded": "Ended",
-    "badge": { "upcoming": "Upcoming", "active": "Active", "ended": "Ended" },
+    "badge": {
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "ended": "Ended"
+    },
     "myProgress": "Your progress: {{done}} / {{total}} days",
     "join": "Join",
     "leave": "Leave challenge",
@@ -170,11 +176,77 @@
     "deleteConfirm": "Your profile, goals, XP and groups you own will be permanently deleted. This cannot be undone.",
     "delete": "Delete"
   },
+  "feed": {
+    "open": "Group feed",
+    "newPost": "Post",
+    "empty": "No posts yet. Be the first!",
+    "kind": {
+      "share": "Share",
+      "proposal": "Proposal",
+      "question": "Question"
+    },
+    "kindHint": {
+      "share": "Share what you made, a lesson you watched, or a presentation.",
+      "proposal": "Put an idea to your group and ask whether they support it.",
+      "question": "Ask your group about something you are stuck on."
+    },
+    "placeholder": {
+      "share": "What did you make or learn?",
+      "proposal": "What do you propose?",
+      "question": "Your question…"
+    },
+    "body": "Text",
+    "bodyInvalid": "Text must be 1–4000 characters.",
+    "linkPlaceholder": "Link (YouTube, Google Slides…) — optional",
+    "linkInvalid": "Links must start with https://",
+    "deadline": "Voting period",
+    "noDeadline": "No deadline",
+    "deadlineDays": "{{n}} days",
+    "addImages": "Images / slides",
+    "filesHint": "Up to {{max}} files, 20MB each.",
+    "fileTooBig": "Files over 20MB were skipped.",
+    "removeFile": "Remove file",
+    "helpfulHint": "When 3 members mark it \"Helpful\", you get +15 XP.",
+    "publish": "Publish",
+    "openLink": "Open link",
+    "vote": {
+      "support": "Support",
+      "against": "Against",
+      "question": "Questions"
+    },
+    "votingOpen": "Voting open",
+    "votingUntil": "Voting until {{date}}",
+    "votingClosed": "Voting closed",
+    "helpful": "Helpful",
+    "comments": "Comments",
+    "noComments": "No comments yet.",
+    "commentPlaceholder": "Write a comment…",
+    "commentInvalid": "Comments must be under 2000 characters.",
+    "send": "Send",
+    "actions": "Actions",
+    "delete": "Delete",
+    "deleteTitle": "Delete? This cannot be undone.",
+    "errors": {
+      "own_post": "You cannot mark your own post as helpful.",
+      "post_not_found": "Post not found.",
+      "not_proposal": "This post is not a proposal.",
+      "voting_closed": "Voting has closed."
+    }
+  },
+  "time": {
+    "now": "now",
+    "minutes": "{{n}}m",
+    "hours": "{{n}}h",
+    "days": "{{n}}d"
+  },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong. Please try again.",
     "retry": "Retry",
     "cancel": "Cancel"
   },
-  "xp": { "label": "XP", "level": "Level {{level}}" }
+  "xp": {
+    "label": "XP",
+    "level": "Level {{level}}"
+  }
 }
