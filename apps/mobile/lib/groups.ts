@@ -9,6 +9,7 @@ export type GroupSummary = {
   join_policy: 'open' | 'approval' | 'invite_only';
   owner_id: string;
   kind: 'community' | 'course';
+  category_id: string | null;
 };
 
 export type MemberRow = {
@@ -50,7 +51,7 @@ export async function createGroup(input: {
 export async function fetchPublicGroups(): Promise<GroupSummary[]> {
   const { data, error } = await supabase
     .from('groups')
-    .select('id, name, slug, description, visibility, join_policy, owner_id, kind')
+    .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id')
     .eq('visibility', 'public')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
@@ -63,7 +64,7 @@ export async function fetchPublicGroups(): Promise<GroupSummary[]> {
 export async function fetchMyGroups(): Promise<GroupSummary[]> {
   const { data, error } = await supabase
     .from('group_members')
-    .select('groups(id, name, slug, description, visibility, join_policy, owner_id, kind)')
+    .select('groups(id, name, slug, description, visibility, join_policy, owner_id, kind, category_id)')
     .eq('status', 'active');
   if (error) throw error;
   return (data ?? [])
@@ -74,7 +75,7 @@ export async function fetchMyGroups(): Promise<GroupSummary[]> {
 export async function fetchGroup(id: string): Promise<GroupSummary | null> {
   const { data, error } = await supabase
     .from('groups')
-    .select('id, name, slug, description, visibility, join_policy, owner_id, kind')
+    .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id')
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;

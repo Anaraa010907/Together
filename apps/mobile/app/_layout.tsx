@@ -29,7 +29,7 @@ function ConfigBanner() {
 
 // Нэвтрээгүй бол login, профайлгүй бол profile-setup руу чиглүүлнэ.
 function AuthGate() {
-  const { session, hasProfile, loading } = useSession();
+  const { session, hasProfile, needsInterests, loading } = useSession();
   const segments = useSegments();
   const router = useRouter();
 
@@ -38,20 +38,27 @@ function AuthGate() {
     const current = segments[0] as string | undefined;
     const isAuthScreen = ['login', 'register', 'phone', 'otp'].includes(current ?? '');
     const isSetup = current === 'profile-setup';
+    const isOnboarding = current === 'interests' || current === 'suggested';
+    const isPublic = current === 'legal';
 
     if (!session) {
-      if (!isAuthScreen && current !== 'index') router.replace('/login' as never);
+      if (!isAuthScreen && !isPublic && current !== 'index') router.replace('/login' as never);
       return;
     }
     if (!hasProfile) {
-      if (!isSetup) router.replace('/profile-setup' as never);
+      if (!isSetup && !isPublic) router.replace('/profile-setup' as never);
+      return;
+    }
+    // Onboarding 3-р алхам: сонирхол (алгасаж болно).
+    if (needsInterests) {
+      if (!isOnboarding && !isPublic) router.replace('/interests' as never);
       return;
     }
     // Нэвтэрсэн + профайлтай: Welcome / auth дэлгэц дээр үлдэхгүй.
     if (isAuthScreen || isSetup || current === undefined || current === 'index') {
       router.replace('/home' as never);
     }
-  }, [session, hasProfile, loading, segments, router]);
+  }, [session, hasProfile, needsInterests, loading, segments, router]);
 
   return null;
 }
@@ -88,6 +95,9 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="interests" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="suggested" options={{ headerShown: false }} />
+        <Stack.Screen name="legal/[doc]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="register" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="login" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="phone" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />

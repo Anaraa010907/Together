@@ -6,6 +6,7 @@ import { supabase } from './supabase';
 type SessionState = {
   session: Session | null;
   hasProfile: boolean;
+  needsInterests: boolean;
   loading: boolean;
   refreshProfile: () => Promise<void>;
 };
@@ -13,6 +14,7 @@ type SessionState = {
 const SessionContext = createContext<SessionState>({
   session: null,
   hasProfile: false,
+  needsInterests: false,
   loading: true,
   refreshProfile: async () => {},
 });
@@ -20,6 +22,7 @@ const SessionContext = createContext<SessionState>({
 export function SessionProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
+  const [needsInterests, setNeedsInterests] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Профайл байгаа эсэхийг RLS-ээр шалгана (өөрийн мөр л харагдана).
@@ -27,14 +30,23 @@ export function SessionProvider({ children }: PropsWithChildren) {
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) {
       setHasProfile(false);
+      setNeedsInterests(false);
       return;
     }
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('profiles')
-      .select('id, locale')
+      .select('id, locale, interests_set_at')
       .eq('id', userData.user.id)
       .maybeSingle();
+    // Сервер 0012-гүй (interests_set_at багана байхгүй) бол сонирхлын алхмыг алгасна.
+    if (error?.code === '42703') {
+      const fallback = await supabase.from('profiles').select('id, locale').eq('id', userData.user.id).maybeSingle();
+      data = fallback.data ? { ...fallback.data, interests_set_at: 'n/a' } : null;
+      error = fallback.error;
+    }
     setHasProfile(!error && !!data);
+    // Onboarding-ийн сонирхлын алхмыг (алгассан ч) нэг удаа дуусгасан эсэх.
+    setNeedsInterests(!error && !!data && !data.interests_set_at);
     // Профайлд хадгалсан хэлийг ачаална.
     if (data?.locale && data.locale !== i18n.language) {
       await i18n.changeLanguage(data.locale);
@@ -64,7 +76,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, []);
 
   return (
-    <SessionContext.Provider value={{ session, hasProfile, loading, refreshProfile }}>
+    <SessionContext.Provider value={{ session, hasProfile, needsInterests, loading, refreshProfile }}>
       {children}
     </SessionContext.Provider>
   );

@@ -144,7 +144,7 @@ export async function fetchTeacher(userId: string) {
     supabase.rpc('teacher_stats', { p_user_id: userId }),
     supabase
       .from('groups')
-      .select('id, name, slug, description, visibility, join_policy, owner_id, kind')
+      .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id')
       .eq('owner_id', userId)
       .eq('kind', 'course')
       .is('deleted_at', null)

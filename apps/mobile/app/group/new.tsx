@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { createGroup } from '../../lib/groups';
 import { courseErrorKey, createCourse } from '../../lib/teaching';
+import { categoryName, fetchCategories, setGroupCategory, type Category } from '../../lib/interests';
+import { Chip } from '../../components/ui';
 
 // Group үүсгэх: нэр, тайлбар, нийтийн/хаалттай, нэгдэх журам.
 export default function NewGroup() {
@@ -18,6 +20,12 @@ export default function NewGroup() {
   const [isPrivate, setIsPrivate] = useState(false);
   const [needApproval, setNeedApproval] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [cats, setCats] = useState<Category[]>([]);
+  const [category, setCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCategories().then(setCats).catch(() => {});
+  }, []);
 
   const onCreate = async () => {
     const n = name.trim();
@@ -33,6 +41,7 @@ export default function NewGroup() {
             visibility: isPrivate ? 'private' : 'public',
             joinPolicy: needApproval || isPrivate ? 'approval' : 'open',
           });
+      if (category) await setGroupCategory(id, category).catch(() => {});
       router.replace(`/group/${id}` as never);
     } catch (e: any) {
       const msg = String(e.message ?? e);
@@ -44,7 +53,7 @@ export default function NewGroup() {
   };
 
   return (
-    <View style={[styles.screen, { backgroundColor: t.background }]}>
+    <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
       <Text style={[styles.title, { color: t.text }]}>{isCourse ? tr('courses.createTitle') : tr('groups.createTitle')}</Text>
 
       <Text style={[styles.label, { color: t.textMuted }]}>{tr('groups.name')}</Text>
@@ -65,6 +74,19 @@ export default function NewGroup() {
         maxLength={500}
         accessibilityLabel={tr('groups.description')}
       />
+
+      <Text style={[styles.label, { color: t.textMuted }]}>{tr('groups.category')}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {cats.map((c) => (
+          <Chip
+            key={c.id}
+            icon={c.icon}
+            label={categoryName(c)}
+            selected={category === c.id}
+            onPress={() => setCategory(category === c.id ? null : c.id)}
+          />
+        ))}
+      </View>
 
       <View style={styles.row}>
         <Text style={[styles.rowText, { color: t.text }]}>{tr('groups.private')}</Text>
@@ -91,12 +113,12 @@ export default function NewGroup() {
           <Text style={[styles.primaryText, { color: t.onAccent }]}>{tr('groups.createAction')}</Text>
         )}
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: space.lg, gap: space.sm, paddingTop: 64 },
+  screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
   title: { fontSize: 24, fontWeight: '700', marginBottom: space.sm },
   label: { fontSize: 13, marginTop: space.sm },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },

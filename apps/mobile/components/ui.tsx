@@ -200,6 +200,71 @@ export function Segmented<T extends string | number | boolean>({
   );
 }
 
+// Сонголтын chip (олон сонголт, шүүлтүүр).
+export function Chip({
+  label,
+  icon,
+  selected,
+  onPress,
+}: {
+  label: string;
+  icon?: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+      style={({ pressed }) => [
+        styles.chip,
+        selected ? { backgroundColor: t.text, borderColor: t.text } : null,
+        { opacity: pressed ? 0.85 : 1 },
+      ]}
+    >
+      {!!icon && <Text style={{ fontSize: 16 }}>{icon}</Text>}
+      <Text style={[styles.chipText, selected && { color: t.background }]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+// Жагсаалтын мөр (тохиргоо, холбоос).
+export function ListRow({
+  icon,
+  label,
+  value,
+  onPress,
+  danger,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value?: string;
+  onPress: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.listRow, { opacity: pressed ? 0.7 : 1 }]}
+    >
+      <View style={styles.listIcon}>
+        <Ionicons name={icon} size={18} color={danger ? t.warning : t.text} />
+      </View>
+      <Text style={[styles.listLabel, danger && { color: t.warning }]} numberOfLines={1}>
+        {label}
+      </Text>
+      {!!value && (
+        <Text style={styles.caption} numberOfLines={1}>
+          {value}
+        </Text>
+      )}
+      <Ionicons name="chevron-forward" size={18} color="#9AA2AD" />
+    </Pressable>
+  );
+}
+
 export function Divider({ label }: { label: string }) {
   return (
     <View style={styles.divider}>
@@ -293,6 +358,14 @@ const styles = StyleSheet.create({
   segmented: { flexDirection: 'row', backgroundColor: '#ECE6DA', borderRadius: radius.pill, padding: 4, gap: 4 },
   segment: { flex: 1, height: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   segmentText: { fontFamily: font.semibold, fontSize: 15, color: '#5B6573' },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#E3DDCF',
+    backgroundColor: t.surface, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 14,
+  },
+  chipText: { fontFamily: font.semibold, fontSize: 14, color: t.text },
+  listRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 4 },
+  listIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#F1E9D8', alignItems: 'center', justifyContent: 'center' },
+  listLabel: { flex: 1, fontFamily: font.semibold, fontSize: 15, color: t.text },
   divider: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginVertical: 4 },
   line: { flex: 1, height: 1, backgroundColor: '#E3DDCF' },
 });

@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { signOut } from '../../lib/auth';
+import { ListRow } from '../../components/ui';
 import { fetchProgress, type Progress } from '../../lib/goals';
 import {
   deleteMyAccount,
@@ -186,6 +187,9 @@ export default function Profile() {
         ))
       )}
 
+      <Text style={[styles.section, { color: t.text }]}>{tr('interests.section')}</Text>
+      <ListRow icon="sparkles-outline" label={tr('interests.edit')} onPress={() => router.push('/interests?edit=1' as never)} />
+
       <Text style={[styles.section, { color: t.text }]}>{tr('teach.section')}</Text>
       <Pressable
         style={[styles.row, { borderColor: t.border, backgroundColor: t.surface }]}
@@ -203,6 +207,10 @@ export default function Profile() {
       >
         <Text style={{ color: t.text, fontWeight: '600' }}>{tr('settings.logout')}</Text>
       </Pressable>
+
+      <Text style={[styles.section, { color: t.text }]}>{tr('legal.section')}</Text>
+      <ListRow icon="document-text-outline" label={tr('legal.terms.title')} onPress={() => router.push('/legal/terms' as never)} />
+      <ListRow icon="shield-checkmark-outline" label={tr('legal.privacy.title')} onPress={() => router.push('/legal/privacy' as never)} />
 
       <Pressable onPress={onDelete} disabled={busy} accessibilityRole="button" style={styles.danger}>
         <Text style={{ color: t.warning, fontWeight: '600' }}>{tr('settings.deleteAccount')}</Text>

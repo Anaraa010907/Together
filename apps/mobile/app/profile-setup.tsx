@@ -46,7 +46,7 @@ export default function ProfileSetup() {
       }
 
       await refreshProfile();
-      router.replace('/home' as never);
+      router.replace('/interests' as never);
     } catch (e: any) {
       const msg = String(e?.message ?? e);
       if (msg.includes('username_taken')) setErrors({ username: tr('profile.usernameTaken') });
@@ -58,7 +58,7 @@ export default function ProfileSetup() {
 
   return (
     <Screen>
-      <Steps total={2} current={2} />
+      <Steps total={3} current={2} />
       <H1>{tr('profile.title')}</H1>
       <Body muted>{tr('profile.subtitle')}</Body>
 

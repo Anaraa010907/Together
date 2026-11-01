@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Platform, Text, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { font, lightTheme as t } from '@together/ui/tokens';
@@ -102,7 +102,19 @@ export default function Register() {
         />
       </View>
 
-      <View style={{ marginTop: 8 }}>
+      <Text style={styles.terms}>
+        {tr('register.agree1')}
+        <Text style={styles.termsLink} onPress={() => router.push('/legal/terms' as never)}>
+          {tr('legal.terms.title')}
+        </Text>
+        {tr('register.agree2')}
+        <Text style={styles.termsLink} onPress={() => router.push('/legal/privacy' as never)}>
+          {tr('legal.privacy.title')}
+        </Text>
+        {tr('register.agree3')}
+      </Text>
+
+      <View style={{ marginTop: 4 }}>
         <Button label={tr('register.submit')} onPress={onSubmit} loading={busy} />
       </View>
 
@@ -113,3 +125,8 @@ export default function Register() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  terms: { fontFamily: font.medium, fontSize: 13, lineHeight: 19, color: '#5B6573' },
+  termsLink: { fontFamily: font.bold, color: t.text, textDecorationLine: 'underline' },
+});

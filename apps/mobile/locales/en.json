@@ -27,7 +27,10 @@
     "mismatch": "Passwords do not match.",
     "submit": "Create account",
     "haveAccount": "Already have an account?",
-    "exists": "An account with this email already exists. Please log in."
+    "exists": "An account with this email already exists. Please log in.",
+    "agree1": "By signing up you agree to the ",
+    "agree2": " and ",
+    "agree3": "."
   },
   "login": {
     "title": "Log in",
@@ -121,7 +124,11 @@
     "notFound": "Group not found.",
     "invite": "Share invite code",
     "inviteShare": "Join \"{{name}}\" on TOGETHER. Code: {{code}} (valid for 7 days)",
-    "reportGroup": "Report this group"
+    "reportGroup": "Report this group",
+    "search": "Search groups",
+    "all": "All",
+    "suggested": "Suggested for you",
+    "category": "Category"
   },
   "challenges": {
     "section": "Challenges",
@@ -437,6 +444,97 @@
     "thanks": "Thank you!",
     "delete": "Delete my review",
     "deleteTitle": "Delete your review?"
+  },
+  "interests": {
+    "title": "What are you into?",
+    "subtitle": "Pick your interests and we will suggest groups and courses that fit.",
+    "selected": "{{n}} selected",
+    "skip": "Skip for now",
+    "section": "Interests",
+    "edit": "Edit interests"
+  },
+  "suggested": {
+    "title": "Groups for you",
+    "subtitle": "Find people to grow with. You can also join later from the Groups tab.",
+    "none": "No matching public groups yet. Create one and invite friends!",
+    "members": "{{n}} members",
+    "joined": "Joined ✓",
+    "done": "Get started"
+  },
+  "legal": {
+    "section": "Legal",
+    "updated": "Last updated: 2026-11-01 (draft)",
+    "contact": "Questions? Reach us through the in-app \"Report\" button.",
+    "terms": {
+      "title": "Terms of Service",
+      "sections": [
+        {
+          "h": "1. The service",
+          "p": "TOGETHER helps people grow together through goals, groups, challenges, courses and shared sessions. The app is currently free."
+        },
+        {
+          "h": "2. Your account",
+          "p": "Register with accurate information and keep your password safe. One account per person. You are responsible for activity on your account."
+        },
+        {
+          "h": "3. Age",
+          "p": "Users under 18 may only join courses by verified teachers. You declare your age group once; false information is not allowed."
+        },
+        {
+          "h": "4. Content rules",
+          "p": "No violence, hate, harassment, sexual content, illegal content, spam, or sharing others' private information without consent. Violating content may be removed and accounts suspended."
+        },
+        {
+          "h": "5. Reporting and blocking",
+          "p": "Long-press posts, comments, profiles, groups or reviews to report them. You can block users. Reports are reviewed by our team."
+        },
+        {
+          "h": "6. Your content",
+          "p": "You keep ownership of what you post. You allow us to show it to members of the relevant group inside the app."
+        },
+        {
+          "h": "7. Deleting your account",
+          "p": "Delete your account any time from Profile → Delete account. Your profile, goals, XP, groups you own and posts are permanently removed."
+        },
+        {
+          "h": "8. Changes",
+          "p": "We may update these terms and will notify you in the app about important changes."
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": [
+        {
+          "h": "What we collect",
+          "p": "Email or phone number, name, username, age group (18+ or not, never your birth date), interests, and the goals, posts, comments, attachments, group and course activity you create."
+        },
+        {
+          "h": "How we use it",
+          "p": "To run the service, suggest groups that fit you, calculate progress (XP, level, streak), keep the community safe and review reports."
+        },
+        {
+          "h": "Who can see it",
+          "p": "Your name and username are visible to members of your groups. Group posts and attachments are visible only to that group's members. Your goals, XP and interests are visible only to you. Reviews of public courses are public."
+        },
+        {
+          "h": "Storage",
+          "p": "Data is stored on Supabase servers (Seoul, South Korea). Access is enforced at the database level with Row Level Security."
+        },
+        {
+          "h": "Sharing",
+          "p": "We do not sell your data or use it for advertising. We only share it with authorities when required by law."
+        },
+        {
+          "h": "Your rights",
+          "p": "You can edit your profile, change your interests and permanently delete your account."
+        },
+        {
+          "h": "Children's privacy",
+          "p": "We do not store the birth date of users under 18, and they can only join courses by verified teachers."
+        }
+      ]
+    }
   },
   "common": {
     "loading": "Loading…",
