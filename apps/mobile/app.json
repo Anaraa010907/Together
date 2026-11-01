@@ -29,7 +29,6 @@
       "expo-router",
       "expo-localization",
       "expo-apple-authentication",
-      "expo-web-browser",
       [
         "expo-image-picker",
         {
