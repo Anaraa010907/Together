@@ -8,6 +8,8 @@ import { fetchBlockedIds } from '../../lib/account';
 import { promptMemberActions, promptReport } from '../../lib/moderation';
 import { todayIso } from '../../lib/goals';
 import { fetchGroupChallenges, statusOf, type Challenge } from '../../lib/challenges';
+import { fetchGroupSessions, statusOf as sessionStatus, type Session } from '../../lib/sessions';
+import { formatDateTime } from '../../lib/time';
 import {
   createInvite,
   fetchGroup,
@@ -34,6 +36,7 @@ export default function GroupDetail() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
   const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -50,6 +53,7 @@ export default function GroupDetail() {
       // Гишүүдийн жагсаалт зөвхөн харах эрхтэй үед (RLS шалгана).
       setMembers(await fetchMembers(groupId).catch(() => []));
       setChallenges(await fetchGroupChallenges(groupId).catch(() => []));
+      setSessions(await fetchGroupSessions(groupId).catch(() => []));
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e.message ?? e));
     } finally {
@@ -212,6 +216,41 @@ export default function GroupDetail() {
               </Pressable>
             </View>
           ))}
+        </>
+      )}
+
+      {isActive && (
+        <>
+          <View style={styles.sectionRow}>
+            <Text style={[styles.section, { color: t.text }]}>{tr('sessions.section')}</Text>
+            <Pressable
+              onPress={() => router.push(`/session/new?groupId=${groupId}` as never)}
+              accessibilityRole="button"
+            >
+              <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>{tr('sessions.create')}</Text>
+            </Pressable>
+          </View>
+          {sessions.length === 0 && <Text style={{ color: t.textMuted }}>{tr('sessions.none')}</Text>}
+          {sessions.map((se) => {
+            const st = sessionStatus(se);
+            return (
+              <Pressable
+                key={se.id}
+                onPress={() => router.push(`/session/${se.id}` as never)}
+                accessibilityRole="button"
+                style={[
+                  styles.row,
+                  { borderColor: t.border, backgroundColor: t.surface, opacity: st === 'ended' || st === 'cancelled' ? 0.6 : 1 },
+                ]}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: t.text, fontWeight: '600' }}>{se.title}</Text>
+                  <Text style={{ color: t.textMuted, fontSize: 12 }}>{formatDateTime(se.starts_at)}</Text>
+                </View>
+                <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr(`sessions.status.${st}`)}</Text>
+              </Pressable>
+            );
+          })}
         </>
       )}
 

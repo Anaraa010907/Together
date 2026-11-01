@@ -32,7 +32,8 @@
         {
           "photosPermission": "Group-тэйгээ зураг, слайд хуваалцахад зургийн санг ашиглана."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

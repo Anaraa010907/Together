@@ -18,11 +18,12 @@ const DEADLINES = [0, 1, 3, 7]; // 0 = хугацаагүй
 
 // Пост бичих: төрөл, текст, линк (YouTube гэх мэт), зураг / PDF, санал бол хугацаа.
 export default function NewPost() {
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+  // body: сешний тэмдэглэлээс урьдчилж бөглөх боломжтой.
+  const { groupId, body: initialBody } = useLocalSearchParams<{ groupId: string; body?: string }>();
   const { t: tr } = useTranslation();
   const router = useRouter();
   const [kind, setKind] = useState<PostKind>('share');
-  const [body, setBody] = useState('');
+  const [body, setBody] = useState(initialBody ? String(initialBody) : '');
   const [link, setLink] = useState('');
   const [deadlineDays, setDeadlineDays] = useState(3);
   const [files, setFiles] = useState<LocalFile[]>([]);

@@ -24,6 +24,8 @@ import {
   totalDays,
   type Challenge,
 } from '../../lib/challenges';
+import { fetchMyUpcomingSessions, statusOf as sessionStatus, type Session } from '../../lib/sessions';
+import { formatDateTime } from '../../lib/time';
 
 const EMPTY_PROGRESS: Progress = { total_xp: 0, current_level: 1, current_streak: 0, longest_streak: 0 };
 
@@ -35,6 +37,7 @@ export default function Home() {
   const [doneToday, setDoneToday] = useState<Set<string>>(new Set());
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [checkedToday, setCheckedToday] = useState<Set<string>>(new Set());
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const [newTitle, setNewTitle] = useState('');
   const [loading, setLoading] = useState(true);
@@ -44,6 +47,9 @@ export default function Home() {
 
   const load = useCallback(async () => {
     try {
+      fetchMyUpcomingSessions()
+        .then(setSessions)
+        .catch(() => setSessions([]));
       const [g, d, p, c, ci] = await Promise.all([
         fetchActiveGoals(),
         fetchCompletionsOn(today),
@@ -159,6 +165,24 @@ export default function Home() {
 
   const header = (
     <View style={{ gap: space.sm, marginBottom: space.sm }}>
+      {sessions.length > 0 && (
+        <>
+          <Text style={[styles.section, { color: t.text }]}>{tr('sessions.upcoming')}</Text>
+          {sessions.map((se) => (
+            <Pressable
+              key={se.id}
+              onPress={() => router.push(`/session/${se.id}` as never)}
+              accessibilityRole="button"
+              style={[styles.goal, { backgroundColor: t.surface, borderColor: t.border }]}
+            >
+              <Text style={[styles.goalTitle, { color: t.text }]}>{se.title}</Text>
+              <Text style={[styles.goalMeta, { color: t.textMuted }]}>
+                {sessionStatus(se) === 'live' ? `🔴 ${tr('sessions.status.live')}` : `🗓 ${formatDateTime(se.starts_at)}`}
+              </Text>
+            </Pressable>
+          ))}
+        </>
+      )}
       {challenges.length > 0 && (
         <>
           <Text style={[styles.section, { color: t.text }]}>{tr('challenges.mine')}</Text>

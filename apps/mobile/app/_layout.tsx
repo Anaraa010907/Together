@@ -49,6 +49,8 @@ export default function RootLayout() {
         <Stack.Screen name="feed/[groupId]" options={{ headerShown: true, title: 'Feed', headerBackTitle: '' }} />
         <Stack.Screen name="post/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="post/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="session/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="session/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
       </Stack>
     </SessionProvider>
   );
