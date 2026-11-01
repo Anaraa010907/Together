@@ -412,7 +412,8 @@
     "loading": "Loading…",
     "error": "Something went wrong. Please try again.",
     "retry": "Retry",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "notConfigured": "Preview build: no server connected, sign-in will not work."
   },
   "xp": {
     "label": "XP",

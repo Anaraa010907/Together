@@ -2,7 +2,22 @@ import '../lib/i18n';
 import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { lightTheme as t } from '@together/ui/tokens';
 import { SessionProvider, useSession } from '../lib/session';
+import { supabaseConfigured } from '../lib/supabase';
+
+// Сервер тохируулаагүй туршилтын build: дэлгэцүүд харагдана, нэвтрэх ажиллахгүй.
+function ConfigBanner() {
+  const { t: tr } = useTranslation();
+  if (supabaseConfigured) return null;
+  return (
+    <View style={{ backgroundColor: t.warning, paddingTop: 44, paddingBottom: 8, paddingHorizontal: 16 }}>
+      <Text style={{ color: t.onAccent, fontWeight: '600', textAlign: 'center' }}>{tr('common.notConfigured')}</Text>
+    </View>
+  );
+}
 
 // Нэвтрээгүй бол login, профайлгүй бол profile-setup руу чиглүүлнэ.
 function AuthGate() {
@@ -37,6 +52,7 @@ export default function RootLayout() {
   return (
     <SessionProvider>
       <StatusBar style="dark" />
+      <ConfigBanner />
       <AuthGate />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
