@@ -44,6 +44,8 @@ export default function RootLayout() {
         <Stack.Screen name="group/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="group/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="join" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="challenge/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="challenge/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
       </Stack>
     </SessionProvider>
   );

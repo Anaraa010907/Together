@@ -6,6 +6,8 @@ import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
 import { promptMemberActions, promptReport } from '../../lib/moderation';
+import { todayIso } from '../../lib/goals';
+import { fetchGroupChallenges, statusOf, type Challenge } from '../../lib/challenges';
 import {
   createInvite,
   fetchGroup,
@@ -31,6 +33,7 @@ export default function GroupDetail() {
   const [membership, setMembership] = useState<{ role: string; status: string } | null>(null);
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -46,6 +49,7 @@ export default function GroupDetail() {
       setBlockedIds(b);
       // Гишүүдийн жагсаалт зөвхөн харах эрхтэй үед (RLS шалгана).
       setMembers(await fetchMembers(groupId).catch(() => []));
+      setChallenges(await fetchGroupChallenges(groupId).catch(() => []));
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e.message ?? e));
     } finally {
@@ -201,6 +205,37 @@ export default function GroupDetail() {
         </>
       )}
 
+      {(isActive || challenges.length > 0) && (
+        <>
+          <View style={styles.sectionRow}>
+            <Text style={[styles.section, { color: t.text }]}>{tr('challenges.section')}</Text>
+            {isActive && (
+              <Pressable
+                onPress={() => router.push(`/challenge/new?groupId=${groupId}` as never)}
+                accessibilityRole="button"
+              >
+                <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>{tr('challenges.create')}</Text>
+              </Pressable>
+            )}
+          </View>
+          {challenges.length === 0 && <Text style={{ color: t.textMuted }}>{tr('challenges.none')}</Text>}
+          {challenges.map((c) => {
+            const st = statusOf(c, todayIso());
+            return (
+              <Pressable
+                key={c.id}
+                onPress={() => router.push(`/challenge/${c.id}` as never)}
+                accessibilityRole="button"
+                style={[styles.row, { borderColor: t.border, backgroundColor: t.surface, opacity: st === 'ended' ? 0.6 : 1 }]}
+              >
+                <Text style={{ color: t.text, flex: 1, fontWeight: '600' }}>{c.title}</Text>
+                <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr(`challenges.badge.${st}`)}</Text>
+              </Pressable>
+            );
+          })}
+        </>
+      )}
+
       {isActive && (
         <>
           <Text style={[styles.section, { color: t.text }]}>{tr('groups.membersTitle')}</Text>
@@ -242,6 +277,7 @@ const styles = StyleSheet.create({
   meta: { fontSize: 13 },
   hint: { fontSize: 12 },
   section: { fontSize: 16, fontWeight: '600', marginTop: space.md },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   primary: { borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.md },
   primaryText: { fontSize: 16, fontWeight: '600' },
   secondary: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: space.md },

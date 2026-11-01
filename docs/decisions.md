@@ -13,7 +13,7 @@ Plan-ийн 12–14 долоо хоног нь нэг туршлагатай х�
 - XP, Level, streak (Rank-гүй)
 - Энгийн report + block
 
-**MVP-ээс хойш:** Challenge, Feed/comments, Chat, Rank/leaderboard, Achievements, Admin dashboard, Subscription.
+**MVP-ээс хойш:** Feed/comments, Chat, Rank/leaderboard, Achievements, Admin dashboard, Subscription.
 
 Санал: Chat-ыг хамгийн сүүлд хийх. Rank system-ийг хийхгүй болсон (шийдвэр: доорх "Шийдсэн шийдвэрүүд").
 
@@ -94,6 +94,9 @@ Migration `supabase/migrations/0001_init.sql`-д эдгээрийг хэрэгж
 - **Бүртгэл устгах (0005):** `delete_my_account()` нь эзэмшдэг group-уудыг устгаад auth хэрэглэгчийг устгана; бусад өгөгдөл cascade-аар устна.
 - **Блок:** Блоклосон хэрэглэгч group-ийн гишүүдийн жагсаалтаас нуугдана.
 
+- **Challenge (0006):** Group дотор, идэвхтэй гишүүн үүсгэнэ. 1–90 өдөр, өнөөдөр эсвэл 30 хоногийн дотор эхэлнэ. Өдөр бүрийн check-in +25 XP, бүх өдрийг биелүүлбэл нэг удаа +200 XP. Нэг challenge = нэг өдөр тутмын даалгавар (plan-ийн `challenge_tasks`-ийг хийгээгүй). Оролцогчдыг ахицаар эрэмбэлэхгүй (Rank хийхгүй шийдвэр). Гарч дахин нэгдэхэд check-in хадгалагдана, XP давхардахгүй. Үүсгэгч бүртгэлээ устгавал challenge үлдэнэ.
+- **Мэдэгдэж буй сул тал:** Зорилгын тоо хязгааргүй тул олон зорилго үүсгэж XP хуримтлуулж болно. Rank байхгүй тул нөлөө бага; дараа өдрийн XP-ийн дээд хязгаар тавьж болно.
+
 ## MVP-ийн төлөв
 
 | Хэсэг | Төлөв |
@@ -103,9 +106,10 @@ Migration `supabase/migrations/0001_init.sql`-д эдгээрийг хэрэгж
 | Group: үүсгэх, нэгдэх, зөвшөөрөх, урилга, гарах | Бэлэн |
 | Профайл: засах, хэл, блок, гарах, бүртгэл устгах | Бэлэн |
 | Report / block | Бэлэн (moderation queue-г Supabase Studio-оор харна) |
+| Challenge: үүсгэх, нэгдэх, өдрийн check-in, урамшуулал | Бэлэн |
 | DB тест | `tests/db/run.sh` — бүгд өнгөрсөн |
 
-**MVP-ээс хойш:** Challenge, Feed, Chat, Achievements, Admin dashboard, push мэдэгдэл, Terms/Privacy хуудас (дэлгүүрт гаргахаас өмнө заавал).
+**MVP-ээс хойш:** Feed, Chat, Achievements, Admin dashboard, push мэдэгдэл, Terms/Privacy хуудас (дэлгүүрт гаргахаас өмнө заавал).
 
 ## Шийдвэр хүлээгдэж буй асуудал
 
