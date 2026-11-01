@@ -13,6 +13,22 @@
     "login": "Log in",
     "register": "Sign up"
   },
+  "register": {
+    "title": "Sign up",
+    "subtitle": "Create your email and password to get started.",
+    "email": "Email",
+    "password": "Password",
+    "confirm": "Repeat password",
+    "passwordRule": "At least 8 characters with letters and numbers.",
+    "weak": "Weak",
+    "ok": "Okay",
+    "strong": "Strong",
+    "emailInvalid": "Please enter a valid email.",
+    "mismatch": "Passwords do not match.",
+    "submit": "Create account",
+    "haveAccount": "Already have an account?",
+    "exists": "An account with this email already exists. Please log in."
+  },
   "login": {
     "title": "Log in",
     "google": "Continue with Google",
@@ -21,13 +37,18 @@
     "phoneLabel": "Phone number",
     "sendCode": "Send code",
     "phoneInvalid": "Please enter a valid 8-digit number.",
-    "emailTest": "Testing: email",
-    "password": "Password (6+ characters)",
-    "emailSignIn": "Sign in",
-    "emailSignUp": "Sign up",
-    "emailInvalid": "Enter an email and a password of at least 6 characters.",
+    "emailInvalid": "Enter your email and password.",
     "checkEmailTitle": "Check your email",
-    "checkEmail": "We sent a confirmation link. Tap it, then come back and press \"Sign in\"."
+    "checkEmail": "We sent a confirmation link. Tap it, then come back and press \"Sign in\".",
+    "subtitle": "Welcome back! Log in with your email and password.",
+    "withPhone": "Continue with phone",
+    "phoneSubtitle": "We will text a 6-digit code to your number.",
+    "forgot": "Forgot password?",
+    "resetSentTitle": "Check your email",
+    "resetSent": "We sent a password reset link.",
+    "noAccount": "Don't have an account?",
+    "wrongCredentials": "Wrong email or password.",
+    "notConfirmed": "Your email is not confirmed yet. Tap the link we sent."
   },
   "otp": {
     "title": "Verification code",
@@ -52,7 +73,9 @@
     "todayGoals": "Today's goals",
     "noGoals": "No goals yet. Add one below.",
     "doneLabel": "Done ✓",
-    "addPlaceholder": "New goal…"
+    "addPlaceholder": "New goal…",
+    "greeting": "Hello 👋",
+    "toNext": "{{n}} XP to next level"
   },
   "goals": {
     "titleInvalid": "Goal title must be 1–120 characters.",

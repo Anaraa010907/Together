@@ -43,7 +43,20 @@ export async function verifyPhoneOtp(phone: string, token: string) {
   if (error) throw error;
 }
 
-// Туршилтын build-д л ашиглана (EXPO_PUBLIC_ENABLE_EMAIL_LOGIN=1).
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Нууц үгийн хүч: 0 сул, 1 дунд, 2 сайн. Доод шаардлага: 8+ тэмдэгт, үсэг ба тоо.
+export function passwordStrength(pw: string): 0 | 1 | 2 {
+  const ok = pw.length >= 8 && /[A-Za-zА-Яа-яӨөҮү]/.test(pw) && /\d/.test(pw);
+  if (!ok) return 0;
+  return pw.length >= 12 || /[^A-Za-z0-9]/.test(pw) ? 2 : 1;
+}
+
+export async function resetPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error) throw error;
+}
+
 export async function signInWithEmail(email: string, password: string) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;

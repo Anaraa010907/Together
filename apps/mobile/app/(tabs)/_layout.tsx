@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t } from '@together/ui/tokens';
+import { font, lightTheme as t } from '@together/ui/tokens';
 
 // Доод таб: Өнөөдөр (зорилго) · Группууд · Профайл
 export default function TabsLayout() {
@@ -12,14 +12,15 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: t.text,
         tabBarInactiveTintColor: t.textMuted,
-        tabBarStyle: { backgroundColor: t.surface, borderTopColor: t.border },
+        tabBarStyle: { backgroundColor: t.surface, borderTopColor: '#EFEAE0', height: 64, paddingTop: 6, paddingBottom: 8 },
+        tabBarLabelStyle: { fontFamily: font.semibold, fontSize: 12 },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
           title: tr('tabs.home'),
-          tabBarIcon: ({ color, size }) => <Ionicons name="today-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="sunny-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen

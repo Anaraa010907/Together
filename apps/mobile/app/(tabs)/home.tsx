@@ -1,8 +1,11 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, palette, radius, shadow } from '@together/ui/tokens';
+import { ProgressRing } from '../../components/ui';
+import { fetchMyProfile } from '../../lib/account';
 import {
   archiveGoal,
   completeGoal,
@@ -38,6 +41,7 @@ export default function Home() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [checkedToday, setCheckedToday] = useState<Set<string>>(new Set());
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [name, setName] = useState('');
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const [newTitle, setNewTitle] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,6 +51,9 @@ export default function Home() {
 
   const load = useCallback(async () => {
     try {
+      fetchMyProfile()
+        .then((p) => setName(p?.display_name ?? ''))
+        .catch(() => {});
       fetchMyUpcomingSessions()
         .then(setSessions)
         .catch(() => setSessions([]));
@@ -163,77 +170,134 @@ export default function Home() {
     );
   }
 
+  // Түвшний томьёо: L түвшин 100·(L−1)² XP-ээс эхэлнэ (сервертэй ижил).
+  const levelStart = 100 * (progress.current_level - 1) ** 2;
+  const levelNext = 100 * progress.current_level ** 2;
+  const levelProgress = (progress.total_xp - levelStart) / Math.max(1, levelNext - levelStart);
+  const doneCount = goals.filter((g) => doneToday.has(g.id)).length;
+
   const header = (
-    <View style={{ gap: space.sm, marginBottom: space.sm }}>
+    <View style={{ gap: 14, marginBottom: 6 }}>
+      <View style={styles.greetRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.greetSmall}>{tr('home.greeting')}</Text>
+          <Text style={styles.greetName} numberOfLines={1}>
+            {name || 'TOGETHER'}
+          </Text>
+        </View>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{(name || 'T').slice(0, 1).toUpperCase()}</Text>
+        </View>
+      </View>
+
+      {/* Hero: түвшин, XP, streak */}
+      <View style={[styles.hero, shadow.card]}>
+        <ProgressRing progress={levelProgress} size={104}>
+          <Text style={styles.ringLevel}>{progress.current_level}</Text>
+          <Text style={styles.ringCaption}>{tr('home.level')}</Text>
+        </ProgressRing>
+        <View style={{ flex: 1, gap: 10 }}>
+          <View>
+            <Text style={styles.heroValue}>
+              {progress.total_xp} <Text style={styles.heroUnit}>XP</Text>
+            </Text>
+            <Text style={styles.heroMuted}>{tr('home.toNext', { n: Math.max(0, levelNext - progress.total_xp) })}</Text>
+          </View>
+          <View style={styles.heroRow}>
+            <View style={styles.heroChip}>
+              <Text style={styles.heroChipText}>🔥 {progress.current_streak}</Text>
+            </View>
+            <View style={styles.heroChip}>
+              <Text style={styles.heroChipText}>
+                ✓ {doneCount}/{goals.length}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
       {sessions.length > 0 && (
         <>
-          <Text style={[styles.section, { color: t.text }]}>{tr('sessions.upcoming')}</Text>
+          <Text style={styles.section}>{tr('sessions.upcoming')}</Text>
           {sessions.map((se) => (
             <Pressable
               key={se.id}
               onPress={() => router.push(`/session/${se.id}` as never)}
               accessibilityRole="button"
-              style={[styles.goal, { backgroundColor: t.surface, borderColor: t.border }]}
+              style={[styles.row, shadow.card]}
             >
-              <Text style={[styles.goalTitle, { color: t.text }]}>{se.title}</Text>
-              <Text style={[styles.goalMeta, { color: t.textMuted }]}>
-                {sessionStatus(se) === 'live' ? `🔴 ${tr('sessions.status.live')}` : `🗓 ${formatDateTime(se.starts_at)}`}
-              </Text>
+              <View style={[styles.iconBubble, { backgroundColor: '#F1E9D8' }]}>
+                <Ionicons name={sessionStatus(se) === 'live' ? 'radio' : 'calendar-outline'} size={18} color={t.text} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rowTitle}>{se.title}</Text>
+                <Text style={styles.rowMeta}>
+                  {sessionStatus(se) === 'live' ? tr('sessions.status.live') : formatDateTime(se.starts_at)}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={t.textMuted} />
             </Pressable>
           ))}
         </>
       )}
+
       {challenges.length > 0 && (
         <>
-          <Text style={[styles.section, { color: t.text }]}>{tr('challenges.mine')}</Text>
-          {challenges.map((c) => {
-            const done = checkedToday.has(c.id);
-            return (
-              <Pressable
-                key={c.id}
-                onPress={() => router.push(`/challenge/${c.id}` as never)}
-                accessibilityRole="button"
-                style={[styles.goal, styles.challengeRow, { backgroundColor: t.surface, borderColor: t.border }]}
-              >
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Text style={[styles.goalTitle, { color: t.text }]}>{c.title}</Text>
-                  <Text style={[styles.goalMeta, { color: t.textMuted }]}>
-                    {tr('challenges.statusActive', { day: dayNumber(c, today), total: totalDays(c) })}
-                  </Text>
-                </View>
+          <Text style={styles.section}>{tr('challenges.mine')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 4 }}>
+            {challenges.map((c) => {
+              const done = checkedToday.has(c.id);
+              const day = dayNumber(c, today);
+              const total = totalDays(c);
+              return (
                 <Pressable
-                  onPress={() => !done && onCheckIn(c)}
-                  disabled={done || busyId !== null}
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: done }}
-                  accessibilityLabel={tr('challenges.checkIn')}
-                  style={[styles.checkBtn, { backgroundColor: done ? t.success : t.accent }]}
+                  key={c.id}
+                  onPress={() => router.push(`/challenge/${c.id}` as never)}
+                  accessibilityRole="button"
+                  style={[styles.challengeCard, shadow.card]}
                 >
-                  <Text style={{ color: t.onAccent, fontWeight: '700' }}>{done ? '✓' : '+25'}</Text>
+                  <Text style={styles.rowTitle} numberOfLines={2}>
+                    {c.title}
+                  </Text>
+                  <View style={styles.track}>
+                    <View style={[styles.fill, { width: `${Math.min(100, (day / total) * 100)}%` }]} />
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Text style={styles.rowMeta}>{tr('challenges.statusActive', { day, total })}</Text>
+                    <Pressable
+                      onPress={() => !done && onCheckIn(c)}
+                      disabled={done || busyId !== null}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: done }}
+                      accessibilityLabel={tr('challenges.checkIn')}
+                      style={[styles.checkBtn, { backgroundColor: done ? t.success : t.accent }]}
+                    >
+                      <Text style={styles.checkText}>{done ? '✓' : '+25'}</Text>
+                    </Pressable>
+                  </View>
                 </Pressable>
-              </Pressable>
-            );
-          })}
+              );
+            })}
+          </ScrollView>
         </>
       )}
-      <Text style={[styles.section, { color: t.text }]}>{tr('home.todayGoals')}</Text>
+
+      <Text style={styles.section}>{tr('home.todayGoals')}</Text>
     </View>
   );
 
   return (
-    <View style={[styles.screen, { backgroundColor: t.background }]}>
-      <View style={[styles.stats, { backgroundColor: t.surface, borderColor: t.border }]}>
-        <Stat label={tr('xp.label')} value={String(progress.total_xp)} />
-        <Stat label={tr('home.level')} value={String(progress.current_level)} />
-        <Stat label={tr('home.streak')} value={String(progress.current_streak)} />
-      </View>
-
+    <View style={{ flex: 1, backgroundColor: t.background }}>
       <FlatList
         data={goals}
         keyExtractor={(g) => g.id}
         ListHeaderComponent={header}
-        contentContainerStyle={{ gap: space.sm, paddingBottom: space.md }}
-        ListEmptyComponent={<Text style={{ color: t.textMuted }}>{tr('home.noGoals')}</Text>}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <View style={[styles.empty]}>
+            <Text style={styles.rowMeta}>{tr('home.noGoals')}</Text>
+          </View>
+        }
         renderItem={({ item }) => {
           const done = doneToday.has(item.id);
           return (
@@ -243,61 +307,81 @@ export default function Home() {
               disabled={busyId !== null}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: done }}
-              style={[styles.goal, { backgroundColor: done ? t.success : t.surface, borderColor: t.border }]}
+              style={[styles.row, shadow.card]}
             >
-              <Text style={[styles.goalTitle, { color: t.text }]}>{item.title}</Text>
-              <Text style={[styles.goalMeta, { color: t.textMuted }]}>
-                {done ? tr('home.doneLabel') : `+20 ${tr('xp.label')}`}
-              </Text>
+              <View style={[styles.checkbox, done && { backgroundColor: t.success, borderColor: t.success }]}>
+                {done && <Ionicons name="checkmark" size={16} color={t.background} />}
+              </View>
+              <Text style={[styles.rowTitle, { flex: 1 }, done && styles.doneText]}>{item.title}</Text>
+              <Text style={[styles.xpTag, done && { opacity: 0.5 }]}>+20</Text>
             </Pressable>
           );
         }}
+        ListFooterComponent={
+          goals.length > 0 ? <Text style={[styles.rowMeta, { textAlign: 'center', marginTop: 4 }]}>{tr('goals.hint')}</Text> : null
+        }
       />
 
-      <View style={styles.addRow}>
+      <View style={styles.addBar}>
         <TextInput
-          style={[styles.input, { borderColor: t.border, backgroundColor: t.surface, color: t.text }]}
+          style={styles.addInput}
           value={newTitle}
           onChangeText={setNewTitle}
           placeholder={tr('home.addPlaceholder')}
-          placeholderTextColor={t.textMuted}
+          placeholderTextColor="#9AA2AD"
           maxLength={120}
+          returnKeyType="done"
+          onSubmitEditing={onAdd}
           accessibilityLabel={tr('home.addPlaceholder')}
         />
-        <Pressable style={[styles.addBtn, { backgroundColor: t.accent }]} onPress={onAdd} accessibilityRole="button">
-          <Text style={[styles.addText, { color: t.onAccent }]}>+</Text>
+        <Pressable style={styles.addBtn} onPress={onAdd} accessibilityRole="button" accessibilityLabel={tr('home.addPlaceholder')}>
+          <Ionicons name="add" size={26} color={t.onAccent} />
         </Pressable>
       </View>
-
-      {goals.length > 0 && <Text style={[styles.hint, { color: t.textMuted }]}>{tr('goals.hint')}</Text>}
-    </View>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.stat}>
-      <Text style={[styles.statValue, { color: t.text }]}>{value}</Text>
-      <Text style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: space.lg, gap: space.md, paddingTop: 64 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  stats: { flexDirection: 'row', borderWidth: 1, borderRadius: radius.lg, padding: space.md },
-  stat: { flex: 1, alignItems: 'center' },
-  statValue: { fontSize: 22, fontWeight: '700' },
-  section: { fontSize: 18, fontWeight: '600', marginTop: space.sm },
-  goal: { borderWidth: 1, borderRadius: radius.md, padding: space.md, gap: 4 },
-  challengeRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  checkBtn: { minWidth: 52, height: 40, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  goalTitle: { fontSize: 16, fontWeight: '600' },
-  goalMeta: { fontSize: 13 },
-  addRow: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
-  input: { flex: 1, borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
-  addBtn: { width: 48, height: 48, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  addText: { fontSize: 24, fontWeight: '700' },
-  hint: { fontSize: 12, textAlign: 'center' },
+  list: { padding: 20, paddingTop: 60, gap: 10, paddingBottom: 24 },
+  greetRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  greetSmall: { fontFamily: font.medium, fontSize: 14, color: '#5B6573' },
+  greetName: { fontFamily: font.extrabold, fontSize: 26, color: t.text, letterSpacing: -0.3 },
+  avatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontFamily: font.extrabold, fontSize: 18, color: t.onAccent },
+  hero: { backgroundColor: palette.midnightNavy, borderRadius: radius.lg, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 18 },
+  ringLevel: { fontFamily: font.extrabold, fontSize: 30, color: palette.warmIvory, lineHeight: 34 },
+  ringCaption: { fontFamily: font.medium, fontSize: 11, color: 'rgba(244,240,231,0.7)' },
+  heroValue: { fontFamily: font.extrabold, fontSize: 28, color: palette.warmIvory },
+  heroUnit: { fontFamily: font.bold, fontSize: 16, color: t.accent },
+  heroMuted: { fontFamily: font.medium, fontSize: 13, color: 'rgba(244,240,231,0.7)' },
+  heroRow: { flexDirection: 'row', gap: 8 },
+  heroChip: { backgroundColor: 'rgba(244,240,231,0.1)', borderRadius: radius.pill, paddingVertical: 6, paddingHorizontal: 12 },
+  heroChipText: { fontFamily: font.bold, fontSize: 14, color: palette.warmIvory },
+  section: { fontFamily: font.bold, fontSize: 18, color: t.text, marginTop: 8 },
+  row: {
+    backgroundColor: t.surface, borderRadius: 16, borderWidth: 1, borderColor: '#EFEAE0',
+    paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  rowTitle: { fontFamily: font.semibold, fontSize: 16, color: t.text },
+  rowMeta: { fontFamily: font.medium, fontSize: 13, color: '#5B6573' },
+  iconBubble: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  challengeCard: {
+    width: 220, backgroundColor: t.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: '#EFEAE0', padding: 16, gap: 12,
+  },
+  track: { height: 6, borderRadius: 3, backgroundColor: '#EFEAE0', overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 3, backgroundColor: t.accent },
+  checkBtn: { minWidth: 56, height: 36, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
+  checkText: { fontFamily: font.extrabold, color: t.onAccent, fontSize: 14 },
+  checkbox: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: '#D5CDBD', alignItems: 'center', justifyContent: 'center' },
+  doneText: { color: '#5B6573', textDecorationLine: 'line-through' },
+  xpTag: { fontFamily: font.bold, fontSize: 13, color: '#8A6F3D', backgroundColor: '#F4ECDC', borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10, overflow: 'hidden' },
+  empty: { backgroundColor: t.surface, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: '#D5CDBD', padding: 20, alignItems: 'center' },
+  addBar: { flexDirection: 'row', gap: 10, alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12, backgroundColor: t.background, borderTopWidth: 1, borderTopColor: '#EFEAE0' },
+  addInput: {
+    flex: 1, height: 52, borderRadius: radius.md, borderWidth: 1, borderColor: '#E3DDCF', backgroundColor: t.surface,
+    paddingHorizontal: 14, fontFamily: font.medium, fontSize: 16, color: t.text,
+  },
+  addBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' },
 });

@@ -83,7 +83,7 @@ Migration `supabase/migrations/0001_init.sql`-д эдгээрийг хэрэгж
 
 ## Шийдсэн шийдвэрүүд
 
-- **Нэвтрэх:** Google, Apple, утасны дугаар (Supabase Auth). Утасны OTP-ийн SMS provider-ийг Монголд сайн ажилладаг нэгийг сонгоно.
+- **Нэвтрэх:** Имэйл + нууц үг (үндсэн; бүртгүүлэхэд нууц үгээ давтана, 8+ тэмдэгт, үсэг ба тоо), утасны дугаар, Google, Apple (Supabase Auth). Утасны OTP-ийн SMS provider-ийг Монголд сайн ажилладаг нэгийг сонгоно. Google товч нь client ID тохируулсан үед л харагдана.
 - **Rank system:** Хойшлуулав (хэрэгжүүлэхгүй). `rank_seasons`, `rank_results`, `leaderboard_snapshots` хүснэгт MVP-д байхгүй. XP, Level, streak үлдэнэ.
 - **Үнэ:** Эхэндээ бүрэн үнэгүй. Premium-ийн загвар (IAP) дараа шийдэгдэнэ.
 
@@ -119,6 +119,8 @@ Migration `supabase/migrations/0001_init.sql`-д эдгээрийг хэрэгж
 | DB тест | `tests/db/run.sh` — бүгд өнгөрсөн |
 
 **MVP-ээс хойш:** Багш баталгаажуулах хүсэлтийн урсгал, Chat, Achievements, Admin dashboard, push мэдэгдэл, Terms/Privacy хуудас (дэлгүүрт гаргахаас өмнө заавал).
+
+- **UI:** Manrope фонт, `apps/mobile/components/ui.tsx` (Screen, Button, Field, Card, Segmented, ProgressRing). Welcome, Бүртгүүлэх, Нэвтрэх, Утас, OTP, Профайл тохируулах, Өнөөдөр, таб шинэ загвартай; бусад дэлгэцийг аажмаар шилжүүлнэ.
 
 ## Шийдвэр хүлээгдэж буй асуудал
 

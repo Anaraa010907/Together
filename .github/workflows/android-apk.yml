@@ -19,8 +19,6 @@ jobs:
       # Hosted Supabase (project "together"). Anon key нь нийтэд ил байх зориулалттай (RLS хамгаална).
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL || 'https://ttkvvclhtcngushymdkc.supabase.co' }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0a3Z2Y2xodGNuZ3VzaHltZGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MTQxOTgsImV4cCI6MjEwOTA5MDE5OH0.T-ni1pD-LJ3yxssXRlVX6NUcqvCQzNEdNhc3ZOCbTU0' }}
-      # Туршилтын нэвтрэлт (имэйл + нууц үг). Бодит хувилбарт '0' болгоно.
-      EXPO_PUBLIC_ENABLE_EMAIL_LOGIN: ${{ vars.ENABLE_EMAIL_LOGIN || '1' }}
       EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB: ${{ secrets.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB }}
       EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID: ${{ secrets.EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID }}
       EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS: ${{ secrets.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS }}

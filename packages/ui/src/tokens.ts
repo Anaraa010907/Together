@@ -42,5 +42,24 @@ export const darkTheme = {
 export const radius = { sm: 8, md: 14, lg: 20, pill: 999 } as const;
 export const space = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 
+// Manrope (@expo-google-fonts/manrope) — Монгол кирилл дэмжинэ. _layout-д ачаална.
+export const font = {
+  medium: 'Manrope_500Medium',
+  semibold: 'Manrope_600SemiBold',
+  bold: 'Manrope_700Bold',
+  extrabold: 'Manrope_800ExtraBold',
+} as const;
+
+// Зөөлөн сүүдэр: 0 8px 24px rgba(17,25,35,0.06)
+export const shadow = {
+  card: {
+    shadowColor: palette.midnightNavy,
+    shadowOpacity: 0.06,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 2,
+  },
+} as const;
+
 export type ThemeName = 'light' | 'dark';
 export const themes = { light: lightTheme, dark: darkTheme } as const;
