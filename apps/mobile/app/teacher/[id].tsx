@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { promptReport } from '../../lib/moderation';
 import { fetchTeacher, stars, type TeacherProfile, type TeacherStats } from '../../lib/teaching';
@@ -54,7 +54,7 @@ export default function TeacherPage() {
   return (
     <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
       <Text style={[styles.title, { color: t.text }]}>{profile.display_name}</Text>
-      {profile.verified_at && <Text style={{ color: t.text, fontWeight: '600' }}>✓ {tr('teach.verified')}</Text>}
+      {profile.verified_at && <Text style={{ color: t.text, fontFamily: font.semibold }}>✓ {tr('teach.verified')}</Text>}
       {!!profile.headline && <Text style={{ color: t.text, fontSize: 16 }}>{profile.headline}</Text>}
 
       <View style={styles.tags}>
@@ -87,7 +87,7 @@ export default function TeacherPage() {
           accessibilityRole="button"
           style={[styles.card, { borderColor: t.border, backgroundColor: t.surface }]}
         >
-          <Text style={{ color: t.text, fontWeight: '700' }}>📚 {c.name}</Text>
+          <Text style={{ color: t.text, fontFamily: font.bold }}>📚 {c.name}</Text>
           {!!c.description && (
             <Text style={{ color: t.textMuted }} numberOfLines={2}>
               {c.description}
@@ -108,7 +108,7 @@ export default function TeacherPage() {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <View style={{ flex: 1, alignItems: 'center' }}>
-      <Text style={{ color: t.text, fontSize: 22, fontWeight: '700' }}>{value}</Text>
+      <Text style={{ color: t.text, fontSize: 22, fontFamily: font.bold }}>{value}</Text>
       <Text style={{ color: t.textMuted, fontSize: 12 }}>{label}</Text>
     </View>
   );
@@ -117,11 +117,11 @@ function Stat({ label, value }: { label: string; value: number }) {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 26, fontWeight: '700' },
+  title: { fontSize: 26, fontFamily: font.bold },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
   tag: { borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 2, fontSize: 12, overflow: 'hidden' },
   stats: { flexDirection: 'row', borderWidth: 1, borderRadius: radius.lg, padding: space.md, marginVertical: space.sm },
-  section: { fontSize: 16, fontWeight: '600', marginTop: space.md },
+  section: { fontSize: 16, fontFamily: font.semibold, marginTop: space.md },
   card: { borderWidth: 1, borderRadius: radius.md, padding: space.md, gap: 4 },
   textBtn: { alignItems: 'center', paddingVertical: space.md },
 });

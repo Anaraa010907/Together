@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { todayIso } from '../../lib/goals';
 import { fetchBlockedIds } from '../../lib/account';
@@ -131,7 +131,7 @@ export default function ChallengeDetail() {
 
       {isParticipant && (
         <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
-          <Text style={{ color: t.text, fontWeight: '600' }}>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>
             {tr('challenges.myProgress', { done: myDays, total })}
           </Text>
           <View style={[styles.track, { backgroundColor: t.surfaceMuted }]}>
@@ -191,14 +191,14 @@ export default function ChallengeDetail() {
 const styles = StyleSheet.create({
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 26, fontWeight: '700' },
+  title: { fontSize: 26, fontFamily: font.bold },
   meta: { fontSize: 13 },
   card: { borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: space.sm, marginTop: space.md },
   track: { height: 8, borderRadius: radius.pill, overflow: 'hidden' },
   fill: { height: 8, borderRadius: radius.pill },
-  section: { fontSize: 16, fontWeight: '600', marginTop: space.lg },
+  section: { fontSize: 16, fontFamily: font.semibold, marginTop: space.lg },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.md },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
   row: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: radius.md, padding: space.md },
   textBtn: { alignItems: 'center', paddingVertical: space.md },
 });

@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { font, lightTheme as t, palette, radius, shadow } from '@together/ui/tokens';
 import { ProgressRing } from '../../components/ui';
 import { fetchMyProfile } from '../../lib/account';
+import { fetchUnreadCount } from '../../lib/notifications';
+import { Avatar } from '../../components/Avatar';
 import {
   archiveGoal,
   completeGoal,
@@ -42,6 +44,8 @@ export default function Home() {
   const [checkedToday, setCheckedToday] = useState<Set<string>>(new Set());
   const [sessions, setSessions] = useState<Session[]>([]);
   const [name, setName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [unread, setUnread] = useState(0);
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const [newTitle, setNewTitle] = useState('');
   const [loading, setLoading] = useState(true);
@@ -52,8 +56,12 @@ export default function Home() {
   const load = useCallback(async () => {
     try {
       fetchMyProfile()
-        .then((p) => setName(p?.display_name ?? ''))
+        .then((p) => {
+          setName(p?.display_name ?? '');
+          setAvatarUrl(p?.avatar_url ?? null);
+        })
         .catch(() => {});
+      fetchUnreadCount().then(setUnread).catch(() => setUnread(0));
       fetchMyUpcomingSessions()
         .then(setSessions)
         .catch(() => setSessions([]));
@@ -185,9 +193,22 @@ export default function Home() {
             {name || 'TOGETHER'}
           </Text>
         </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{(name || 'T').slice(0, 1).toUpperCase()}</Text>
-        </View>
+        <Pressable
+          onPress={() => router.push('/notifications' as never)}
+          accessibilityRole="button"
+          accessibilityLabel={tr('notifications.title')}
+          style={styles.bell}
+        >
+          <Ionicons name="notifications-outline" size={22} color={t.text} />
+          {unread > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+            </View>
+          )}
+        </Pressable>
+        <Pressable onPress={() => router.push('/profile' as never)} accessibilityRole="button">
+          <Avatar name={name || 'T'} url={avatarUrl} size={46} />
+        </Pressable>
       </View>
 
       {/* Hero: түвшин, XP, streak */}
@@ -348,8 +369,15 @@ const styles = StyleSheet.create({
   greetRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   greetSmall: { fontFamily: font.medium, fontSize: 14, color: '#5B6573' },
   greetName: { fontFamily: font.extrabold, fontSize: 26, color: t.text, letterSpacing: -0.3 },
-  avatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontFamily: font.extrabold, fontSize: 18, color: t.onAccent },
+  bell: {
+    width: 46, height: 46, borderRadius: 23, backgroundColor: t.surface, borderWidth: 1, borderColor: '#EFEAE0',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute', top: 6, right: 6, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4,
+    backgroundColor: t.warning, alignItems: 'center', justifyContent: 'center',
+  },
+  badgeText: { fontFamily: font.bold, fontSize: 10, color: '#FFFFFF' },
   hero: { backgroundColor: palette.midnightNavy, borderRadius: radius.lg, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 18 },
   ringLevel: { fontFamily: font.extrabold, fontSize: 30, color: palette.warmIvory, lineHeight: 34 },
   ringCaption: { fontFamily: font.medium, fontSize: 11, color: 'rgba(244,240,231,0.7)' },

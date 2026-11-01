@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, Text
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
 import { fetchMyMembership } from '../../lib/groups';
@@ -162,7 +162,7 @@ export default function SessionDetail() {
         {tr(`sessions.status.${status}`)}
       </Text>
       <Text style={[styles.title, { color: t.text }]}>{s.title}</Text>
-      <Text style={{ color: t.text, fontWeight: '600' }}>
+      <Text style={{ color: t.text, fontFamily: font.semibold }}>
         🗓 {formatDateTime(s.starts_at)} · {tr('sessions.minutes', { n: s.duration_min })}
       </Text>
       <Text style={{ color: t.textMuted }}>{tr('sessions.hostedBy', { name: s.host_name })}</Text>
@@ -232,7 +232,7 @@ export default function SessionDetail() {
               disabled={busy}
               accessibilityRole="button"
             >
-              <Text style={{ color: t.onAccent, fontWeight: '600' }}>{tr('settings.save')}</Text>
+              <Text style={{ color: t.onAccent, fontFamily: font.semibold }}>{tr('settings.save')}</Text>
             </Pressable>
             <Pressable
               style={[styles.half, { borderWidth: 1, borderColor: t.border, opacity: notes.trim() ? 1 : 0.5 }]}
@@ -240,7 +240,7 @@ export default function SessionDetail() {
               disabled={!notes.trim()}
               accessibilityRole="button"
             >
-              <Text style={{ color: t.text, fontWeight: '600' }}>{tr('sessions.shareNotes')}</Text>
+              <Text style={{ color: t.text, fontFamily: font.semibold }}>{tr('sessions.shareNotes')}</Text>
             </Pressable>
           </View>
         </>
@@ -260,11 +260,11 @@ export default function SessionDetail() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  badge: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
-  title: { fontSize: 26, fontWeight: '700' },
-  section: { fontSize: 16, fontWeight: '600', marginTop: space.lg },
+  badge: { fontSize: 12, fontFamily: font.bold, textTransform: 'uppercase' },
+  title: { fontSize: 26, fontFamily: font.bold },
+  section: { fontSize: 16, fontFamily: font.semibold, marginTop: space.lg },
   primary: { borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.sm },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 15 },
   multiline: { minHeight: 120, textAlignVertical: 'top' },
   row: { flexDirection: 'row', gap: space.sm },

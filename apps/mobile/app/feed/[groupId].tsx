@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { PostCard } from '../../components/PostCard';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
@@ -155,5 +155,5 @@ const styles = StyleSheet.create({
     position: 'absolute', right: space.lg, bottom: space.xl,
     borderRadius: radius.pill, paddingVertical: 14, paddingHorizontal: space.lg,
   },
-  fabText: { fontSize: 16, fontWeight: '700' },
+  fabText: { fontSize: 16, fontFamily: font.bold },
 });

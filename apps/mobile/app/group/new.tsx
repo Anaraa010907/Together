@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { createGroup } from '../../lib/groups';
 import { courseErrorKey, createCourse } from '../../lib/teaching';
 import { categoryName, fetchCategories, setGroupCategory, type Category } from '../../lib/interests';
@@ -119,7 +119,7 @@ export default function NewGroup() {
 
 const styles = StyleSheet.create({
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: space.sm },
+  title: { fontSize: 24, fontFamily: font.bold, marginBottom: space.sm },
   label: { fontSize: 13, marginTop: space.sm },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
   multiline: { minHeight: 90, textAlignVertical: 'top' },
@@ -127,5 +127,5 @@ const styles = StyleSheet.create({
   rowText: { fontSize: 16 },
   hint: { fontSize: 12 },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
 });

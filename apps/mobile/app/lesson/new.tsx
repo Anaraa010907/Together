@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { addLesson } from '../../lib/teaching';
 
 // Багш хичээл нэмэх: дараалал нь автоматаар (сүүлийнхийн дараа).
@@ -86,10 +86,10 @@ export default function NewLesson() {
 
 const styles = StyleSheet.create({
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 24, fontWeight: '700' },
+  title: { fontSize: 24, fontFamily: font.bold },
   label: { fontSize: 13, marginTop: space.sm },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
   multiline: { minHeight: 180, textAlignVertical: 'top' },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
 });

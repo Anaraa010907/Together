@@ -1,9 +1,10 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, shadow, space } from '@together/ui/tokens';
 import { isImage, voteCounts, votingOpen, type Post, type Vote } from '../lib/feed';
 import { timeAgo } from '../lib/time';
+import { Avatar } from './Avatar';
 
 type Props = {
   post: Post;
@@ -37,13 +38,16 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
       onPress={onOpen}
       onLongPress={onLongPress}
       disabled={!onOpen && !onLongPress}
-      style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}
+      style={[styles.card, { backgroundColor: t.surface, borderColor: '#EFEAE0' }]}
     >
-      <View style={styles.head}>
-        <Text style={[styles.author, { color: t.text }]}>{post.author_name}</Text>
-        <Text style={{ color: t.textMuted, fontSize: 12 }}>
-          {KIND_ICON[post.kind]} {tr(`feed.kind.${post.kind}`)} · {timeAgo(post.created_at)}
-        </Text>
+      <View style={styles.headRow}>
+        <Avatar name={post.author_name} url={post.author_avatar} size={38} />
+        <View style={styles.head}>
+          <Text style={[styles.author, { color: t.text }]}>{post.author_name}</Text>
+          <Text style={styles.meta}>
+            {KIND_ICON[post.kind]} {tr(`feed.kind.${post.kind}`)} · {timeAgo(post.created_at)}
+          </Text>
+        </View>
       </View>
 
       <Text style={[styles.body, { color: t.text }]} numberOfLines={full ? undefined : 6}>
@@ -56,7 +60,7 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
           accessibilityRole="link"
           style={[styles.link, { borderColor: t.border, backgroundColor: t.surfaceMuted }]}
         >
-          <Text style={{ color: t.text, fontWeight: '600' }}>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>
             {/youtu\.?be/.test(post.link_url) ? '▶ ' : '🔗 '}
             {tr('feed.openLink')}
           </Text>
@@ -92,7 +96,7 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
             ))}
             {images.length > 3 && (
               <View style={[styles.thumb, styles.more, { backgroundColor: t.surfaceMuted }]}>
-                <Text style={{ color: t.text, fontWeight: '700' }}>+{images.length - 3}</Text>
+                <Text style={{ color: t.text, fontFamily: font.bold }}>+{images.length - 3}</Text>
               </View>
             )}
           </View>
@@ -128,7 +132,7 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
                     { borderColor: t.border, backgroundColor: active ? t.accent : t.background },
                   ]}
                 >
-                  <Text style={{ color: active ? t.onAccent : t.text, fontSize: 13, fontWeight: '600' }}>
+                  <Text style={{ color: active ? t.onAccent : t.text, fontSize: 13, fontFamily: font.semibold }}>
                     {tr(`feed.vote.${v}`)} {counts[v]}
                   </Text>
                 </Pressable>
@@ -166,10 +170,12 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: space.sm },
-  head: { gap: 2 },
-  author: { fontSize: 15, fontWeight: '700' },
-  body: { fontSize: 15, lineHeight: 21 },
+  card: { borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: space.sm, ...shadow.card },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  head: { gap: 2, flex: 1 },
+  meta: { fontFamily: font.medium, fontSize: 12, color: '#5B6573' },
+  author: { fontSize: 15, fontFamily: font.bold },
+  body: { fontFamily: font.medium, fontSize: 15, lineHeight: 22 },
   link: { borderWidth: 1, borderRadius: radius.md, padding: space.sm, gap: 2 },
   thumbs: { flexDirection: 'row', gap: space.xs },
   thumb: { flex: 1, aspectRatio: 1, borderRadius: radius.sm, maxWidth: 110 },

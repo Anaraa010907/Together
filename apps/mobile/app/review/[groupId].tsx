@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { courseErrorKey, deleteMyReview, fetchCourseReviews, reviewCourse } from '../../lib/teaching';
 
@@ -138,13 +138,13 @@ export default function ReviewCourse() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 24, fontWeight: '700' },
+  title: { fontSize: 24, fontFamily: font.bold },
   stars: { flexDirection: 'row', justifyContent: 'center', gap: space.sm, marginVertical: space.md },
   input: {
     borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12,
     fontSize: 16, minHeight: 110, textAlignVertical: 'top', marginTop: space.md,
   },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
   textBtn: { alignItems: 'center', paddingVertical: space.md },
 });

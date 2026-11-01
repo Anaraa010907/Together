@@ -13,8 +13,9 @@ import {
 } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { PostCard } from '../../components/PostCard';
+import { Avatar } from '../../components/Avatar';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
 import { fetchMyMembership } from '../../lib/groups';
@@ -166,12 +167,15 @@ export default function PostDetail() {
                 },
               })
             }
-            style={[styles.comment, { borderColor: t.border, backgroundColor: t.surface }]}
+            style={[styles.comment, { borderColor: '#EFEAE0', backgroundColor: t.surface, flexDirection: 'row', gap: 10 }]}
           >
-            <Text style={{ color: t.text, fontWeight: '600' }}>
-              {c.author_name} <Text style={{ color: t.textMuted, fontWeight: '400', fontSize: 12 }}>· {timeAgo(c.created_at)}</Text>
-            </Text>
-            <Text style={{ color: t.text, lineHeight: 20 }}>{c.body}</Text>
+            <Avatar name={c.author_name} url={c.author_avatar} size={32} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={{ color: t.text, fontFamily: font.semibold }}>
+                {c.author_name} <Text style={{ color: t.textMuted, fontFamily: font.medium, fontSize: 12 }}>· {timeAgo(c.created_at)}</Text>
+              </Text>
+              <Text style={{ color: t.text, fontFamily: font.medium, lineHeight: 20 }}>{c.body}</Text>
+            </View>
           </Pressable>
         ))}
       </ScrollView>
@@ -194,7 +198,7 @@ export default function PostDetail() {
           accessibilityRole="button"
           accessibilityLabel={tr('feed.send')}
         >
-          <Text style={{ color: t.onAccent, fontWeight: '700' }}>↑</Text>
+          <Text style={{ color: t.onAccent, fontFamily: font.bold }}>↑</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -204,7 +208,7 @@ export default function PostDetail() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  section: { fontSize: 16, fontWeight: '600', marginTop: space.md },
+  section: { fontSize: 16, fontFamily: font.semibold, marginTop: space.md },
   comment: { borderWidth: 1, borderRadius: radius.md, padding: space.md, gap: 4 },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm, padding: space.sm, borderTopWidth: 1 },
   input: {

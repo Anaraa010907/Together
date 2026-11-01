@@ -211,7 +211,9 @@
     "deleteAccount": "Delete account",
     "deleteTitle": "Delete your account?",
     "deleteConfirm": "Your profile, goals, XP and groups you own will be permanently deleted. This cannot be undone.",
-    "delete": "Delete"
+    "delete": "Delete",
+    "changePhoto": "Change photo",
+    "avatarTooBig": "Photo must be under 2MB."
   },
   "feed": {
     "open": "Group feed",
@@ -534,6 +536,21 @@
           "p": "We do not store the birth date of users under 18, and they can only join courses by verified teachers."
         }
       ]
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No new notifications.",
+    "clear": "Clear",
+    "clearTitle": "Delete all notifications?",
+    "type": {
+      "join_request": "{{name}} asked to join \"{{group}}\"",
+      "join_approved": "You were accepted into \"{{group}}\"",
+      "comment": "{{name}} commented on your post",
+      "helpful": "{{name}} found your post helpful",
+      "proposal": "{{name}} made a new proposal",
+      "session": "{{name}} scheduled a session: {{title}}",
+      "lesson": "New lesson added: {{title}}"
     }
   },
   "common": {

@@ -20,6 +20,7 @@ export type Post = {
   group_id: string;
   author_id: string;
   author_name: string;
+  author_avatar: string | null;
   kind: PostKind;
   body: string;
   link_url: string | null;
@@ -35,6 +36,7 @@ export type Comment = {
   id: string;
   author_id: string;
   author_name: string;
+  author_avatar: string | null;
   body: string;
   created_at: string;
 };
@@ -47,7 +49,7 @@ const BUCKET = 'post-media';
 const PAGE = 20;
 
 const SELECT = `id, group_id, author_id, kind, body, link_url, vote_deadline, created_at,
-  profiles(display_name),
+  profiles(display_name, avatar_url),
   post_attachments(id, storage_path, mime_type, file_name, position),
   comments(count),
   post_helpful(user_id),
@@ -61,6 +63,7 @@ function mapPost(r: any): Post {
     group_id: r.group_id,
     author_id: r.author_id,
     author_name: one(r.profiles)?.display_name ?? '—',
+    author_avatar: one(r.profiles)?.avatar_url ?? null,
     kind: r.kind,
     body: r.body,
     link_url: r.link_url,
@@ -105,7 +108,7 @@ export async function fetchPost(id: string): Promise<Post | null> {
 export async function fetchComments(postId: string): Promise<Comment[]> {
   const { data, error } = await supabase
     .from('comments')
-    .select('id, author_id, body, created_at, profiles(display_name)')
+    .select('id, author_id, body, created_at, profiles(display_name, avatar_url)')
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
   if (error) throw error;
@@ -113,6 +116,7 @@ export async function fetchComments(postId: string): Promise<Comment[]> {
     id: r.id,
     author_id: r.author_id,
     author_name: one(r.profiles)?.display_name ?? '—',
+    author_avatar: one(r.profiles)?.avatar_url ?? null,
     body: r.body,
     created_at: r.created_at,
   }));

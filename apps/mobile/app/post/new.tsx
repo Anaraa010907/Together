@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import {
   createPost,
   MAX_FILE_BYTES,
@@ -133,7 +133,7 @@ export default function NewPost() {
           disabled={files.length >= MAX_FILES}
           accessibilityRole="button"
         >
-          <Text style={{ color: t.text, fontWeight: '600' }}>🖼 {tr('feed.addImages')}</Text>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>🖼 {tr('feed.addImages')}</Text>
         </Pressable>
         <Pressable
           style={[styles.attach, { borderColor: t.border }]}
@@ -141,7 +141,7 @@ export default function NewPost() {
           disabled={files.length >= MAX_FILES}
           accessibilityRole="button"
         >
-          <Text style={{ color: t.text, fontWeight: '600' }}>📄 PDF</Text>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>📄 PDF</Text>
         </Pressable>
       </View>
       <Text style={[styles.hint, { color: t.textMuted }]}>{tr('feed.filesHint', { max: MAX_FILES })}</Text>
@@ -156,7 +156,7 @@ export default function NewPost() {
             accessibilityRole="button"
             accessibilityLabel={tr('feed.removeFile')}
           >
-            <Text style={{ color: t.warning, fontWeight: '700', paddingHorizontal: space.sm }}>✕</Text>
+            <Text style={{ color: t.warning, fontFamily: font.bold, paddingHorizontal: space.sm }}>✕</Text>
           </Pressable>
         </View>
       ))}
@@ -187,7 +187,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
       accessibilityState={{ selected: active }}
       style={[styles.chip, { borderColor: t.border, backgroundColor: active ? t.accent : t.surface }]}
     >
-      <Text style={{ color: active ? t.onAccent : t.text, fontWeight: '600', fontSize: 13 }}>{label}</Text>
+      <Text style={{ color: active ? t.onAccent : t.text, fontFamily: font.semibold, fontSize: 13 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -203,5 +203,5 @@ const styles = StyleSheet.create({
   attach: { flex: 1, borderWidth: 1, borderRadius: radius.md, paddingVertical: 12, alignItems: 'center' },
   fileRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: radius.md, padding: space.sm },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.md },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
 });

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { redeemInvite } from '../lib/groups';
 import { promptDeclareAge } from '../lib/teaching';
 
@@ -75,11 +75,11 @@ export default function Join() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: space.lg, gap: space.md, paddingTop: space.xl },
-  title: { fontSize: 24, fontWeight: '700' },
+  title: { fontSize: 24, fontFamily: font.bold },
   input: {
     borderWidth: 1, borderRadius: radius.md, paddingVertical: 14,
     fontSize: 24, textAlign: 'center', letterSpacing: 6,
   },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
 });

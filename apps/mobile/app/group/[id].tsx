@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
 import { promptMemberActions, promptReport } from '../../lib/moderation';
@@ -198,7 +198,7 @@ export default function GroupDetail() {
       <Text style={[styles.title, { color: t.text }]}>{group.name}</Text>
       {group.kind === 'course' && (
         <Pressable onPress={() => router.push(`/teacher/${group.owner_id}` as never)} accessibilityRole="link">
-          <Text style={{ color: t.text, fontWeight: '600' }}>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>
             📚 {tr('courses.badge')} · {tr('courses.teacher', { name: teacherName ?? '—' })} ›
           </Text>
         </Pressable>
@@ -217,7 +217,7 @@ export default function GroupDetail() {
                 onPress={() => router.push(`/lesson/new?groupId=${groupId}&position=${nextLessonPosition}` as never)}
                 accessibilityRole="button"
               >
-                <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>{tr('courses.addLesson')}</Text>
+                <Text style={{ color: t.text, fontFamily: font.semibold, marginTop: space.md }}>{tr('courses.addLesson')}</Text>
               </Pressable>
             )}
           </View>
@@ -262,7 +262,7 @@ export default function GroupDetail() {
             </Text>
             {isActive && !isOwner && canReview(myDone.size, lessons.length) && (
               <Pressable onPress={() => router.push(`/review/${groupId}` as never)} accessibilityRole="button">
-                <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>
+                <Text style={{ color: t.text, fontFamily: font.semibold, marginTop: space.md }}>
                   {myReview ? tr('reviews.edit') : tr('reviews.write')}
                 </Text>
               </Pressable>
@@ -278,7 +278,7 @@ export default function GroupDetail() {
               onLongPress={() => r.user_id !== myId && promptReport('review', r.id)}
               style={[styles.review, { borderColor: t.border, backgroundColor: t.surface }]}
             >
-              <Text style={{ color: t.text, fontWeight: '600' }}>
+              <Text style={{ color: t.text, fontFamily: font.semibold }}>
                 <Text style={{ color: t.accent }}>{stars(r.rating)}</Text> {r.display_name}
               </Text>
               {!!r.comment && <Text style={{ color: t.text, lineHeight: 20 }}>{r.comment}</Text>}
@@ -327,7 +327,7 @@ export default function GroupDetail() {
           disabled={busy}
           accessibilityRole="button"
         >
-          <Text style={{ color: t.text, fontWeight: '600' }}>{tr('groups.invite')}</Text>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>{tr('groups.invite')}</Text>
         </Pressable>
       )}
 
@@ -338,10 +338,10 @@ export default function GroupDetail() {
             <View key={m.user_id} style={[styles.row, { borderColor: t.border, backgroundColor: t.surface }]}>
               <Text style={{ color: t.text, flex: 1 }}>{m.profiles?.display_name ?? '—'}</Text>
               <Pressable onPress={() => onReview(m.user_id, true)} disabled={busy} accessibilityRole="button">
-                <Text style={{ color: t.text, fontWeight: '700', paddingHorizontal: space.sm }}>✓</Text>
+                <Text style={{ color: t.text, fontFamily: font.bold, paddingHorizontal: space.sm }}>✓</Text>
               </Pressable>
               <Pressable onPress={() => onReview(m.user_id, false)} disabled={busy} accessibilityRole="button">
-                <Text style={{ color: t.warning, fontWeight: '700', paddingHorizontal: space.sm }}>✕</Text>
+                <Text style={{ color: t.warning, fontFamily: font.bold, paddingHorizontal: space.sm }}>✕</Text>
               </Pressable>
             </View>
           ))}
@@ -356,7 +356,7 @@ export default function GroupDetail() {
               onPress={() => router.push(`/session/new?groupId=${groupId}` as never)}
               accessibilityRole="button"
             >
-              <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>{tr('sessions.create')}</Text>
+              <Text style={{ color: t.text, fontFamily: font.semibold, marginTop: space.md }}>{tr('sessions.create')}</Text>
             </Pressable>
           </View>
           {sessions.length === 0 && <Text style={{ color: t.textMuted }}>{tr('sessions.none')}</Text>}
@@ -373,7 +373,7 @@ export default function GroupDetail() {
                 ]}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: t.text, fontWeight: '600' }}>{se.title}</Text>
+                  <Text style={{ color: t.text, fontFamily: font.semibold }}>{se.title}</Text>
                   <Text style={{ color: t.textMuted, fontSize: 12 }}>{formatDateTime(se.starts_at)}</Text>
                 </View>
                 <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr(`sessions.status.${st}`)}</Text>
@@ -392,7 +392,7 @@ export default function GroupDetail() {
                 onPress={() => router.push(`/challenge/new?groupId=${groupId}` as never)}
                 accessibilityRole="button"
               >
-                <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>{tr('challenges.create')}</Text>
+                <Text style={{ color: t.text, fontFamily: font.semibold, marginTop: space.md }}>{tr('challenges.create')}</Text>
               </Pressable>
             )}
           </View>
@@ -406,7 +406,7 @@ export default function GroupDetail() {
                 accessibilityRole="button"
                 style={[styles.row, { borderColor: t.border, backgroundColor: t.surface, opacity: st === 'ended' ? 0.6 : 1 }]}
               >
-                <Text style={{ color: t.text, flex: 1, fontWeight: '600' }}>{c.title}</Text>
+                <Text style={{ color: t.text, flex: 1, fontFamily: font.semibold }}>{c.title}</Text>
                 <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr(`challenges.badge.${st}`)}</Text>
               </Pressable>
             );
@@ -451,14 +451,14 @@ export default function GroupDetail() {
 const styles = StyleSheet.create({
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 26, fontWeight: '700' },
+  title: { fontSize: 26, fontFamily: font.bold },
   meta: { fontSize: 13 },
   hint: { fontSize: 12 },
-  section: { fontSize: 16, fontWeight: '600', marginTop: space.md },
+  section: { fontSize: 16, fontFamily: font.semibold, marginTop: space.md },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   review: { borderWidth: 1, borderRadius: radius.md, padding: space.md, gap: 4 },
   primary: { borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.md },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
   secondary: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: space.md },
   row: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: radius.md, padding: space.md },
   textBtn: { alignItems: 'center', paddingVertical: space.md },

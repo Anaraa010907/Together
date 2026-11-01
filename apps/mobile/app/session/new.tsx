@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { createSession, sessionErrorKey } from '../../lib/sessions';
 import { scheduleSessionReminder } from '../../lib/reminders';
 
@@ -105,7 +105,7 @@ export default function NewSession() {
               style={[styles.dayChip, { borderColor: t.border, backgroundColor: active ? t.accent : t.surface }]}
             >
               <Text style={{ color: active ? t.onAccent : t.textMuted, fontSize: 12 }}>{tr(`time.wd${d.getDay()}`)}</Text>
-              <Text style={{ color: active ? t.onAccent : t.text, fontWeight: '700' }}>{label}</Text>
+              <Text style={{ color: active ? t.onAccent : t.text, fontFamily: font.bold }}>{label}</Text>
             </Pressable>
           );
         })}
@@ -135,7 +135,7 @@ export default function NewSession() {
               accessibilityState={{ selected: active }}
               style={[styles.chip, { borderColor: t.border, backgroundColor: active ? t.accent : t.surface }]}
             >
-              <Text style={{ color: active ? t.onAccent : t.text, fontWeight: '600' }}>
+              <Text style={{ color: active ? t.onAccent : t.text, fontFamily: font.semibold }}>
                 {tr('sessions.minutes', { n: d })}
               </Text>
             </Pressable>
@@ -175,7 +175,7 @@ export default function NewSession() {
 
 const styles = StyleSheet.create({
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: space.sm },
+  title: { fontSize: 24, fontFamily: font.bold, marginBottom: space.sm },
   label: { fontSize: 13, marginTop: space.sm },
   hint: { fontSize: 12 },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
@@ -184,5 +184,5 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', gap: space.sm },
   chip: { flex: 1, borderWidth: 1, borderRadius: radius.pill, paddingVertical: 10, alignItems: 'center' },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
 });

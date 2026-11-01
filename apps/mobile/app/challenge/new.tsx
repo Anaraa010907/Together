@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { todayIso } from '../../lib/goals';
 import { addDays, challengeErrorKey, createChallenge } from '../../lib/challenges';
 
@@ -105,14 +105,14 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
       accessibilityState={{ selected: active }}
       style={[styles.chip, { borderColor: t.border, backgroundColor: active ? t.accent : t.surface }]}
     >
-      <Text style={{ color: active ? t.onAccent : t.text, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: active ? t.onAccent : t.text, fontFamily: font.semibold }}>{label}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: space.sm },
+  title: { fontSize: 24, fontFamily: font.bold, marginBottom: space.sm },
   label: { fontSize: 13, marginTop: space.sm },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
   multiline: { minHeight: 80, textAlignVertical: 'top' },
@@ -120,5 +120,5 @@ const styles = StyleSheet.create({
   chip: { flex: 1, borderWidth: 1, borderRadius: radius.pill, paddingVertical: 10, alignItems: 'center' },
   hint: { fontSize: 12, marginTop: space.sm },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
 });

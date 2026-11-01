@@ -98,6 +98,7 @@ export default function RootLayout() {
         <Stack.Screen name="interests" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="suggested" options={{ headerShown: false }} />
         <Stack.Screen name="legal/[doc]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="notifications" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="register" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="login" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="phone" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />

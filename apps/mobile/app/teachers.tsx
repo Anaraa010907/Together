@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { fetchBlockedIds } from '../lib/account';
 import { fetchTeachers, type TeacherProfile } from '../lib/teaching';
 
@@ -72,7 +72,7 @@ export default function Teachers() {
             accessibilityRole="button"
             style={[styles.card, { borderColor: t.border, backgroundColor: t.surface }]}
           >
-            <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>
+            <Text style={{ color: t.text, fontSize: 16, fontFamily: font.bold }}>
               {item.display_name} {item.verified_at ? '✓' : ''}
             </Text>
             {!!item.headline && <Text style={{ color: t.text }}>{item.headline}</Text>}

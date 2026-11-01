@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { fetchMyMembership } from '../../lib/groups';
 import {
@@ -108,7 +108,7 @@ export default function LessonPage() {
 
   return (
     <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
-      <Text style={{ color: t.textMuted, fontWeight: '600' }}>{tr('lessons.number', { n: lesson.position })}</Text>
+      <Text style={{ color: t.textMuted, fontFamily: font.semibold }}>{tr('lessons.number', { n: lesson.position })}</Text>
       <Text style={[styles.title, { color: t.text }]}>{lesson.title}</Text>
 
       {!!lesson.video_url && (
@@ -117,7 +117,7 @@ export default function LessonPage() {
           accessibilityRole="link"
           style={[styles.secondary, { borderColor: t.border, backgroundColor: t.surface }]}
         >
-          <Text style={{ color: t.text, fontWeight: '600' }}>▶ {tr('lessons.watch')}</Text>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>▶ {tr('lessons.watch')}</Text>
         </Pressable>
       )}
 
@@ -144,7 +144,7 @@ export default function LessonPage() {
           }
           accessibilityRole="button"
         >
-          <Text style={{ color: t.text, fontWeight: '600' }}>
+          <Text style={{ color: t.text, fontFamily: font.semibold }}>
             {role.owner ? tr('lessons.postAssignment') : tr('lessons.shareHomework')}
           </Text>
         </Pressable>
@@ -165,10 +165,10 @@ export default function LessonPage() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 26, fontWeight: '700', marginBottom: space.sm },
-  section: { fontSize: 15, fontWeight: '600', marginTop: space.lg },
+  title: { fontSize: 26, fontFamily: font.bold, marginBottom: space.sm },
+  section: { fontSize: 15, fontFamily: font.semibold, marginTop: space.lg },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
   secondary: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: space.sm },
   textBtn: { alignItems: 'center', paddingVertical: space.md },
 });

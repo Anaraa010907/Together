@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
 import { fetchMyTeacherProfile, parseSubjects, saveTeacherProfile, type TeacherProfile } from '../../lib/teaching';
 import { useSession } from '../../lib/session';
 
@@ -76,7 +76,7 @@ export default function TeachEdit() {
       </View>
 
       {profile?.verified_at ? (
-        <Text style={{ color: t.text, fontWeight: '600' }}>✓ {tr('teach.verified')}</Text>
+        <Text style={{ color: t.text, fontFamily: font.semibold }}>✓ {tr('teach.verified')}</Text>
       ) : (
         <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr('teach.notVerified')}</Text>
       )}
@@ -128,7 +128,7 @@ export default function TeachEdit() {
             onPress={() => router.push('/group/new?course=1' as never)}
             accessibilityRole="button"
           >
-            <Text style={{ color: t.text, fontWeight: '600' }}>📚 {tr('teach.newCourse')}</Text>
+            <Text style={{ color: t.text, fontFamily: font.semibold }}>📚 {tr('teach.newCourse')}</Text>
           </Pressable>
           {!!session && (
             <Pressable
@@ -148,13 +148,13 @@ export default function TeachEdit() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
-  title: { fontSize: 24, fontWeight: '700' },
+  title: { fontSize: 24, fontFamily: font.bold },
   row: { flexDirection: 'row', alignItems: 'center', marginTop: space.md },
   label: { fontSize: 13, marginTop: space.sm },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
   multiline: { minHeight: 110, textAlignVertical: 'top' },
   primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.lg },
-  primaryText: { fontSize: 16, fontWeight: '600' },
+  primaryText: { fontSize: 16, fontFamily: font.semibold },
   secondary: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.sm },
   textBtn: { alignItems: 'center', paddingVertical: space.md },
 });
