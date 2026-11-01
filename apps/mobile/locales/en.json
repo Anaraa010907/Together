@@ -20,7 +20,14 @@
     "or": "or",
     "phoneLabel": "Phone number",
     "sendCode": "Send code",
-    "phoneInvalid": "Please enter a valid 8-digit number."
+    "phoneInvalid": "Please enter a valid 8-digit number.",
+    "emailTest": "Testing: email",
+    "password": "Password (6+ characters)",
+    "emailSignIn": "Sign in",
+    "emailSignUp": "Sign up",
+    "emailInvalid": "Enter an email and a password of at least 6 characters.",
+    "checkEmailTitle": "Check your email",
+    "checkEmail": "We sent a confirmation link. Tap it, then come back and press \"Sign in\"."
   },
   "otp": {
     "title": "Verification code",
