@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { redeemInvite } from '../lib/groups';
+import { promptDeclareAge } from '../lib/teaching';
 
 // Урилгын кодоор group-д нэгдэх (private / invite_only group-д ч ажиллана).
 export default function Join() {
@@ -21,12 +22,18 @@ export default function Join() {
       router.replace(`/group/${groupId}` as never);
     } catch (e: any) {
       const msg = String(e.message ?? e);
+      if (msg.includes('course_adults_only')) {
+        promptDeclareAge(() => onJoin());
+        return;
+      }
       const key = msg.includes('invite_expired')
         ? 'join.expired'
         : msg.includes('invite_exhausted')
           ? 'join.exhausted'
           : msg.includes('banned')
             ? 'groups.banned'
+            : msg.includes('course_adults_only')
+              ? 'courses.errors.course_adults_only'
             : msg.includes('invalid_code')
               ? 'join.invalid'
               : null;

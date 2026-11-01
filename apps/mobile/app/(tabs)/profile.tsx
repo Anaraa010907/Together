@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { signOut } from '../../lib/auth';
@@ -20,6 +20,7 @@ import {
 // Профайл + тохиргоо: засах, хэл, блоклосон хэрэглэгчид, гарах, бүртгэл устгах.
 export default function Profile() {
   const { t: tr, i18n } = useTranslation();
+  const router = useRouter();
   const [profile, setProfile] = useState<MyProfile | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
@@ -184,6 +185,16 @@ export default function Profile() {
           </View>
         ))
       )}
+
+      <Text style={[styles.section, { color: t.text }]}>{tr('teach.section')}</Text>
+      <Pressable
+        style={[styles.row, { borderColor: t.border, backgroundColor: t.surface }]}
+        onPress={() => router.push('/teach/edit' as never)}
+        accessibilityRole="button"
+      >
+        <Text style={{ color: t.text, flex: 1 }}>👩‍🏫 {tr('teach.title')}</Text>
+        <Text style={{ color: t.textMuted }}>›</Text>
+      </Pressable>
 
       <Pressable
         style={[styles.secondary, { borderColor: t.border }]}

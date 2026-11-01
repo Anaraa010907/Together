@@ -5,14 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../lib/session';
 import { createProfile, isUsernameTaken, USERNAME_PATTERN } from '../lib/profile';
+import { declareAge } from '../lib/teaching';
 
-// Нэвтэрсний дараа нэг удаа: username + нэр. Төрсөн огноо асуухгүй (is_minor-ийг дараа шалгана).
+// Нэвтэрсний дараа нэг удаа: username + нэр + насны бүлэг (18+ эсэх). Төрсөн огноо хадгалахгүй.
 export default function ProfileSetup() {
   const { t: tr, i18n } = useTranslation();
   const router = useRouter();
   const { refreshProfile } = useSession();
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [adult, setAdult] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
 
   const onSave = async () => {
@@ -20,6 +22,7 @@ export default function ProfileSetup() {
     const name = displayName.trim();
     if (!USERNAME_PATTERN.test(u)) return Alert.alert(tr('common.error'), tr('profile.usernameInvalid'));
     if (name.length < 1 || name.length > 40) return Alert.alert(tr('common.error'), tr('profile.nameInvalid'));
+    if (adult === null) return Alert.alert(tr('common.error'), tr('age.required'));
 
     setBusy(true);
     try {
@@ -32,6 +35,7 @@ export default function ProfileSetup() {
         displayName: name,
         locale: i18n.language === 'en' ? 'en' : 'mn',
       });
+      await declareAge(adult);
       await refreshProfile();
       router.replace('/home' as never);
     } catch (e: any) {
@@ -68,6 +72,35 @@ export default function ProfileSetup() {
         accessibilityLabel={tr('profile.username')}
       />
       <Text style={[styles.hint, { color: t.textMuted }]}>{tr('profile.usernameHint')}</Text>
+
+      <Text style={[styles.label, { color: t.textMuted }]}>{tr('age.title')}</Text>
+      <View style={{ flexDirection: 'row', gap: space.sm }}>
+        {[true, false].map((v) => {
+          const active = adult === v;
+          return (
+            <Pressable
+              key={String(v)}
+              onPress={() => setAdult(v)}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: active }}
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                borderColor: t.border,
+                borderRadius: radius.pill,
+                paddingVertical: 12,
+                alignItems: 'center',
+                backgroundColor: active ? t.accent : t.surface,
+              }}
+            >
+              <Text style={{ color: active ? t.onAccent : t.text, fontWeight: '600' }}>
+                {v ? tr('age.adult') : tr('age.minor')}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <Text style={[styles.hint, { color: t.textMuted }]}>{tr('age.hint')}</Text>
 
       <Pressable
         style={[styles.primary, { backgroundColor: t.accent, opacity: busy ? 0.6 : 1 }]}

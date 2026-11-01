@@ -62,6 +62,15 @@ export default function Groups() {
         </View>
       </View>
 
+      <Pressable
+        onPress={() => router.push('/teachers' as never)}
+        accessibilityRole="button"
+        style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}
+      >
+        <Text style={[styles.cardTitle, { color: t.text }]}>👩‍🏫 {tr('teachers.title')}</Text>
+        <Text style={{ color: t.textMuted, fontSize: 13 }}>{tr('teachers.subtitle')}</Text>
+      </Pressable>
+
       <Text style={[styles.section, { color: t.text }]}>{tr('groups.mine')}</Text>
       <GroupList
         data={mine}
@@ -102,7 +111,10 @@ function GroupList({
           accessibilityRole="button"
           style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}
         >
-          <Text style={[styles.cardTitle, { color: t.text }]}>{item.name}</Text>
+          <Text style={[styles.cardTitle, { color: t.text }]}>
+            {item.kind === 'course' ? '📚 ' : ''}
+            {item.name}
+          </Text>
           <Text style={{ color: t.textMuted, fontSize: 13 }}>
             {item.visibility === 'private' ? tr('groups.private') : tr('groups.public')}
             {item.description ? ` · ${item.description}` : ''}

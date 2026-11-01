@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
@@ -10,6 +10,7 @@ import { todayIso } from '../../lib/goals';
 import { fetchGroupChallenges, statusOf, type Challenge } from '../../lib/challenges';
 import { fetchGroupSessions, statusOf as sessionStatus, type Session } from '../../lib/sessions';
 import { formatDateTime } from '../../lib/time';
+import { fetchCompletions, fetchLessons, fetchTeacher, promptDeclareAge, type Lesson } from '../../lib/teaching';
 import {
   createInvite,
   fetchGroup,
@@ -37,6 +38,9 @@ export default function GroupDetail() {
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [completions, setCompletions] = useState<Map<string, string[]>>(new Map());
+  const [teacherName, setTeacherName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -54,6 +58,13 @@ export default function GroupDetail() {
       setMembers(await fetchMembers(groupId).catch(() => []));
       setChallenges(await fetchGroupChallenges(groupId).catch(() => []));
       setSessions(await fetchGroupSessions(groupId).catch(() => []));
+      if (g?.kind === 'course') {
+        const ls = await fetchLessons(groupId).catch(() => [] as Lesson[]);
+        setLessons(ls);
+        setCompletions(await fetchCompletions(ls.map((l) => l.id)).catch(() => new Map()));
+        const tp = await fetchTeacher(g.owner_id).catch(() => null);
+        setTeacherName(tp?.profile.display_name ?? null);
+      }
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e.message ?? e));
     } finally {
@@ -61,9 +72,12 @@ export default function GroupDetail() {
     }
   }, [groupId, tr]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Хичээл, сешн нэмээд буцахад шинэчлэгдэнэ.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
 
   const isActive = membership?.status === 'active';
   const isOwner = membership?.role === 'owner' && isActive;
@@ -77,6 +91,11 @@ export default function GroupDetail() {
       await load();
     } catch (e: any) {
       const msg = String(e.message ?? e);
+      if (msg.includes('course_adults_only')) {
+        // Нас зарлаагүй бол нэг удаа асуугаад дахин оролдоно; зарласан бол тайлбар харуулна.
+        promptDeclareAge(() => onJoin());
+        return;
+      }
       Alert.alert(
         tr('common.error'),
         msg.includes('invite_only') ? tr('groups.inviteOnly') : msg.includes('banned') ? tr('groups.banned') : msg,
@@ -85,6 +104,10 @@ export default function GroupDetail() {
       setBusy(false);
     }
   };
+
+  const nextLessonPosition = lessons.reduce((m, l) => Math.max(m, l.position), 0) + 1;
+  const myDone = new Set(lessons.filter((l) => myId && (completions.get(l.id) ?? []).includes(myId)).map((l) => l.id));
+  const firstOpen = lessons.find((l) => !myDone.has(l.id));
 
   const onLeave = () => {
     Alert.alert(tr('groups.leaveConfirmTitle'), tr('groups.leaveConfirm'), [
@@ -156,7 +179,62 @@ export default function GroupDetail() {
   return (
     <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
       <Text style={[styles.title, { color: t.text }]}>{group.name}</Text>
+      {group.kind === 'course' && (
+        <Pressable onPress={() => router.push(`/teacher/${group.owner_id}` as never)} accessibilityRole="link">
+          <Text style={{ color: t.text, fontWeight: '600' }}>
+            📚 {tr('courses.badge')} · {tr('courses.teacher', { name: teacherName ?? '—' })} ›
+          </Text>
+        </Pressable>
+      )}
       {!!group.description && <Text style={{ color: t.textMuted }}>{group.description}</Text>}
+
+      {group.kind === 'course' && (
+        <>
+          <View style={styles.sectionRow}>
+            <Text style={[styles.section, { color: t.text }]}>
+              {tr('courses.lessons')}
+              {isActive && !isOwner && lessons.length > 0 ? ` · ${myDone.size}/${lessons.length}` : ''}
+            </Text>
+            {isOwner && lessons.length < 50 && (
+              <Pressable
+                onPress={() => router.push(`/lesson/new?groupId=${groupId}&position=${nextLessonPosition}` as never)}
+                accessibilityRole="button"
+              >
+                <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>{tr('courses.addLesson')}</Text>
+              </Pressable>
+            )}
+          </View>
+          {lessons.length === 0 && <Text style={{ color: t.textMuted }}>{tr('courses.noLessons')}</Text>}
+          {lessons.map((l) => {
+            const done = myDone.has(l.id);
+            const isNext = firstOpen?.id === l.id && isActive && !isOwner;
+            return (
+              <Pressable
+                key={l.id}
+                onPress={() => (isActive ? router.push(`/lesson/${l.id}` as never) : null)}
+                accessibilityRole="button"
+                style={[
+                  styles.row,
+                  { borderColor: isNext ? t.accent : t.border, backgroundColor: done ? t.success : t.surface },
+                ]}
+              >
+                <Text style={{ color: t.text, flex: 1 }}>
+                  {l.position}. {l.title}
+                </Text>
+                <Text style={{ color: t.textMuted, fontSize: 12 }}>
+                  {isOwner
+                    ? tr('courses.doneCount', { n: (completions.get(l.id) ?? []).length })
+                    : done
+                      ? '✓'
+                      : isNext
+                        ? tr('courses.next')
+                        : ''}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </>
+      )}
       <Text style={[styles.meta, { color: t.textMuted }]}>
         {group.visibility === 'private' ? tr('groups.private') : tr('groups.public')} · {active.length}{' '}
         {tr('groups.members')}

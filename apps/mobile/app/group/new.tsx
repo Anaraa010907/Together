@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { createGroup } from '../../lib/groups';
+import { courseErrorKey, createCourse } from '../../lib/teaching';
 
 // Group үүсгэх: нэр, тайлбар, нийтийн/хаалттай, нэгдэх журам.
 export default function NewGroup() {
+  // ?course=1 → багшийн сургалт group
+  const { course } = useLocalSearchParams<{ course?: string }>();
+  const isCourse = course === '1';
   const { t: tr } = useTranslation();
   const router = useRouter();
   const [name, setName] = useState('');
@@ -21,16 +25,19 @@ export default function NewGroup() {
 
     setBusy(true);
     try {
-      const id = await createGroup({
-        name: n,
-        description: description.trim() || undefined,
-        visibility: isPrivate ? 'private' : 'public',
-        joinPolicy: needApproval || isPrivate ? 'approval' : 'open',
-      });
+      const id = isCourse
+        ? await createCourse({ name: n, description: description.trim() || undefined, isPrivate })
+        : await createGroup({
+            name: n,
+            description: description.trim() || undefined,
+            visibility: isPrivate ? 'private' : 'public',
+            joinPolicy: needApproval || isPrivate ? 'approval' : 'open',
+          });
       router.replace(`/group/${id}` as never);
     } catch (e: any) {
       const msg = String(e.message ?? e);
-      Alert.alert(tr('common.error'), msg.includes('slug_taken') ? tr('groups.slugTaken') : msg);
+      const key = msg.includes('slug_taken') ? 'groups.slugTaken' : courseErrorKey(e);
+      Alert.alert(tr('common.error'), key ? tr(key) : msg);
     } finally {
       setBusy(false);
     }
@@ -38,7 +45,7 @@ export default function NewGroup() {
 
   return (
     <View style={[styles.screen, { backgroundColor: t.background }]}>
-      <Text style={[styles.title, { color: t.text }]}>{tr('groups.createTitle')}</Text>
+      <Text style={[styles.title, { color: t.text }]}>{isCourse ? tr('courses.createTitle') : tr('groups.createTitle')}</Text>
 
       <Text style={[styles.label, { color: t.textMuted }]}>{tr('groups.name')}</Text>
       <TextInput
@@ -63,11 +70,14 @@ export default function NewGroup() {
         <Text style={[styles.rowText, { color: t.text }]}>{tr('groups.private')}</Text>
         <Switch value={isPrivate} onValueChange={setIsPrivate} />
       </View>
-      <View style={styles.row}>
-        <Text style={[styles.rowText, { color: t.text }]}>{tr('groups.approval')}</Text>
-        <Switch value={needApproval || isPrivate} disabled={isPrivate} onValueChange={setNeedApproval} />
-      </View>
+      {!isCourse && (
+        <View style={styles.row}>
+          <Text style={[styles.rowText, { color: t.text }]}>{tr('groups.approval')}</Text>
+          <Switch value={needApproval || isPrivate} disabled={isPrivate} onValueChange={setNeedApproval} />
+        </View>
+      )}
       <Text style={[styles.hint, { color: t.textMuted }]}>{tr('groups.privateHint')}</Text>
+      {isCourse && <Text style={[styles.hint, { color: t.textMuted }]}>{tr('courses.createHint')}</Text>}
 
       <Pressable
         style={[styles.primary, { backgroundColor: t.accent, opacity: busy ? 0.6 : 1 }]}
