@@ -13,7 +13,22 @@ export type TeacherProfile = {
   display_name?: string;
 };
 
-export type TeacherStats = { courses: number; students: number; helpful: number };
+export type TeacherStats = {
+  courses: number;
+  students: number;
+  helpful: number;
+  rating_avg: number | null;
+  rating_count: number;
+};
+
+export type Review = {
+  id: string;
+  user_id: string;
+  display_name: string;
+  rating: number;
+  comment: string | null;
+  updated_at: string;
+};
 
 export type Lesson = {
   id: string;
@@ -37,6 +52,10 @@ const ERROR_CODES = [
   'not_student',
   'previous_lesson_required',
   'already_completed',
+  'not_course',
+  'invalid_rating',
+  'not_enough_progress',
+  'comment_too_long',
 ] as const;
 
 export function courseErrorKey(e: unknown): string | null {
@@ -136,7 +155,7 @@ export async function fetchTeacher(userId: string) {
   const r: any = t.data;
   return {
     profile: { ...r, display_name: one(r.profiles)?.display_name ?? '—', profiles: undefined } as TeacherProfile,
-    stats: (s.data as TeacherStats | null) ?? { courses: 0, students: 0, helpful: 0 },
+    stats: (s.data as TeacherStats | null) ?? { courses: 0, students: 0, helpful: 0, rating_avg: null, rating_count: 0 },
     courses: (c.data ?? []) as GroupSummary[],
   };
 }
@@ -208,3 +227,44 @@ export async function completeLesson(id: string) {
   if (error) throw error;
   return data as { xp_gained: number; total_xp: number; level: number; done: number; total: number };
 }
+
+// ---------- үнэлгээ ----------
+// Хичээлийн тал хувиас доошгүйг (дор хаяж 1) дуусгасан суралцагч үнэлнэ.
+export function canReview(done: number, total: number) {
+  return done >= 1 && done * 2 >= total;
+}
+
+export async function fetchCourseReviews(groupId: string): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from('course_reviews')
+    .select('id, user_id, rating, comment, updated_at, profiles(display_name)')
+    .eq('group_id', groupId)
+    .order('updated_at', { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    user_id: r.user_id,
+    display_name: one(r.profiles)?.display_name ?? '—',
+    rating: r.rating,
+    comment: r.comment,
+    updated_at: r.updated_at,
+  }));
+}
+
+export async function reviewCourse(groupId: string, rating: number, comment: string) {
+  const { error } = await supabase.rpc('review_course', {
+    p_group_id: groupId,
+    p_rating: rating,
+    p_comment: comment,
+  });
+  if (error) throw error;
+}
+
+export async function deleteMyReview(groupId: string) {
+  const uid = await myId();
+  const { error } = await supabase.from('course_reviews').delete().eq('group_id', groupId).eq('user_id', uid);
+  if (error) throw error;
+}
+
+export const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));

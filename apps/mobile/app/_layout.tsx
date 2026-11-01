@@ -56,6 +56,7 @@ export default function RootLayout() {
         <Stack.Screen name="teacher/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="lesson/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="lesson/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="review/[groupId]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
       </Stack>
     </SessionProvider>
   );

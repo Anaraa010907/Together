@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../../lib/session';
 import { promptReport } from '../../lib/moderation';
-import { fetchTeacher, type TeacherProfile, type TeacherStats } from '../../lib/teaching';
+import { fetchTeacher, stars, type TeacherProfile, type TeacherStats } from '../../lib/teaching';
 import type { GroupSummary } from '../../lib/groups';
 
 // Багшийн нийтийн профайл: танилцуулга, нэр хүнд (сургалт, суралцагч, Тустай), сургалтууд.
@@ -70,6 +70,11 @@ export default function TeacherPage() {
         <Stat label={tr('teachers.students')} value={stats.students} />
         <Stat label={tr('feed.helpful')} value={stats.helpful} />
       </View>
+      <Text style={{ color: t.text, textAlign: 'center' }}>
+        {stats.rating_count > 0
+          ? `${stars(Number(stats.rating_avg ?? 0))} ${Number(stats.rating_avg ?? 0).toFixed(1)} · ${tr('reviews.count', { n: stats.rating_count })}`
+          : tr('reviews.noneYet')}
+      </Text>
 
       {!!profile.intro && <Text style={{ color: t.text, lineHeight: 21 }}>{profile.intro}</Text>}
 

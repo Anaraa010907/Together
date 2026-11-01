@@ -10,7 +10,17 @@ import { todayIso } from '../../lib/goals';
 import { fetchGroupChallenges, statusOf, type Challenge } from '../../lib/challenges';
 import { fetchGroupSessions, statusOf as sessionStatus, type Session } from '../../lib/sessions';
 import { formatDateTime } from '../../lib/time';
-import { fetchCompletions, fetchLessons, fetchTeacher, promptDeclareAge, type Lesson } from '../../lib/teaching';
+import {
+  canReview,
+  fetchCompletions,
+  fetchCourseReviews,
+  fetchLessons,
+  fetchTeacher,
+  promptDeclareAge,
+  stars,
+  type Lesson,
+  type Review,
+} from '../../lib/teaching';
 import {
   createInvite,
   fetchGroup,
@@ -41,6 +51,7 @@ export default function GroupDetail() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [completions, setCompletions] = useState<Map<string, string[]>>(new Map());
   const [teacherName, setTeacherName] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -64,6 +75,7 @@ export default function GroupDetail() {
         setCompletions(await fetchCompletions(ls.map((l) => l.id)).catch(() => new Map()));
         const tp = await fetchTeacher(g.owner_id).catch(() => null);
         setTeacherName(tp?.profile.display_name ?? null);
+        setReviews(await fetchCourseReviews(groupId).catch(() => []));
       }
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e.message ?? e));
@@ -108,6 +120,11 @@ export default function GroupDetail() {
   const nextLessonPosition = lessons.reduce((m, l) => Math.max(m, l.position), 0) + 1;
   const myDone = new Set(lessons.filter((l) => myId && (completions.get(l.id) ?? []).includes(myId)).map((l) => l.id));
   const firstOpen = lessons.find((l) => !myDone.has(l.id));
+  const visibleReviews = reviews.filter((r) => !blockedIds.has(r.user_id));
+  const avgRating = visibleReviews.length
+    ? visibleReviews.reduce((sum, r) => sum + r.rating, 0) / visibleReviews.length
+    : 0;
+  const myReview = reviews.find((r) => r.user_id === myId);
 
   const onLeave = () => {
     Alert.alert(tr('groups.leaveConfirmTitle'), tr('groups.leaveConfirm'), [
@@ -233,6 +250,40 @@ export default function GroupDetail() {
               </Pressable>
             );
           })}
+        </>
+      )}
+
+      {group.kind === 'course' && (
+        <>
+          <View style={styles.sectionRow}>
+            <Text style={[styles.section, { color: t.text }]}>
+              {tr('reviews.section')}
+              {visibleReviews.length > 0 ? ` · ${stars(avgRating)} ${avgRating.toFixed(1)} (${visibleReviews.length})` : ''}
+            </Text>
+            {isActive && !isOwner && canReview(myDone.size, lessons.length) && (
+              <Pressable onPress={() => router.push(`/review/${groupId}` as never)} accessibilityRole="button">
+                <Text style={{ color: t.text, fontWeight: '600', marginTop: space.md }}>
+                  {myReview ? tr('reviews.edit') : tr('reviews.write')}
+                </Text>
+              </Pressable>
+            )}
+          </View>
+          {isActive && !isOwner && !canReview(myDone.size, lessons.length) && lessons.length > 0 && (
+            <Text style={{ color: t.textMuted, fontSize: 12 }}>{tr('reviews.unlockHint')}</Text>
+          )}
+          {visibleReviews.length === 0 && <Text style={{ color: t.textMuted }}>{tr('reviews.none')}</Text>}
+          {visibleReviews.slice(0, 10).map((r) => (
+            <Pressable
+              key={r.id}
+              onLongPress={() => r.user_id !== myId && promptReport('review', r.id)}
+              style={[styles.review, { borderColor: t.border, backgroundColor: t.surface }]}
+            >
+              <Text style={{ color: t.text, fontWeight: '600' }}>
+                <Text style={{ color: t.accent }}>{stars(r.rating)}</Text> {r.display_name}
+              </Text>
+              {!!r.comment && <Text style={{ color: t.text, lineHeight: 20 }}>{r.comment}</Text>}
+            </Pressable>
+          ))}
         </>
       )}
       <Text style={[styles.meta, { color: t.textMuted }]}>
@@ -405,6 +456,7 @@ const styles = StyleSheet.create({
   hint: { fontSize: 12 },
   section: { fontSize: 16, fontWeight: '600', marginTop: space.md },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  review: { borderWidth: 1, borderRadius: radius.md, padding: space.md, gap: 4 },
   primary: { borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.md },
   primaryText: { fontSize: 16, fontWeight: '600' },
   secondary: { borderWidth: 1, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: space.md },

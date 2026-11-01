@@ -351,7 +351,11 @@
       "not_member": "Join the course first.",
       "not_student": "Teachers do not complete their own lessons.",
       "previous_lesson_required": "Finish the earlier lessons first.",
-      "already_completed": "You already completed this lesson."
+      "already_completed": "You already completed this lesson.",
+      "not_course": "This is not a course.",
+      "invalid_rating": "Rating must be 1–5 stars.",
+      "not_enough_progress": "Finish half of the lessons before reviewing.",
+      "comment_too_long": "Comments must be under 500 characters."
     }
   },
   "lessons": {
@@ -378,6 +382,31 @@
     "delete": "Delete lesson",
     "deleteTitle": "Delete this lesson?",
     "deleteConfirm": "Student progress on this lesson will be removed."
+  },
+  "reviews": {
+    "section": "Reviews",
+    "write": "+ Review",
+    "edit": "Edit review",
+    "none": "No reviews yet.",
+    "noneYet": "No reviews yet",
+    "unlockHint": "You can review after finishing half of the lessons.",
+    "count": "{{n}} reviews",
+    "title": "Review this course",
+    "editTitle": "Edit your review",
+    "subtitle": "Your review helps other learners find great teachers.",
+    "starsLabel": "{{n}} stars",
+    "pickStars": "Please pick a star rating.",
+    "level1": "Poor",
+    "level2": "Below average",
+    "level3": "Okay",
+    "level4": "Good",
+    "level5": "Excellent",
+    "commentPlaceholder": "What did you like, what could be better? (optional)",
+    "publicHint": "Your name and rating are shown on the course page.",
+    "submit": "Submit",
+    "thanks": "Thank you!",
+    "delete": "Delete my review",
+    "deleteTitle": "Delete your review?"
   },
   "common": {
     "loading": "Loading…",
