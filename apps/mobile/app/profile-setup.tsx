@@ -6,6 +6,7 @@ import { lightTheme as t, radius, space } from '@together/ui/tokens';
 import { useSession } from '../lib/session';
 import { createProfile, isUsernameTaken, USERNAME_PATTERN } from '../lib/profile';
 import { declareAge } from '../lib/teaching';
+import { fetchMyProfile } from '../lib/account';
 
 // Нэвтэрсний дараа нэг удаа: username + нэр + насны бүлэг (18+ эсэх). Төрсөн огноо хадгалахгүй.
 export default function ProfileSetup() {
@@ -26,16 +27,22 @@ export default function ProfileSetup() {
 
     setBusy(true);
     try {
-      if (await isUsernameTaken(u)) {
-        Alert.alert(tr('common.error'), tr('profile.usernameTaken'));
-        return;
+      // Өмнөх оролдлогоор профайл үүссэн бол дахин үүсгэхгүй, шууд үргэлжилнэ.
+      const existing = await fetchMyProfile().catch(() => null);
+      if (!existing) {
+        if (await isUsernameTaken(u)) {
+          Alert.alert(tr('common.error'), tr('profile.usernameTaken'));
+          return;
+        }
+        await createProfile({
+          username: u,
+          displayName: name,
+          locale: i18n.language === 'en' ? 'en' : 'mn',
+        });
       }
-      await createProfile({
-        username: u,
-        displayName: name,
-        locale: i18n.language === 'en' ? 'en' : 'mn',
-      });
-      await declareAge(adult);
+      // Нас хадгалахад алдаа гарвал (жишээ нь аль хэдийн зарласан) саад болохгүй:
+      // сургалтад нэгдэх үед дахин асууна.
+      await declareAge(adult).catch(() => {});
       await refreshProfile();
       router.replace('/home' as never);
     } catch (e: any) {
