@@ -78,7 +78,12 @@
     "doneLabel": "Done ✓",
     "addPlaceholder": "New goal…",
     "greeting": "Hello 👋",
-    "toNext": "{{n}} XP to next level"
+    "toNext": "{{n}} XP to next level",
+    "searchPlaceholder": "Search groups, classes, interests",
+    "explore": "Explore by interest",
+    "seeAll": "See all",
+    "yourProgress": "Your progress",
+    "openSession": "Open"
   },
   "goals": {
     "titleInvalid": "Goal title must be 1–120 characters.",

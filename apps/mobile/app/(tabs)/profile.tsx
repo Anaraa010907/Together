@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { font, lightTheme as t, palette, radius, shadow } from '@together/ui/tokens';
 import { signOut } from '../../lib/auth';
 import { Avatar } from '../../components/Avatar';
+import { TAB_BAR_SPACE } from '../../components/TabBar';
+import { FadeIn, PressableScale } from '../../components/motion';
 import { Button, Card, Field, ListRow, Segmented } from '../../components/ui';
 import { fetchProgress, type Progress } from '../../lib/goals';
 import {
@@ -133,13 +136,16 @@ export default function Profile() {
   return (
     <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
       {/* Толгой хэсэг */}
-      <View style={[styles.hero, shadow.card]}>
-        <Pressable onPress={onAvatar} disabled={uploading} accessibilityRole="button" accessibilityLabel={tr('settings.changePhoto')}>
+      <FadeIn index={0}>
+      <LinearGradient colors={['#111923', '#26384E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, shadow.card]}>
+        <View style={styles.heroOrb} />
+        <View style={[styles.heroOrb, { left: -50, right: undefined, top: undefined, bottom: -60, width: 140, height: 140, opacity: 0.08 }]} />
+        <PressableScale onPress={onAvatar} disabled={uploading} accessibilityRole="button" accessibilityLabel={tr('settings.changePhoto')}>
           <Avatar name={profile?.display_name} url={profile?.avatar_url} size={84} />
           <View style={styles.camera}>
             {uploading ? <ActivityIndicator size="small" color={t.onAccent} /> : <Ionicons name="camera" size={14} color={t.onAccent} />}
           </View>
-        </Pressable>
+        </PressableScale>
         <Text style={styles.name}>{profile?.display_name}</Text>
         <Text style={styles.username}>@{profile?.username}</Text>
         {!!profile?.bio && <Text style={styles.bio}>{profile.bio}</Text>}
@@ -153,7 +159,8 @@ export default function Profile() {
             <Stat label={tr('settings.longest')} value={progress.longest_streak} />
           </View>
         )}
-      </View>
+      </LinearGradient>
+      </FadeIn>
 
       {editing ? (
         <Card style={{ gap: 14 }}>
@@ -241,8 +248,9 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.background },
-  screen: { padding: 20, paddingTop: 60, gap: 14, paddingBottom: 40 },
-  hero: { backgroundColor: palette.midnightNavy, borderRadius: radius.lg, padding: 20, alignItems: 'center', gap: 4 },
+  screen: { padding: 20, paddingTop: 60, gap: 14, paddingBottom: TAB_BAR_SPACE },
+  hero: { borderRadius: 24, padding: 22, alignItems: 'center', gap: 4, overflow: 'hidden' },
+  heroOrb: { position: 'absolute', right: -40, top: -50, width: 170, height: 170, borderRadius: 85, backgroundColor: palette.champagneGold, opacity: 0.16 },
   camera: {
     position: 'absolute', right: -2, bottom: -2, width: 28, height: 28, borderRadius: 14,
     backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: palette.midnightNavy,

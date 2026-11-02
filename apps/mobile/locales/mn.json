@@ -78,7 +78,12 @@
     "doneLabel": "Биелсэн ✓",
     "addPlaceholder": "Шинэ зорилго…",
     "greeting": "Сайн байна уу 👋",
-    "toNext": "Дараагийн түвшин хүртэл {{n}} XP"
+    "toNext": "Дараагийн түвшин хүртэл {{n}} XP",
+    "searchPlaceholder": "Групп, хичээл, сонирхол хайх",
+    "explore": "Сонирхлоор судлах",
+    "seeAll": "Бүгд",
+    "yourProgress": "Таны ахиц",
+    "openSession": "Нээх"
   },
   "goals": {
     "titleInvalid": "Зорилгын нэр 1–120 тэмдэгт байна.",

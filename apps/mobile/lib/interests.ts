@@ -15,6 +15,22 @@ export type SuggestedGroup = {
 
 export const categoryName = (c: Category) => (i18n.language === 'en' ? c.name_en : c.name_mn);
 
+// Ангилал бүрт тогтмол зөөлөн градиент (палитртай зохицсон). id-аас hash-аар сонгоно.
+const GRADIENTS: [string, string][] = [
+  ['#F3E7CF', '#E2CBA0'], // алтан
+  ['#E3ECE5', '#B9CCBF'], // sage
+  ['#F3E1DE', '#DDB3AC'], // rose
+  ['#E4E8EF', '#BAC4D3'], // navy-цэнхэр
+  ['#EFE6F1', '#CDB9D3'], // лаванда
+  ['#E6EEEA', '#A9C3B6'], // ногоон
+];
+export function categoryColor(id: string | null | undefined): [string, string] {
+  if (!id) return ['#EDE8DE', '#D8D0C0'];
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return GRADIENTS[Math.abs(h) % GRADIENTS.length];
+}
+
 let cache: Category[] | null = null;
 
 export async function fetchCategories(): Promise<Category[]> {

@@ -1,10 +1,25 @@
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { font, lightTheme as t, palette, radius, shadow } from '@together/ui/tokens';
-import { ProgressRing } from '../../components/ui';
+import { AnimatedRing, Dots, FadeIn, Pop, PressableScale } from '../../components/motion';
+import { TAB_BAR_SPACE } from '../../components/TabBar';
+import { categoryColor, categoryName, fetchCategories, fetchMyInterests, type Category } from '../../lib/interests';
 import { fetchMyProfile } from '../../lib/account';
 import { fetchUnreadCount } from '../../lib/notifications';
 import { Avatar } from '../../components/Avatar';
@@ -50,6 +65,11 @@ export default function Home() {
   const [newTitle, setNewTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [myInterests, setMyInterests] = useState<Set<string>>(new Set());
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = screenWidth - 40;
 
   const today = todayIso();
 
@@ -62,6 +82,14 @@ export default function Home() {
         })
         .catch(() => {});
       fetchUnreadCount().then(setUnread).catch(() => setUnread(0));
+      // Миний сонирхол эхэнд.
+      Promise.all([fetchCategories(), fetchMyInterests().catch(() => [] as string[])])
+        .then(([cats, mine]) => {
+          const set = new Set(mine);
+          setMyInterests(set);
+          setCategories([...cats].sort((a, b) => Number(set.has(b.id)) - Number(set.has(a.id))));
+        })
+        .catch(() => setCategories([]));
       fetchMyUpcomingSessions()
         .then(setSessions)
         .catch(() => setSessions([]));
@@ -184,126 +212,129 @@ export default function Home() {
   const levelProgress = (progress.total_xp - levelStart) / Math.max(1, levelNext - levelStart);
   const doneCount = goals.filter((g) => doneToday.has(g.id)).length;
 
+  // Онцлох carousel: ахиц + идэвхтэй challenge + удахгүй болох сешн.
+  const slides: Slide[] = [
+    { kind: 'progress' },
+    ...challenges.map((c) => ({ kind: 'challenge' as const, challenge: c })),
+    ...sessions.slice(0, 2).map((se) => ({ kind: 'session' as const, session: se })),
+  ];
+  const pageWidth = cardWidth + 12;
+
   const header = (
-    <View style={{ gap: 14, marginBottom: 6 }}>
-      <View style={styles.greetRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.greetSmall}>{tr('home.greeting')}</Text>
-          <Text style={styles.greetName} numberOfLines={1}>
-            {name || 'TOGETHER'}
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => router.push('/notifications' as never)}
-          accessibilityRole="button"
-          accessibilityLabel={tr('notifications.title')}
-          style={styles.bell}
-        >
-          <Ionicons name="notifications-outline" size={22} color={t.text} />
-          {unread > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
-            </View>
-          )}
-        </Pressable>
-        <Pressable onPress={() => router.push('/profile' as never)} accessibilityRole="button">
-          <Avatar name={name || 'T'} url={avatarUrl} size={46} />
-        </Pressable>
-      </View>
-
-      {/* Hero: түвшин, XP, streak */}
-      <View style={[styles.hero, shadow.card]}>
-        <ProgressRing progress={levelProgress} size={104}>
-          <Text style={styles.ringLevel}>{progress.current_level}</Text>
-          <Text style={styles.ringCaption}>{tr('home.level')}</Text>
-        </ProgressRing>
-        <View style={{ flex: 1, gap: 10 }}>
-          <View>
-            <Text style={styles.heroValue}>
-              {progress.total_xp} <Text style={styles.heroUnit}>XP</Text>
+    <View style={{ gap: 18, marginBottom: 6 }}>
+      <FadeIn index={0}>
+        <View style={styles.greetRow}>
+          <PressableScale onPress={() => router.push('/profile' as never)} accessibilityRole="button">
+            <Avatar name={name || 'T'} url={avatarUrl} size={48} />
+          </PressableScale>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.greetSmall}>{tr('home.greeting')}</Text>
+            <Text style={styles.greetName} numberOfLines={1}>
+              {name || 'TOGETHER'}
             </Text>
-            <Text style={styles.heroMuted}>{tr('home.toNext', { n: Math.max(0, levelNext - progress.total_xp) })}</Text>
           </View>
-          <View style={styles.heroRow}>
-            <View style={styles.heroChip}>
-              <Text style={styles.heroChipText}>🔥 {progress.current_streak}</Text>
-            </View>
-            <View style={styles.heroChip}>
-              <Text style={styles.heroChipText}>
-                ✓ {doneCount}/{goals.length}
-              </Text>
-            </View>
-          </View>
+          <PressableScale
+            onPress={() => router.push('/notifications' as never)}
+            accessibilityRole="button"
+            accessibilityLabel={tr('notifications.title')}
+            style={styles.bell}
+          >
+            <Ionicons name="notifications-outline" size={22} color={t.text} />
+            {unread > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+              </View>
+            )}
+          </PressableScale>
         </View>
-      </View>
+      </FadeIn>
 
-      {sessions.length > 0 && (
-        <>
-          <Text style={styles.section}>{tr('sessions.upcoming')}</Text>
-          {sessions.map((se) => (
-            <Pressable
-              key={se.id}
-              onPress={() => router.push(`/session/${se.id}` as never)}
-              accessibilityRole="button"
-              style={[styles.row, shadow.card]}
-            >
-              <View style={[styles.iconBubble, { backgroundColor: '#F1E9D8' }]}>
-                <Ionicons name={sessionStatus(se) === 'live' ? 'radio' : 'calendar-outline'} size={18} color={t.text} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.rowTitle}>{se.title}</Text>
-                <Text style={styles.rowMeta}>
-                  {sessionStatus(se) === 'live' ? tr('sessions.status.live') : formatDateTime(se.starts_at)}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={t.textMuted} />
-            </Pressable>
+      <FadeIn index={1}>
+        <View style={styles.searchRow}>
+          <PressableScale onPress={() => router.push('/groups' as never)} accessibilityRole="search" style={styles.search}>
+            <Ionicons name="search" size={18} color="#9AA2AD" />
+            <Text style={styles.searchText}>{tr('home.searchPlaceholder')}</Text>
+          </PressableScale>
+          <PressableScale
+            onPress={() => router.push('/interests?edit=1' as never)}
+            accessibilityRole="button"
+            accessibilityLabel={tr('interests.edit')}
+            style={styles.filterBtn}
+          >
+            <Ionicons name="options-outline" size={20} color={t.onAccent} />
+          </PressableScale>
+        </View>
+      </FadeIn>
+
+      <FadeIn index={2}>
+        <Animated.ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={pageWidth}
+          decelerationRate="fast"
+          contentContainerStyle={{ gap: 12, paddingRight: 20 }}
+          style={{ marginRight: -20 }}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false })}
+          scrollEventThrottle={16}
+        >
+          {slides.map((slide, i) => (
+            <FeaturedCard
+              key={slide.kind === 'progress' ? 'progress' : slide.kind === 'challenge' ? slide.challenge.id : slide.session.id}
+              slide={slide}
+              width={cardWidth}
+              index={i}
+              progress={progress}
+              levelProgress={levelProgress}
+              toNext={Math.max(0, levelNext - progress.total_xp)}
+              goalsDone={doneCount}
+              goalsTotal={goals.length}
+              today={today}
+              checked={slide.kind === 'challenge' && checkedToday.has(slide.challenge.id)}
+              busy={slide.kind === 'challenge' && busyId === slide.challenge.id}
+              onCheckIn={onCheckIn}
+              onOpen={(path) => router.push(path as never)}
+            />
           ))}
-        </>
-      )}
+        </Animated.ScrollView>
+        <Dots scrollX={scrollX} count={slides.length} pageWidth={pageWidth} />
+      </FadeIn>
 
-      {challenges.length > 0 && (
-        <>
-          <Text style={styles.section}>{tr('challenges.mine')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 4 }}>
-            {challenges.map((c) => {
-              const done = checkedToday.has(c.id);
-              const day = dayNumber(c, today);
-              const total = totalDays(c);
-              return (
-                <Pressable
-                  key={c.id}
-                  onPress={() => router.push(`/challenge/${c.id}` as never)}
-                  accessibilityRole="button"
-                  style={[styles.challengeCard, shadow.card]}
-                >
-                  <Text style={styles.rowTitle} numberOfLines={2}>
-                    {c.title}
-                  </Text>
-                  <View style={styles.track}>
-                    <View style={[styles.fill, { width: `${Math.min(100, (day / total) * 100)}%` }]} />
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Text style={styles.rowMeta}>{tr('challenges.statusActive', { day, total })}</Text>
-                    <Pressable
-                      onPress={() => !done && onCheckIn(c)}
-                      disabled={done || busyId !== null}
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: done }}
-                      accessibilityLabel={tr('challenges.checkIn')}
-                      style={[styles.checkBtn, { backgroundColor: done ? t.success : t.accent }]}
-                    >
-                      <Text style={styles.checkText}>{done ? '✓' : '+25'}</Text>
-                    </Pressable>
-                  </View>
-                </Pressable>
-              );
-            })}
+      {categories.length > 0 && (
+        <FadeIn index={3}>
+          <View style={styles.sectionRow}>
+            <Text style={styles.section}>{tr('home.explore')}</Text>
+            <Pressable onPress={() => router.push('/groups' as never)} hitSlop={8} accessibilityRole="link">
+              <Text style={styles.seeAll}>{tr('home.seeAll')}</Text>
+            </Pressable>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 20 }} style={{ marginRight: -20, marginTop: 10 }}>
+            {categories.map((c) => (
+              <PressableScale
+                key={c.id}
+                onPress={() => router.push({ pathname: '/groups', params: { category: c.id } } as never)}
+                accessibilityRole="button"
+                style={[styles.catChip, myInterests.has(c.id) && styles.catChipMine]}
+              >
+                <View style={[styles.catIcon, { backgroundColor: categoryColor(c.id)[0] }]}>
+                  <Text style={{ fontSize: 15 }}>{c.icon}</Text>
+                </View>
+                <Text style={styles.catText}>{categoryName(c)}</Text>
+              </PressableScale>
+            ))}
           </ScrollView>
-        </>
+        </FadeIn>
       )}
 
-      <Text style={styles.section}>{tr('home.todayGoals')}</Text>
+      <FadeIn index={4}>
+        <View style={styles.sectionRow}>
+          <Text style={styles.section}>{tr('home.todayGoals')}</Text>
+          {goals.length > 0 && (
+            <Text style={styles.seeAll}>
+              {doneCount}/{goals.length}
+            </Text>
+          )}
+        </View>
+      </FadeIn>
     </View>
   );
 
@@ -314,102 +345,269 @@ export default function Home() {
         keyExtractor={(g) => g.id}
         ListHeaderComponent={header}
         contentContainerStyle={styles.list}
+        keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
-          <View style={[styles.empty]}>
-            <Text style={styles.rowMeta}>{tr('home.noGoals')}</Text>
-          </View>
+          <FadeIn index={5}>
+            <View style={styles.empty}>
+              <Text style={{ fontSize: 28 }}>🌱</Text>
+              <Text style={styles.rowMeta}>{tr('home.noGoals')}</Text>
+            </View>
+          </FadeIn>
         }
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           const done = doneToday.has(item.id);
           return (
-            <Pressable
-              onPress={() => !done && busyId === null && onComplete(item)}
-              onLongPress={() => onArchive(item)}
-              disabled={busyId !== null}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: done }}
-              style={[styles.row, shadow.card]}
-            >
-              <View style={[styles.checkbox, done && { backgroundColor: t.success, borderColor: t.success }]}>
-                {done && <Ionicons name="checkmark" size={16} color={t.background} />}
-              </View>
-              <Text style={[styles.rowTitle, { flex: 1 }, done && styles.doneText]}>{item.title}</Text>
-              <Text style={[styles.xpTag, done && { opacity: 0.5 }]}>+20</Text>
-            </Pressable>
+            <FadeIn index={5 + index}>
+              <PressableScale
+                onPress={() => !done && busyId === null && onComplete(item)}
+                onLongPress={() => onArchive(item)}
+                disabled={busyId !== null}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: done }}
+                style={[styles.row, shadow.card, done && styles.rowDone]}
+              >
+                <Pop trigger={done}>
+                  <View style={[styles.checkbox, done && { backgroundColor: t.success, borderColor: t.success }]}>
+                    {done && <Ionicons name="checkmark" size={16} color={t.background} />}
+                  </View>
+                </Pop>
+                <Text style={[styles.rowTitle, { flex: 1 }, done && styles.doneText]}>{item.title}</Text>
+                <Text style={[styles.xpTag, done && { opacity: 0.5 }]}>+20 XP</Text>
+              </PressableScale>
+            </FadeIn>
           );
         }}
         ListFooterComponent={
-          goals.length > 0 ? <Text style={[styles.rowMeta, { textAlign: 'center', marginTop: 4 }]}>{tr('goals.hint')}</Text> : null
+          <View style={{ gap: 10, marginTop: 4 }}>
+            <View style={[styles.addCard, shadow.card]}>
+              <TextInput
+                style={styles.addInput}
+                value={newTitle}
+                onChangeText={setNewTitle}
+                placeholder={tr('home.addPlaceholder')}
+                placeholderTextColor="#9AA2AD"
+                maxLength={120}
+                returnKeyType="done"
+                onSubmitEditing={onAdd}
+                accessibilityLabel={tr('home.addPlaceholder')}
+              />
+              <PressableScale style={styles.addBtn} onPress={onAdd} accessibilityRole="button" accessibilityLabel={tr('home.addPlaceholder')}>
+                <Ionicons name="add" size={24} color={t.onAccent} />
+              </PressableScale>
+            </View>
+            {goals.length > 0 && <Text style={[styles.rowMeta, { textAlign: 'center' }]}>{tr('goals.hint')}</Text>}
+          </View>
         }
       />
+    </View>
+  );
+}
 
-      <View style={styles.addBar}>
-        <TextInput
-          style={styles.addInput}
-          value={newTitle}
-          onChangeText={setNewTitle}
-          placeholder={tr('home.addPlaceholder')}
-          placeholderTextColor="#9AA2AD"
-          maxLength={120}
-          returnKeyType="done"
-          onSubmitEditing={onAdd}
-          accessibilityLabel={tr('home.addPlaceholder')}
-        />
-        <Pressable style={styles.addBtn} onPress={onAdd} accessibilityRole="button" accessibilityLabel={tr('home.addPlaceholder')}>
-          <Ionicons name="add" size={26} color={t.onAccent} />
-        </Pressable>
-      </View>
+type Slide =
+  | { kind: 'progress' }
+  | { kind: 'challenge'; challenge: Challenge }
+  | { kind: 'session'; session: Session };
+
+// Онцлох карт: navy градиент, алтан чимэглэлийн тойрог, үйлдлийн товч.
+function FeaturedCard({
+  slide,
+  width,
+  progress,
+  levelProgress,
+  toNext,
+  goalsDone,
+  goalsTotal,
+  today,
+  checked,
+  busy,
+  onCheckIn,
+  onOpen,
+}: {
+  slide: Slide;
+  width: number;
+  index: number;
+  progress: Progress;
+  levelProgress: number;
+  toNext: number;
+  goalsDone: number;
+  goalsTotal: number;
+  today: string;
+  checked: boolean;
+  busy: boolean;
+  onCheckIn: (c: Challenge) => void;
+  onOpen: (path: string) => void;
+}) {
+  const { t: tr } = useTranslation();
+  const colors: [string, string] =
+    slide.kind === 'challenge' ? ['#1B2A3A', '#3A3020'] : slide.kind === 'session' ? ['#1D2A2A', '#2E4038'] : ['#111923', '#22344A'];
+
+  return (
+    <PressableScale
+      onPress={() =>
+        slide.kind === 'challenge'
+          ? onOpen(`/challenge/${slide.challenge.id}`)
+          : slide.kind === 'session'
+            ? onOpen(`/session/${slide.session.id}`)
+            : onOpen('/profile')
+      }
+      accessibilityRole="button"
+      scaleTo={0.98}
+    >
+      <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.featured, { width }]}>
+        <View style={[styles.orb, { right: -40, top: -50, width: 170, height: 170, opacity: 0.18 }]} />
+        <View style={[styles.orb, { right: 40, bottom: -70, width: 120, height: 120, opacity: 0.1 }]} />
+
+        {slide.kind === 'progress' && (
+          <View style={styles.featuredRow}>
+            <AnimatedRing progress={levelProgress} size={104}>
+              <Text style={styles.ringLevel}>{progress.current_level}</Text>
+              <Text style={styles.ringCaption}>{tr('home.level')}</Text>
+            </AnimatedRing>
+            <View style={{ flex: 1, gap: 8 }}>
+              <Tag label={tr('home.yourProgress')} />
+              <Text style={styles.heroValue}>
+                {progress.total_xp} <Text style={styles.heroUnit}>XP</Text>
+              </Text>
+              <Text style={styles.heroMuted}>{tr('home.toNext', { n: toNext })}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Text style={styles.heroChip}>🔥 {progress.current_streak}</Text>
+                <Text style={styles.heroChip}>
+                  ✓ {goalsDone}/{goalsTotal}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {slide.kind === 'challenge' && (
+          <View style={{ gap: 10 }}>
+            <Tag label={`🏁 ${tr('challenges.badge.active')}`} />
+            <Text style={styles.featuredTitle} numberOfLines={2}>
+              {slide.challenge.title}
+            </Text>
+            <Text style={styles.heroMuted}>
+              {tr('challenges.statusActive', {
+                day: dayNumber(slide.challenge, today),
+                total: totalDays(slide.challenge),
+              })}
+            </Text>
+            <View style={styles.track}>
+              <View
+                style={[
+                  styles.fill,
+                  { width: `${Math.min(100, (dayNumber(slide.challenge, today) / totalDays(slide.challenge)) * 100)}%` },
+                ]}
+              />
+            </View>
+            <PressableScale
+              onPress={() => !checked && onCheckIn(slide.challenge)}
+              disabled={checked || busy}
+              accessibilityRole="button"
+              style={[styles.cta, checked && { backgroundColor: palette.sageGreen }]}
+            >
+              {busy ? (
+                <ActivityIndicator color={palette.midnightNavy} />
+              ) : (
+                <Text style={styles.ctaText}>{checked ? tr('challenges.checkedIn') : tr('challenges.checkIn')}</Text>
+              )}
+            </PressableScale>
+          </View>
+        )}
+
+        {slide.kind === 'session' && (
+          <View style={{ gap: 10 }}>
+            <Tag
+              label={
+                sessionStatus(slide.session) === 'live' ? `🔴 ${tr('sessions.status.live')}` : `🗓 ${tr('sessions.upcoming')}`
+              }
+            />
+            <Text style={styles.featuredTitle} numberOfLines={2}>
+              {slide.session.title}
+            </Text>
+            <Text style={styles.heroMuted}>
+              {formatDateTime(slide.session.starts_at)} · {tr('sessions.minutes', { n: slide.session.duration_min })}
+            </Text>
+            <View style={styles.cta}>
+              <Text style={styles.ctaText}>{tr('home.openSession')}</Text>
+            </View>
+          </View>
+        )}
+      </LinearGradient>
+    </PressableScale>
+  );
+}
+
+function Tag({ label }: { label: string }) {
+  return (
+    <View style={styles.tag}>
+      <Text style={styles.tagText}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  list: { padding: 20, paddingTop: 60, gap: 10, paddingBottom: 24 },
+  list: { padding: 20, paddingTop: 58, gap: 10, paddingBottom: TAB_BAR_SPACE },
   greetRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  greetSmall: { fontFamily: font.medium, fontSize: 14, color: '#5B6573' },
-  greetName: { fontFamily: font.extrabold, fontSize: 26, color: t.text, letterSpacing: -0.3 },
+  greetSmall: { fontFamily: font.medium, fontSize: 13, color: '#5B6573' },
+  greetName: { fontFamily: font.extrabold, fontSize: 24, color: t.text, letterSpacing: -0.3 },
   bell: {
-    width: 46, height: 46, borderRadius: 23, backgroundColor: t.surface, borderWidth: 1, borderColor: '#EFEAE0',
+    width: 48, height: 48, borderRadius: 24, backgroundColor: t.surface, borderWidth: 1, borderColor: '#EFEAE0',
     alignItems: 'center', justifyContent: 'center',
   },
   badge: {
-    position: 'absolute', top: 6, right: 6, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4,
+    position: 'absolute', top: 7, right: 7, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4,
     backgroundColor: t.warning, alignItems: 'center', justifyContent: 'center',
   },
   badgeText: { fontFamily: font.bold, fontSize: 10, color: '#FFFFFF' },
-  hero: { backgroundColor: palette.midnightNavy, borderRadius: radius.lg, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 18 },
+  searchRow: { flexDirection: 'row', gap: 10, alignItems: 'center' },
+  search: {
+    flex: 1, height: 52, borderRadius: radius.pill, backgroundColor: t.surface, borderWidth: 1, borderColor: '#EFEAE0',
+    flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 18, ...shadow.card,
+  },
+  searchText: { fontFamily: font.medium, fontSize: 15, color: '#9AA2AD' },
+  filterBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  featured: { borderRadius: 24, padding: 20, minHeight: 190, overflow: 'hidden', justifyContent: 'center' },
+  featuredRow: { flexDirection: 'row', alignItems: 'center', gap: 18 },
+  orb: { position: 'absolute', borderRadius: 999, backgroundColor: palette.champagneGold },
+  featuredTitle: { fontFamily: font.extrabold, fontSize: 22, color: palette.warmIvory, lineHeight: 28 },
   ringLevel: { fontFamily: font.extrabold, fontSize: 30, color: palette.warmIvory, lineHeight: 34 },
   ringCaption: { fontFamily: font.medium, fontSize: 11, color: 'rgba(244,240,231,0.7)' },
   heroValue: { fontFamily: font.extrabold, fontSize: 28, color: palette.warmIvory },
   heroUnit: { fontFamily: font.bold, fontSize: 16, color: t.accent },
-  heroMuted: { fontFamily: font.medium, fontSize: 13, color: 'rgba(244,240,231,0.7)' },
-  heroRow: { flexDirection: 'row', gap: 8 },
-  heroChip: { backgroundColor: 'rgba(244,240,231,0.1)', borderRadius: radius.pill, paddingVertical: 6, paddingHorizontal: 12 },
-  heroChipText: { fontFamily: font.bold, fontSize: 14, color: palette.warmIvory },
-  section: { fontFamily: font.bold, fontSize: 18, color: t.text, marginTop: 8 },
-  row: {
-    backgroundColor: t.surface, borderRadius: 16, borderWidth: 1, borderColor: '#EFEAE0',
-    paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12,
+  heroMuted: { fontFamily: font.medium, fontSize: 13, color: 'rgba(244,240,231,0.75)' },
+  heroChip: {
+    fontFamily: font.bold, fontSize: 13, color: palette.warmIvory, backgroundColor: 'rgba(244,240,231,0.12)',
+    borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 11, overflow: 'hidden',
   },
+  tag: { alignSelf: 'flex-start', backgroundColor: 'rgba(198,166,107,0.22)', borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10 },
+  tagText: { fontFamily: font.bold, fontSize: 12, color: t.accent },
+  track: { height: 6, borderRadius: 3, backgroundColor: 'rgba(244,240,231,0.15)', overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 3, backgroundColor: t.accent },
+  cta: { alignSelf: 'flex-start', backgroundColor: t.accent, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 18, marginTop: 2, minWidth: 120, alignItems: 'center' },
+  ctaText: { fontFamily: font.bold, fontSize: 14, color: palette.midnightNavy },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  section: { fontFamily: font.extrabold, fontSize: 19, color: t.text },
+  seeAll: { fontFamily: font.bold, fontSize: 14, color: '#8A6F3D' },
+  catChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderRadius: radius.pill,
+    borderWidth: 1, borderColor: '#EFEAE0', paddingVertical: 6, paddingLeft: 6, paddingRight: 14,
+  },
+  catChipMine: { borderColor: t.accent, backgroundColor: '#FBF6EA' },
+  catIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  catText: { fontFamily: font.semibold, fontSize: 14, color: t.text },
+  row: {
+    backgroundColor: t.surface, borderRadius: 18, borderWidth: 1, borderColor: '#EFEAE0',
+    paddingVertical: 15, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  rowDone: { backgroundColor: '#F6F8F4', borderColor: '#DCE5DD' },
   rowTitle: { fontFamily: font.semibold, fontSize: 16, color: t.text },
   rowMeta: { fontFamily: font.medium, fontSize: 13, color: '#5B6573' },
-  iconBubble: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  challengeCard: {
-    width: 220, backgroundColor: t.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: '#EFEAE0', padding: 16, gap: 12,
-  },
-  track: { height: 6, borderRadius: 3, backgroundColor: '#EFEAE0', overflow: 'hidden' },
-  fill: { height: 6, borderRadius: 3, backgroundColor: t.accent },
-  checkBtn: { minWidth: 56, height: 36, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  checkText: { fontFamily: font.extrabold, color: t.onAccent, fontSize: 14 },
-  checkbox: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: '#D5CDBD', alignItems: 'center', justifyContent: 'center' },
+  checkbox: { width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: '#D5CDBD', alignItems: 'center', justifyContent: 'center' },
   doneText: { color: '#5B6573', textDecorationLine: 'line-through' },
-  xpTag: { fontFamily: font.bold, fontSize: 13, color: '#8A6F3D', backgroundColor: '#F4ECDC', borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10, overflow: 'hidden' },
-  empty: { backgroundColor: t.surface, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: '#D5CDBD', padding: 20, alignItems: 'center' },
-  addBar: { flexDirection: 'row', gap: 10, alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12, backgroundColor: t.background, borderTopWidth: 1, borderTopColor: '#EFEAE0' },
-  addInput: {
-    flex: 1, height: 52, borderRadius: radius.md, borderWidth: 1, borderColor: '#E3DDCF', backgroundColor: t.surface,
-    paddingHorizontal: 14, fontFamily: font.medium, fontSize: 16, color: t.text,
-  },
-  addBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' },
+  xpTag: { fontFamily: font.bold, fontSize: 12, color: '#8A6F3D', backgroundColor: '#F4ECDC', borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10, overflow: 'hidden' },
+  empty: { backgroundColor: t.surface, borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', borderColor: '#D5CDBD', padding: 22, alignItems: 'center', gap: 6 },
+  addCard: { flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: t.surface, borderRadius: 18, borderWidth: 1, borderColor: '#EFEAE0', padding: 8, paddingLeft: 16 },
+  addInput: { flex: 1, height: 44, fontFamily: font.medium, fontSize: 16, color: t.text },
+  addBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' },
 });
