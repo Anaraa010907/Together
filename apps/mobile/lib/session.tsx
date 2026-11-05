@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import i18n from './i18n';
@@ -35,14 +36,22 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
     let { data, error } = await supabase
       .from('profiles')
-      .select('id, locale, interests_set_at')
+      .select('id, locale, interests_set_at, banned_at')
       .eq('id', userData.user.id)
       .maybeSingle();
     // Сервер 0012-гүй (interests_set_at багана байхгүй) бол сонирхлын алхмыг алгасна.
     if (error?.code === '42703') {
       const fallback = await supabase.from('profiles').select('id, locale').eq('id', userData.user.id).maybeSingle();
-      data = fallback.data ? { ...fallback.data, interests_set_at: 'n/a' } : null;
+      data = fallback.data ? { ...fallback.data, interests_set_at: 'n/a', banned_at: null } : null;
       error = fallback.error;
+    }
+    // Админ хориглосон бол гаргана.
+    if (data?.banned_at) {
+      Alert.alert(i18n.t('admin.bannedTitle'), i18n.t('admin.bannedBody'));
+      await supabase.auth.signOut().catch(() => {});
+      setHasProfile(false);
+      setNeedsInterests(false);
+      return;
     }
     setHasProfile(!error && !!data);
     // Onboarding-ийн сонирхлын алхмыг (алгассан ч) нэг удаа дуусгасан эсэх.

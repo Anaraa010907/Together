@@ -22,7 +22,9 @@ drop schema if exists auth cascade;
 create schema auth;
 
 create table auth.users (
-  id uuid primary key default gen_random_uuid()
+  id uuid primary key default gen_random_uuid(),
+  email text,
+  banned_until timestamptz
 );
 
 -- JWT-ийн sub-г request.jwt.claim.sub-аас уншина (Supabase-ийн хэрэгжилттэй ижил).

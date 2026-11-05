@@ -31,6 +31,7 @@ import { fetchFeed, type Post } from '../../lib/feed';
 import { formatDateTime, timeAgo } from '../../lib/time';
 import { categoryColor, categoryName, fetchCategories, type Category } from '../../lib/interests';
 import { compact, fetchGroupStats, type GroupStat } from '../../lib/social';
+import { openGroupChat } from '../../lib/chat';
 import {
   canReview,
   fetchCompletions,
@@ -214,6 +215,18 @@ export default function GroupDetail() {
     }
   };
 
+  const onChat = async () => {
+    setBusy(true);
+    try {
+      const cid = await openGroupChat(groupId);
+      router.push(`/chat/${cid}` as never);
+    } catch (e: any) {
+      Alert.alert(tr('common.error'), String(e.message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onCover = async () => {
     try {
       const a = await pickGroupCover();
@@ -321,10 +334,10 @@ export default function GroupDetail() {
           <FadeIn index={2}>
             <View style={styles.actions}>
               {isActive ? (
-                <PressableScale onPress={() => router.push(`/feed/${groupId}` as never)} accessibilityRole="button" style={[{ flex: 1 }, shadow.glow]}>
+                <PressableScale onPress={onChat} disabled={busy} accessibilityRole="button" style={[{ flex: 1 }, shadow.glow]}>
                   <LinearGradient colors={gradients.violet} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.primary}>
                     <Ionicons name="chatbubbles" size={18} color="#FFFFFF" />
-                    <Text style={styles.primaryText}>{tr('feed.open')}</Text>
+                    <Text style={styles.primaryText}>{tr('chat.groupChat')}</Text>
                   </LinearGradient>
                 </PressableScale>
               ) : isPending ? (

@@ -126,6 +126,7 @@ export default function Profile() {
     { key: 'xp', icon: '⭐', label: tr('me.xp'), value: compact(progress?.total_xp ?? 0), to: '/me/xp' },
     { key: 'liked', icon: '❤️', label: tr('me.liked'), value: compact(stats?.liked ?? 0), to: '/me/liked' },
     { key: 'saved', icon: '🔖', label: tr('me.saved'), value: compact(stats?.saved ?? 0), to: '/me/saved' },
+    ...(stats?.is_admin ? [{ key: 'admin', icon: '🛡️', label: tr('admin.title'), value: '', to: '/admin' }] : []),
   ];
 
   return (
@@ -170,11 +171,18 @@ export default function Profile() {
 
         <FadeIn index={1}>
           <View style={styles.stats}>
-            <Stat label={tr('me.posts')} value={stats?.posts ?? 0} />
+            <Stat label={tr('me.posts')} value={stats?.posts ?? 0} onPress={() => router.push('/me/posts' as never)} />
             <View style={styles.statDivider} />
-            <Stat label={tr('me.followers')} value={stats?.followers ?? 0} />
+            <Stat
+              label={tr('me.followers')}
+              value={stats?.followers ?? 0}
+              onPress={() =>
+                profile &&
+                router.push({ pathname: '/follows/[id]', params: { id: profile.id, kind: 'followers', name: profile.display_name } } as never)
+              }
+            />
             <View style={styles.statDivider} />
-            <Stat label={tr('me.groups')} value={stats?.groups ?? groups.length} />
+            <Stat label={tr('me.groups')} value={stats?.groups ?? groups.length} onPress={() => setSeg('groups')} />
           </View>
         </FadeIn>
 
@@ -309,12 +317,12 @@ export default function Profile() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value, onPress }: { label: string; value: number; onPress?: () => void }) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', gap: 2 }}>
+    <PressableScale onPress={onPress} disabled={!onPress} accessibilityRole="button" style={{ flex: 1, alignItems: 'center', gap: 2 }}>
       <Text style={styles.statValue}>{compact(value)}</Text>
       <Text style={styles.statLabel}>{label}</Text>
-    </View>
+    </PressableScale>
   );
 }
 

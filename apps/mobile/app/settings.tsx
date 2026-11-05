@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -6,12 +6,18 @@ import { font, lightTheme as t } from '@together/ui/tokens';
 import { Button, Card, ListRow, Screen, Segmented } from '../components/ui';
 import { signOut } from '../lib/auth';
 import { deleteMyAccount, setLanguage, type Locale } from '../lib/account';
+import { isAdmin } from '../lib/social';
 
 // Тохиргоо: хэл, сонирхол, багш, мэдэгдэл, хууль эрх зүй, гарах, бүртгэл устгах.
 export default function Settings() {
   const { t: tr, i18n } = useTranslation();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [admin, setAdmin] = useState(false);
+
+  useEffect(() => {
+    isAdmin().then(setAdmin).catch(() => setAdmin(false));
+  }, []);
 
   const onLanguage = async (locale: Locale) => {
     try {
@@ -62,6 +68,8 @@ export default function Settings() {
         <ListRow icon="school-outline" label={tr('teach.title')} onPress={() => router.push('/teach/edit' as never)} />
         <ListRow icon="search-outline" label={tr('search.title')} onPress={() => router.push('/search' as never)} />
         <ListRow icon="key-outline" label={tr('groups.joinByCode')} onPress={() => router.push('/join' as never)} />
+        <ListRow icon="chatbubbles-outline" label={tr('chat.title')} onPress={() => router.push('/chats' as never)} />
+        {admin && <ListRow icon="shield-checkmark-outline" label={tr('admin.title')} onPress={() => router.push('/admin' as never)} />}
       </Card>
 
       <Text style={styles.section}>{tr('legal.section')}</Text>

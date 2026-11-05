@@ -5,7 +5,7 @@ import i18n from './i18n';
 import { supabase } from './supabase';
 
 export type Locale = 'mn' | 'en';
-export type ReportType = 'profile' | 'group' | 'goal' | 'post' | 'comment' | 'review';
+export type ReportType = 'profile' | 'group' | 'goal' | 'post' | 'comment' | 'review' | 'message';
 
 export type MyProfile = {
   id: string;

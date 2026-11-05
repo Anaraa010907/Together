@@ -101,6 +101,10 @@ export default function RootLayout() {
         <Stack.Screen name="suggested" options={{ headerShown: false }} />
         <Stack.Screen name="legal/[doc]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="goal/new" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="chats" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="chat/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="follows/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="admin" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="settings" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="search" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="user/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />

@@ -14,6 +14,7 @@ import { SectionHeader } from '../../components/ui';
 import { categoryName, fetchCategories, fetchMyInterests, type Category } from '../../lib/interests';
 import { fetchMyProfile } from '../../lib/account';
 import { fetchUnreadCount } from '../../lib/notifications';
+import { fetchUnreadChatCount } from '../../lib/chat';
 import { fetchProfileStats } from '../../lib/social';
 import {
   archiveGoal,
@@ -53,6 +54,7 @@ export default function Home() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [verified, setVerified] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [unreadChat, setUnreadChat] = useState(0);
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const [categories, setCategories] = useState<Category[]>([]);
   const [myInterests, setMyInterests] = useState<Set<string>>(new Set());
@@ -72,6 +74,7 @@ export default function Home() {
         })
         .catch(() => {});
       fetchUnreadCount().then(setUnread).catch(() => setUnread(0));
+      fetchUnreadChatCount().then(setUnreadChat).catch(() => setUnreadChat(0));
       // Миний сонирхол эхэнд.
       Promise.all([fetchCategories(), fetchMyInterests().catch(() => [] as string[])])
         .then(([cats, mine]) => {
@@ -222,6 +225,19 @@ export default function Home() {
                 {verified && <Ionicons name="checkmark-circle" size={20} color={palette.violet} />}
               </View>
             </View>
+            <PressableScale
+              onPress={() => router.push('/chats' as never)}
+              accessibilityRole="button"
+              accessibilityLabel={tr('chat.title')}
+              style={styles.bell}
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={22} color={t.text} />
+              {unreadChat > 0 && (
+                <LinearGradient colors={gradients.sunset} style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadChat > 9 ? '9+' : unreadChat}</Text>
+                </LinearGradient>
+              )}
+            </PressableScale>
             <PressableScale
               onPress={() => router.push('/notifications' as never)}
               accessibilityRole="button"
@@ -497,11 +513,11 @@ export default function Home() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   screen: { padding: 20, paddingTop: 58, gap: 14, paddingBottom: TAB_BAR_SPACE },
-  greetRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  greetRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   greetSmall: { fontFamily: font.medium, fontSize: 14, color: t.textMuted },
   greetName: { fontFamily: font.extrabold, fontSize: 24, color: t.text, letterSpacing: -0.3, flexShrink: 1 },
   bell: {
-    width: 50, height: 50, borderRadius: 25, backgroundColor: t.surface, borderWidth: 1, borderColor: t.border,
+    width: 46, height: 46, borderRadius: 23, backgroundColor: t.surface, borderWidth: 1, borderColor: t.border,
     alignItems: 'center', justifyContent: 'center',
   },
   badge: {

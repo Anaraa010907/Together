@@ -3,16 +3,28 @@ import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 're
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { font, lightTheme as t, palette } from '@together/ui/tokens';
+import { font, lightTheme as t, palette, radius } from '@together/ui/tokens';
 import { Avatar } from '../../components/Avatar';
 import { Backdrop } from '../../components/Backdrop';
 import { FollowButton } from '../../components/FollowButton';
 import { FadeIn, PressableScale } from '../../components/motion';
 import { useSession } from '../../lib/session';
 import { promptMemberActions } from '../../lib/moderation';
-import { compact, fetchProfileStats, fetchPublicProfile, follow, unfollow, type ProfileStats } from '../../lib/social';
+import { fetchUserPosts, type Post } from '../../lib/feed';
+import { timeAgo } from '../../lib/time';
+import { chatErrorKey, startDirectChat } from '../../lib/chat';
+import {
+  adminErrorKey,
+  adminSetBan,
+  compact,
+  fetchProfileStats,
+  fetchPublicProfile,
+  follow,
+  unfollow,
+  type ProfileStats,
+} from '../../lib/social';
 
-// Бусдын профайл: зураг, статистик, дагах, мэдээлэх/блоклох.
+// Бусдын профайл: статистик (дарвал жагсаалт), дагах, мессеж, нийтлэлүүд, мэдээлэх/блоклох, админ хориг.
 export default function UserProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const userId = String(id);
@@ -21,14 +33,20 @@ export default function UserProfile() {
   const { session } = useSession();
   const [profile, setProfile] = useState<Awaited<ReturnType<typeof fetchPublicProfile>>>(null);
   const [stats, setStats] = useState<ProfileStats | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [p, s] = await Promise.all([fetchPublicProfile(userId), fetchProfileStats(userId)]);
+      const [p, s, ps] = await Promise.all([
+        fetchPublicProfile(userId),
+        fetchProfileStats(userId),
+        fetchUserPosts(userId).catch(() => [] as Post[]),
+      ]);
       setProfile(p);
       setStats(s);
+      setPosts(ps);
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e?.message ?? e));
     } finally {
@@ -64,6 +82,43 @@ export default function UserProfile() {
     }
   };
 
+  const onMessage = async () => {
+    setBusy(true);
+    try {
+      const cid = await startDirectChat(userId);
+      router.push(`/chat/${cid}` as never);
+    } catch (e) {
+      const key = chatErrorKey(e);
+      Alert.alert(tr('common.error'), key ? tr(key) : String((e as any)?.message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onMore = () => {
+    if (!profile || !stats) return;
+    if (!stats.viewer_admin) {
+      promptMemberActions(profile.display_name, userId, () => router.back());
+      return;
+    }
+    // Админ: хориглох / хоригийг цуцлах.
+    Alert.alert(profile.display_name, undefined, [
+      {
+        text: stats.banned ? tr('admin.unban') : tr('admin.ban'),
+        style: stats.banned ? 'default' : 'destructive',
+        onPress: () =>
+          adminSetBan(userId, !stats.banned)
+            .then(() => setStats({ ...stats, banned: !stats.banned }))
+            .catch((e) => {
+              const key = adminErrorKey(e);
+              Alert.alert(tr('common.error'), key ? tr(key) : String(e?.message ?? e));
+            }),
+      },
+      { text: tr('report.action'), onPress: () => promptMemberActions(profile.display_name, userId, () => router.back()) },
+      { text: tr('common.cancel'), style: 'cancel' },
+    ]);
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -80,6 +135,9 @@ export default function UserProfile() {
     );
   }
 
+  const openList = (kind: 'followers' | 'following') =>
+    router.push({ pathname: '/follows/[id]', params: { id: userId, kind, name: profile.display_name } } as never);
+
   return (
     <View style={{ flex: 1, backgroundColor: t.background }}>
       <Backdrop />
@@ -91,6 +149,11 @@ export default function UserProfile() {
             {stats.verified && <Ionicons name="checkmark-circle" size={22} color={palette.violet} />}
           </View>
           <Text style={styles.username}>@{profile.username}</Text>
+          {stats.banned && (
+            <View style={styles.bannedTag}>
+              <Text style={styles.bannedText}>{tr('admin.bannedLabel')}</Text>
+            </View>
+          )}
           {!!profile.bio && <Text style={styles.bio}>{profile.bio}</Text>}
         </FadeIn>
 
@@ -98,9 +161,9 @@ export default function UserProfile() {
           <View style={styles.stats}>
             <Stat label={tr('me.posts')} value={stats.posts} />
             <View style={styles.divider} />
-            <Stat label={tr('me.followers')} value={stats.followers} />
+            <Stat label={tr('me.followers')} value={stats.followers} onPress={() => openList('followers')} />
             <View style={styles.divider} />
-            <Stat label={tr('me.following')} value={stats.following} />
+            <Stat label={tr('me.following')} value={stats.following} onPress={() => openList('following')} />
             <View style={styles.divider} />
             <Stat label={tr('me.groups')} value={stats.groups} />
           </View>
@@ -114,15 +177,39 @@ export default function UserProfile() {
               <View style={{ flex: 1 }}>
                 <FollowButton following={stats.i_follow} busy={busy} onPress={onFollow} />
               </View>
-              <PressableScale
-                onPress={() => promptMemberActions(profile.display_name, userId, () => router.back())}
-                accessibilityRole="button"
-                accessibilityLabel={tr('common.more')}
-                style={styles.more}
-              >
+              <PressableScale onPress={onMessage} disabled={busy} accessibilityRole="button" style={styles.msgBtn}>
+                <Ionicons name="chatbubble-ellipses-outline" size={18} color={t.text} />
+                <Text style={styles.msgText}>{tr('chat.message')}</Text>
+              </PressableScale>
+              <PressableScale onPress={onMore} accessibilityRole="button" accessibilityLabel={tr('common.more')} style={styles.more}>
                 <Ionicons name="ellipsis-horizontal" size={20} color={t.text} />
               </PressableScale>
             </View>
+          )}
+        </FadeIn>
+
+        <FadeIn index={3} style={{ gap: 10 }}>
+          <Text style={styles.section}>{tr('me.posts')}</Text>
+          {posts.length === 0 ? (
+            <View style={styles.emptyBox}>
+              <Text style={styles.muted}>{tr('social.noVisiblePosts')}</Text>
+            </View>
+          ) : (
+            posts.map((p) => (
+              <PressableScale key={p.id} onPress={() => router.push(`/post/${p.id}` as never)} accessibilityRole="button" style={styles.post}>
+                <Text style={styles.postMeta}>
+                  {tr(`feed.kind.${p.kind}`)} · {timeAgo(p.created_at)}
+                </Text>
+                <Text style={styles.postBody} numberOfLines={4}>
+                  {p.body}
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 16 }}>
+                  <Text style={styles.postMeta}>💡 {p.helpful_ids.length}</Text>
+                  <Text style={styles.postMeta}>💬 {p.comment_count}</Text>
+                  {p.attachments.length > 0 && <Text style={styles.postMeta}>📎 {p.attachments.length}</Text>}
+                </View>
+              </PressableScale>
+            ))
           )}
         </FadeIn>
       </ScrollView>
@@ -130,14 +217,14 @@ export default function UserProfile() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value, onPress }: { label: string; value: number; onPress?: () => void }) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', gap: 2 }}>
+    <PressableScale onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={{ flex: 1, alignItems: 'center', gap: 2 }}>
       <Text style={styles.statValue}>{compact(value)}</Text>
       <Text style={styles.statLabel} numberOfLines={1}>
         {label}
       </Text>
-    </View>
+    </PressableScale>
   );
 }
 
@@ -147,13 +234,25 @@ const styles = StyleSheet.create({
   name: { fontFamily: font.extrabold, fontSize: 26, color: t.text },
   username: { fontFamily: font.medium, fontSize: 14, color: t.textMuted },
   bio: { fontFamily: font.medium, fontSize: 14, color: 'rgba(255,255,255,0.85)', textAlign: 'center', marginTop: 6, lineHeight: 20 },
+  bannedTag: { backgroundColor: 'rgba(251,113,133,0.18)', borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 12, marginTop: 6 },
+  bannedText: { fontFamily: font.bold, fontSize: 12, color: palette.rose },
   stats: { flexDirection: 'row', alignItems: 'center' },
   divider: { width: 1, height: 32, backgroundColor: t.border },
   statValue: { fontFamily: font.extrabold, fontSize: 20, color: t.text },
   statLabel: { fontFamily: font.medium, fontSize: 12, color: t.textMuted },
+  msgBtn: {
+    height: 46, borderRadius: radius.pill, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: t.surface, borderWidth: 1, borderColor: t.border,
+  },
+  msgText: { fontFamily: font.bold, fontSize: 14, color: t.text },
   more: {
     width: 46, height: 46, borderRadius: 23, backgroundColor: t.surface, borderWidth: 1, borderColor: t.border,
     alignItems: 'center', justifyContent: 'center',
   },
+  section: { fontFamily: font.extrabold, fontSize: 18, color: t.text },
+  emptyBox: { borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.18)', padding: 16 },
+  post: { backgroundColor: t.surface, borderWidth: 1, borderColor: t.border, borderRadius: 20, padding: 14, gap: 8 },
+  postMeta: { fontFamily: font.medium, fontSize: 12, color: t.textMuted },
+  postBody: { fontFamily: font.medium, fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 20 },
   muted: { fontFamily: font.medium, fontSize: 14, color: t.textMuted },
 });

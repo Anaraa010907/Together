@@ -10,7 +10,7 @@ import { Avatar } from '../../components/Avatar';
 import { fetchProgress, type Progress } from '../../lib/goals';
 import { fetchMyProfile } from '../../lib/account';
 import { timeAgo } from '../../lib/time';
-import type { Post } from '../../lib/feed';
+import { fetchUserPosts, type Post } from '../../lib/feed';
 import {
   computeAchievements,
   fetchLikedPosts,
@@ -22,12 +22,12 @@ import {
   type XpEntry,
 } from '../../lib/social';
 
-type List = 'achievements' | 'xp' | 'liked' | 'saved';
+type List = 'achievements' | 'xp' | 'liked' | 'saved' | 'posts';
 
 // Профайлын "Миний үйл ажиллагаа" жагсаалтууд.
 export default function MyList() {
   const { list } = useLocalSearchParams<{ list: string }>();
-  const kind = (['achievements', 'xp', 'liked', 'saved'].includes(String(list)) ? list : 'xp') as List;
+  const kind = (['achievements', 'xp', 'liked', 'saved', 'posts'].includes(String(list)) ? list : 'xp') as List;
   const { t: tr } = useTranslation();
   const router = useRouter();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -49,7 +49,12 @@ export default function MyList() {
           setXp(await fetchXpHistory());
         }
       } else {
-        setPosts(kind === 'liked' ? await fetchLikedPosts() : await fetchSavedPosts());
+        if (kind === 'posts') {
+          const me = await fetchMyProfile();
+          setPosts(me ? await fetchUserPosts(me.id, 100) : []);
+        } else {
+          setPosts(kind === 'liked' ? await fetchLikedPosts() : await fetchSavedPosts());
+        }
       }
     } catch (e: any) {
       Alert.alert(tr('common.error'), String(e?.message ?? e));
@@ -155,12 +160,12 @@ export default function MyList() {
         />
       )}
 
-      {(kind === 'liked' || kind === 'saved') && (
+      {(kind === 'liked' || kind === 'saved' || kind === 'posts') && (
         <FlatList
           data={posts}
           keyExtractor={(p) => p.id}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.empty}>{kind === 'liked' ? tr('me.noLiked') : tr('me.noSaved')}</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>{kind === 'liked' ? tr('me.noLiked') : kind === 'posts' ? tr('me.noPosts') : tr('me.noSaved')}</Text>}
           renderItem={({ item, index }) => (
             <FadeIn index={index}>
               <PressableScale onPress={() => router.push(`/post/${item.id}` as never)} accessibilityRole="button" style={styles.post}>
@@ -172,7 +177,7 @@ export default function MyList() {
                       {tr(`feed.kind.${item.kind}`)} · {timeAgo(item.created_at)}
                     </Text>
                   </View>
-                  <Text style={{ fontSize: 16 }}>{kind === 'liked' ? '❤️' : '🔖'}</Text>
+                  <Text style={{ fontSize: 16 }}>{kind === 'liked' ? '❤️' : kind === 'saved' ? '🔖' : '✍️'}</Text>
                 </View>
                 <Text style={styles.body} numberOfLines={4}>
                   {item.body}

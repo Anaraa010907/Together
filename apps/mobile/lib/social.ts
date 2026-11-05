@@ -10,7 +10,10 @@ export type ProfileStats = {
   verified: boolean;
   i_follow: boolean;
   blocked: boolean;
+  viewer_admin?: boolean;
+  banned?: boolean; // зөвхөн админд
   // Зөвхөн өөрийн профайл дээр:
+  is_admin?: boolean;
   goals_done?: number;
   checkins?: number;
   challenges_done?: number;
@@ -29,6 +32,110 @@ export type Person = {
   i_follow: boolean;
   verified: boolean;
 };
+
+export type FollowPerson = Omit<Person, 'followers'> & { followed_at: string };
+
+export async function fetchFollowList(userId: string, kind: 'followers' | 'following'): Promise<FollowPerson[]> {
+  const { data, error } = await supabase.rpc('follow_list', { p_user: userId, p_kind: kind });
+  if (error) throw error;
+  return (data ?? []) as FollowPerson[];
+}
+
+// ---------- Админ ----------
+export type AdminOverview = {
+  open_reports: number;
+  users: number;
+  new_users_7d: number;
+  banned: number;
+  groups: number;
+  posts_7d: number;
+  messages_7d: number;
+  pending_teachers: number;
+};
+
+export type AdminReport = {
+  id: string;
+  target_type: 'profile' | 'group' | 'goal' | 'post' | 'comment' | 'review' | 'message';
+  target_id: string;
+  reason: string;
+  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  created_at: string;
+  reporter_name: string | null;
+  reports_on_target: number;
+  target_title: string | null;
+  target_body: string | null;
+  target_owner: string | null;
+  target_owner_name: string | null;
+  target_hidden: boolean;
+  owner_banned: boolean;
+};
+
+export type AdminTeacher = {
+  user_id: string;
+  display_name: string;
+  username: string;
+  avatar_url: string | null;
+  headline: string | null;
+  subjects: string[];
+  intro: string | null;
+  verified_at: string | null;
+  courses: number;
+  rating_avg: number | null;
+  rating_count: number;
+  created_at: string;
+};
+
+export async function isAdmin(): Promise<boolean> {
+  const { data, error } = await supabase.rpc('is_admin');
+  if (error) throw error;
+  return !!data;
+}
+
+export async function adminOverview(): Promise<AdminOverview> {
+  const { data, error } = await supabase.rpc('admin_overview');
+  if (error) throw error;
+  return data as AdminOverview;
+}
+
+export async function adminReports(status: 'open' | 'resolved' | 'dismissed' | 'all'): Promise<AdminReport[]> {
+  const { data, error } = await supabase.rpc('admin_reports', { p_status: status, p_limit: 200 });
+  if (error) throw error;
+  return ((data ?? []) as any[]).map((r) => ({ ...r, reports_on_target: Number(r.reports_on_target) }));
+}
+
+export async function adminSetReportStatus(reportId: string, status: 'open' | 'resolved' | 'dismissed') {
+  const { error } = await supabase.rpc('admin_set_report_status', { p_report: reportId, p_status: status });
+  if (error) throw error;
+}
+
+export async function adminHideContent(type: string, id: string, hidden: boolean) {
+  const { error } = await supabase.rpc('admin_hide_content', { p_type: type, p_id: id, p_hidden: hidden });
+  if (error) throw error;
+}
+
+export async function adminSetBan(userId: string, banned: boolean) {
+  const { error } = await supabase.rpc('admin_set_ban', { p_user: userId, p_banned: banned });
+  if (error) throw error;
+}
+
+export async function adminTeachers(pendingOnly: boolean): Promise<AdminTeacher[]> {
+  const { data, error } = await supabase.rpc('admin_teachers', { p_pending_only: pendingOnly });
+  if (error) throw error;
+  return ((data ?? []) as any[]).map((r) => ({ ...r, courses: Number(r.courses), rating_count: Number(r.rating_count) }));
+}
+
+export async function adminVerifyTeacher(userId: string, verified: boolean) {
+  const { error } = await supabase.rpc('admin_verify_teacher', { p_user: userId, p_verified: verified });
+  if (error) throw error;
+}
+
+export function adminErrorKey(e: unknown): string | null {
+  const msg = String((e as any)?.message ?? e);
+  if (msg.includes('forbidden')) return 'admin.errors.forbidden';
+  if (msg.includes('cannot_ban_self')) return 'admin.errors.banSelf';
+  if (msg.includes('cannot_ban_admin')) return 'admin.errors.banAdmin';
+  return null;
+}
 
 export type GroupStat = { members: number; preview: { name: string; url: string | null }[] };
 

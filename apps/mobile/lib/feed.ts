@@ -99,6 +99,18 @@ export async function fetchFeed(groupId: string, before?: string): Promise<Post[
   return (data ?? []).map(mapPost);
 }
 
+// Хэрэглэгчийн постууд — зөвхөн надтай нэг группт байгаа (RLS).
+export async function fetchUserPosts(userId: string, limit = 30): Promise<Post[]> {
+  const { data, error } = await supabase
+    .from('posts')
+    .select(SELECT)
+    .eq('author_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []).map(mapPost);
+}
+
 // Тодорхой постуудыг (таалагдсан/хадгалсан) — RLS-ээр харах эрхтэйг л буцаана.
 export async function fetchPostsByIds(ids: string[]): Promise<Post[]> {
   if (ids.length === 0) return [];

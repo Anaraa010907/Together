@@ -639,7 +639,10 @@
     "follow": "Follow",
     "following": "Following",
     "notFound": "User not found.",
-    "blocked": "You can't interact with this user."
+    "blocked": "You can't interact with this user.",
+    "noFollowers": "No followers yet.",
+    "noFollowing": "Not following anyone yet.",
+    "noVisiblePosts": "No visible posts. Posts are only visible to members of the same group."
   },
   "me": {
     "posts": "Posts",
@@ -659,7 +662,8 @@
     "noLiked": "You haven't marked any post helpful.",
     "noSaved": "No saved posts. Tap 🔖 on a post.",
     "save": "Save",
-    "unsave": "Unsave"
+    "unsave": "Unsave",
+    "noPosts": "You haven't posted yet."
   },
   "achievements": {
     "firstGoal": "First goal",
@@ -681,5 +685,92 @@
     "challenge_complete": "Challenge finished",
     "lesson_complete": "Lesson finished",
     "post_helpful": "Your post was helpful"
+  },
+  "chat": {
+    "title": "Chats",
+    "new": "New chat",
+    "emptyTitle": "No chats yet",
+    "emptyText": "Start a conversation with the Message button on someone's profile, or open a group's Group chat.",
+    "findPeople": "Find people",
+    "you": "You",
+    "groupChat": "Group chat",
+    "direct": "Private chat",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sayHi": "Send the first message!",
+    "deleteTitle": "Delete this message?",
+    "tooLong": "Messages must be under 2000 characters.",
+    "message": "Message",
+    "errors": {
+      "blocked": "You can't message this user.",
+      "userNotFound": "User not found.",
+      "notMember": "Only group members can chat.",
+      "cannotSend": "Can't send the message."
+    }
+  },
+  "admin": {
+    "title": "Admin dashboard",
+    "stats": {
+      "open_reports": "Open reports",
+      "pending_teachers": "Pending teachers",
+      "users": "Users",
+      "new_users_7d": "New in 7 days",
+      "groups": "Groups",
+      "posts_7d": "Posts (7 days)",
+      "messages_7d": "Messages (7 days)",
+      "banned": "Banned"
+    },
+    "reports": "Reports",
+    "teachers": "Teachers",
+    "filter": {
+      "open": "Open",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed",
+      "all": "All"
+    },
+    "noReports": "No reports.",
+    "type": {
+      "profile": "Profile",
+      "group": "Group",
+      "goal": "Goal",
+      "post": "Post",
+      "comment": "Comment",
+      "review": "Review",
+      "message": "Message"
+    },
+    "status": {
+      "open": "Open",
+      "reviewing": "Reviewing",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
+    },
+    "noPreview": "(content deleted or not found)",
+    "hiddenLabel": "Hidden",
+    "bannedLabel": "Banned",
+    "reportedBy": "Reported by {{name}}",
+    "hide": "Hide",
+    "unhide": "Restore",
+    "ban": "Ban",
+    "unban": "Lift ban",
+    "dismiss": "Dismiss",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "pendingTeachers": "Pending",
+    "allTeachers": "All teachers",
+    "teacherHint": "Verified teachers' courses open to under-18s and get a blue check on their profile.",
+    "noTeachers": "No teachers to verify.",
+    "teacherStats": "Courses: {{courses}} · Rating: {{rating}} ({{count}})",
+    "verify": "Verify",
+    "unverify": "Remove verification",
+    "banTitle": "Ban {{name}}?",
+    "unbanTitle": "Lift the ban on {{name}}?",
+    "banBody": "They'll be signed out and can't sign in again, won't appear in search and can't send messages.",
+    "bannedTitle": "Account suspended",
+    "bannedBody": "Your account was suspended for breaking the rules. Contact us if you have questions.",
+    "errors": {
+      "forbidden": "Only admins can open this section.",
+      "banSelf": "You can't ban yourself.",
+      "banAdmin": "Admins can't be banned."
+    }
   }
 }
