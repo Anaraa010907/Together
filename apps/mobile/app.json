@@ -5,13 +5,13 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "together",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F4F0E7"
+      "backgroundColor": "#0C0A1C"
     },
     "ios": {
       "supportsTablet": false,
@@ -22,7 +22,7 @@
       "package": "mn.together.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#111923"
+        "backgroundColor": "#0C0A1C"
       }
     },
     "plugins": [

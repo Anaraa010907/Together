@@ -13,8 +13,10 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Circle } from 'react-native-svg';
-import { font, lightTheme as t, radius, shadow, space } from '@together/ui/tokens';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
+import { font, gradients, lightTheme as t, palette, radius, shadow, space } from '@together/ui/tokens';
+import { Backdrop } from './Backdrop';
 
 // ---------- Дэлгэцийн суурь ----------
 export function Screen({
@@ -31,6 +33,7 @@ export function Screen({
   const content = [styles.screen, center && { flexGrow: 1, justifyContent: 'center' as const }, style];
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <Backdrop />
       {scroll ? (
         <ScrollView contentContainerStyle={content} keyboardShouldPersistTaps="handled">
           {children}
@@ -71,6 +74,14 @@ type ButtonProps = {
 export function Button({ label, onPress, variant = 'primary', loading, disabled, icon }: ButtonProps) {
   const v = BUTTON[variant];
   const off = disabled || loading;
+  const inner = loading ? (
+    <ActivityIndicator color={v.fg} />
+  ) : (
+    <View style={styles.buttonRow}>
+      {icon && <Ionicons name={icon} size={18} color={v.fg} />}
+      <Text style={[styles.buttonText, { color: v.fg }]}>{label}</Text>
+    </View>
+  );
   return (
     <Pressable
       onPress={onPress}
@@ -78,18 +89,16 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
       accessibilityRole="button"
       accessibilityState={{ disabled: !!off, busy: !!loading }}
       style={({ pressed }) => [
-        styles.button,
-        { backgroundColor: v.bg, borderColor: v.border, opacity: off ? 0.55 : pressed ? 0.85 : 1 },
-        variant === 'primary' && shadow.card,
+        { opacity: off ? 0.55 : pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] },
+        variant === 'primary' && shadow.glow,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={v.fg} />
+      {variant === 'primary' ? (
+        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={[styles.button, { borderWidth: 0 }]}>
+          {inner}
+        </LinearGradient>
       ) : (
-        <View style={styles.buttonRow}>
-          {icon && <Ionicons name={icon} size={18} color={v.fg} />}
-          <Text style={[styles.buttonText, { color: v.fg }]}>{label}</Text>
-        </View>
+        <View style={[styles.button, { backgroundColor: v.bg, borderColor: v.border }]}>{inner}</View>
       )}
     </Pressable>
   );
@@ -98,7 +107,7 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
 const BUTTON = {
   primary: { bg: t.accent, fg: t.onAccent, border: t.accent },
   secondary: { bg: t.surface, fg: t.text, border: t.border },
-  dark: { bg: t.text, fg: t.background, border: t.text },
+  dark: { bg: t.surfaceSolid, fg: t.text, border: t.border },
   ghost: { bg: 'transparent', fg: t.text, border: 'transparent' },
 } as const;
 
@@ -124,7 +133,7 @@ type FieldProps = TextInputProps & {
 export function Field({ label, error, hint, prefix, secureToggle, style, ...input }: FieldProps) {
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(true);
-  const borderColor = error ? t.warning : focused ? t.accent : '#E3DDCF';
+  const borderColor = error ? t.warning : focused ? t.accent : t.border;
   return (
     <View style={{ gap: 6 }}>
       <Text style={styles.label}>{label}</Text>
@@ -141,7 +150,7 @@ export function Field({ label, error, hint, prefix, secureToggle, style, ...inpu
             setFocused(false);
             input.onBlur?.(e);
           }}
-          placeholderTextColor="#9AA2AD"
+          placeholderTextColor={t.textFaint}
           accessibilityLabel={label}
           style={[styles.input, style]}
         />
@@ -165,7 +174,7 @@ export function Field({ label, error, hint, prefix, secureToggle, style, ...inpu
 // ---------- Карт, сонголт, хуваагч ----------
 export function Card({ children, dark, style }: { children: ReactNode; dark?: boolean; style?: ViewStyle }) {
   return (
-    <View style={[styles.card, dark ? { backgroundColor: t.text, borderColor: t.text } : null, shadow.card, style]}>
+    <View style={[styles.card, dark ? { backgroundColor: t.surfaceSolid } : null, shadow.card, style]}>
       {children}
     </View>
   );
@@ -190,9 +199,9 @@ export function Segmented<T extends string | number | boolean>({
             onPress={() => onChange(o.value)}
             accessibilityRole="radio"
             accessibilityState={{ selected: active }}
-            style={[styles.segment, active && { backgroundColor: t.surface, ...shadow.card }]}
+            style={[styles.segment, active && { backgroundColor: '#FFFFFF' }]}
           >
-            <Text style={[styles.segmentText, active && { color: t.text, fontFamily: font.bold }]}>{o.label}</Text>
+            <Text style={[styles.segmentText, active && { color: t.background, fontFamily: font.bold }]}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -217,14 +226,19 @@ export function Chip({
       onPress={onPress}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
-      style={({ pressed }) => [
-        styles.chip,
-        selected ? { backgroundColor: t.text, borderColor: t.text } : null,
-        { opacity: pressed ? 0.85 : 1 },
-      ]}
+      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >
-      {!!icon && <Text style={{ fontSize: 16 }}>{icon}</Text>}
-      <Text style={[styles.chipText, selected && { color: t.background }]}>{label}</Text>
+      {selected ? (
+        <LinearGradient colors={gradients.violet} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.chip, { borderColor: 'rgba(196,181,253,0.5)' }]}>
+          {!!icon && <Text style={{ fontSize: 16 }}>{icon}</Text>}
+          <Text style={[styles.chipText, { fontFamily: font.bold }]}>{label}</Text>
+        </LinearGradient>
+      ) : (
+        <View style={styles.chip}>
+          {!!icon && <Text style={{ fontSize: 16 }}>{icon}</Text>}
+          <Text style={styles.chipText}>{label}</Text>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -250,7 +264,7 @@ export function ListRow({
       style={({ pressed }) => [styles.listRow, { opacity: pressed ? 0.7 : 1 }]}
     >
       <View style={styles.listIcon}>
-        <Ionicons name={icon} size={18} color={danger ? t.warning : t.text} />
+        <Ionicons name={icon} size={18} color={danger ? t.warning : palette.lilac} />
       </View>
       <Text style={[styles.listLabel, danger && { color: t.warning }]} numberOfLines={1}>
         {label}
@@ -260,8 +274,23 @@ export function ListRow({
           {value}
         </Text>
       )}
-      <Ionicons name="chevron-forward" size={18} color="#9AA2AD" />
+      <Ionicons name="chevron-forward" size={18} color={t.textFaint} />
     </Pressable>
+  );
+}
+
+// Хэсгийн гарчиг + баруун талд "Бүгд ›" холбоос.
+export function SectionHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+  return (
+    <View style={styles.sectionRow}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {!!action && (
+        <Pressable onPress={onAction} hitSlop={8} accessibilityRole="link" style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          <Text style={styles.sectionAction}>{action}</Text>
+          <Ionicons name="chevron-forward" size={14} color={palette.lilac} />
+        </Pressable>
+      )}
+    </View>
   );
 }
 
@@ -285,7 +314,7 @@ export function Steps({ total, current }: { total: number; current: number }) {
             height: 6,
             flex: 1,
             borderRadius: 3,
-            backgroundColor: i < current ? t.accent : '#E3DDCF',
+            backgroundColor: i < current ? t.accent : 'rgba(255,255,255,0.12)',
           }}
         />
       ))}
@@ -298,7 +327,7 @@ export function ProgressRing({
   progress,
   size = 96,
   stroke = 9,
-  trackColor = 'rgba(244,240,231,0.15)',
+  trackColor = 'rgba(255,255,255,0.12)',
   children,
 }: {
   progress: number;
@@ -313,12 +342,19 @@ export function ProgressRing({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
+        <Defs>
+          <SvgGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={gradients.ring[0]} />
+            <Stop offset="0.5" stopColor={gradients.ring[1]} />
+            <Stop offset="1" stopColor={gradients.ring[2]} />
+          </SvgGradient>
+        </Defs>
         <Circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
         <Circle
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke={t.accent}
+          stroke="url(#ringGrad)"
           strokeWidth={stroke}
           fill="none"
           strokeLinecap="round"
@@ -337,9 +373,9 @@ const styles = StyleSheet.create({
   h1: { fontFamily: font.extrabold, fontSize: 30, lineHeight: 36, color: t.text, letterSpacing: -0.5 },
   h2: { fontFamily: font.bold, fontSize: 20, lineHeight: 26, color: t.text },
   body: { fontFamily: font.medium, fontSize: 16, lineHeight: 23, color: t.text },
-  caption: { fontFamily: font.medium, fontSize: 13, lineHeight: 18, color: '#5B6573' },
+  caption: { fontFamily: font.medium, fontSize: 13, lineHeight: 18, color: t.textMuted },
   label: { fontFamily: font.semibold, fontSize: 14, color: t.text },
-  link: { fontFamily: font.medium, fontSize: 15, color: '#5B6573' },
+  link: { fontFamily: font.medium, fontSize: 15, color: t.textMuted },
   button: { height: 54, borderRadius: radius.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   buttonRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   buttonText: { fontFamily: font.bold, fontSize: 16 },
@@ -352,20 +388,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     gap: 8,
   },
-  prefix: { fontFamily: font.semibold, fontSize: 16, color: '#5B6573' },
+  prefix: { fontFamily: font.semibold, fontSize: 16, color: t.textMuted },
   input: { flex: 1, fontFamily: font.medium, fontSize: 16, color: t.text, paddingVertical: 12 },
-  card: { backgroundColor: t.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: '#EFEAE0', padding: 18 },
-  segmented: { flexDirection: 'row', backgroundColor: '#ECE6DA', borderRadius: radius.pill, padding: 4, gap: 4 },
+  card: { backgroundColor: t.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: t.border, padding: 18 },
+  segmented: { flexDirection: 'row', backgroundColor: t.surface, borderWidth: 1, borderColor: t.borderSoft, borderRadius: radius.pill, padding: 4, gap: 4 },
   segment: { flex: 1, height: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  segmentText: { fontFamily: font.semibold, fontSize: 15, color: '#5B6573' },
+  segmentText: { fontFamily: font.semibold, fontSize: 14, color: t.textMuted },
   chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#E3DDCF',
-    backgroundColor: t.surface, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: t.border,
+    backgroundColor: t.surface, borderRadius: radius.pill, paddingVertical: 9, paddingHorizontal: 15,
   },
   chipText: { fontFamily: font.semibold, fontSize: 14, color: t.text },
   listRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 4 },
-  listIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#F1E9D8', alignItems: 'center', justifyContent: 'center' },
+  listIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(139,92,246,0.16)', alignItems: 'center', justifyContent: 'center' },
   listLabel: { flex: 1, fontFamily: font.semibold, fontSize: 15, color: t.text },
   divider: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginVertical: 4 },
-  line: { flex: 1, height: 1, backgroundColor: '#E3DDCF' },
+  line: { flex: 1, height: 1, backgroundColor: t.border },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sectionTitle: { fontFamily: font.extrabold, fontSize: 19, color: t.text },
+  sectionAction: { fontFamily: font.bold, fontSize: 14, color: palette.lilac },
 });

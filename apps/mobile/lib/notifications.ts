@@ -1,9 +1,18 @@
 import { supabase } from './supabase';
 
-export type NotificationType = 'join_request' | 'join_approved' | 'comment' | 'helpful' | 'proposal' | 'session' | 'lesson';
+export type NotificationType =
+  | 'join_request'
+  | 'join_approved'
+  | 'comment'
+  | 'helpful'
+  | 'proposal'
+  | 'session'
+  | 'lesson'
+  | 'follow';
 
 export type AppNotification = {
   id: string;
+  actor_id?: string | null;
   type: NotificationType;
   actor_name: string;
   actor_avatar: string | null;
@@ -19,7 +28,7 @@ const one = (x: any) => (Array.isArray(x) ? x[0] : x);
 export async function fetchNotifications(limit = 50): Promise<AppNotification[]> {
   const { data, error } = await supabase
     .from('notifications')
-    .select('id, type, group_id, entity_id, data, read_at, created_at, profiles!notifications_actor_id_fkey(display_name, avatar_url)')
+    .select('id, type, actor_id, group_id, entity_id, data, read_at, created_at, profiles!notifications_actor_id_fkey(display_name, avatar_url)')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
@@ -65,6 +74,8 @@ export function targetOf(n: AppNotification): string | null {
       return n.entity_id ? `/session/${n.entity_id}` : null;
     case 'lesson':
       return n.entity_id ? `/lesson/${n.entity_id}` : null;
+    case 'follow':
+      return n.actor_id ? `/user/${n.actor_id}` : null;
     default:
       return null;
   }

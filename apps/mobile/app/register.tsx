@@ -82,7 +82,7 @@ export default function Register() {
                 {[0, 1, 2].map((i) => (
                   <View
                     key={i}
-                    style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: i <= strength ? strengthColor : '#E3DDCF' }}
+                    style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: i <= strength ? strengthColor : t.border }}
                   />
                 ))}
               </View>
@@ -127,6 +127,6 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  terms: { fontFamily: font.medium, fontSize: 13, lineHeight: 19, color: '#5B6573' },
+  terms: { fontFamily: font.medium, fontSize: 13, lineHeight: 19, color: t.textMuted },
   termsLink: { fontFamily: font.bold, color: t.text, textDecorationLine: 'underline' },
 });

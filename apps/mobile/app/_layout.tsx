@@ -82,7 +82,7 @@ export default function RootLayout() {
 
   return (
     <SessionProvider>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <ConfigBanner />
       <AuthGate />
       <Stack
@@ -91,6 +91,8 @@ export default function RootLayout() {
           headerTintColor: t.text,
           headerStyle: { backgroundColor: t.background },
           headerShadowVisible: false,
+          headerTitleStyle: { fontFamily: font.bold, fontSize: 17, color: t.text },
+          headerTitleAlign: 'center',
           contentStyle: { backgroundColor: t.background },
         }}
       >
@@ -98,13 +100,17 @@ export default function RootLayout() {
         <Stack.Screen name="interests" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="suggested" options={{ headerShown: false }} />
         <Stack.Screen name="legal/[doc]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
-        <Stack.Screen name="notifications" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="goal/new" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="settings" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="search" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="user/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="me/[list]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="register" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="login" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="phone" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         <Stack.Screen name="otp" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
         {/* Дэд дэлгэцүүдэд буцах товчтой header */}
-        <Stack.Screen name="group/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="group/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="group/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="join" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="challenge/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />

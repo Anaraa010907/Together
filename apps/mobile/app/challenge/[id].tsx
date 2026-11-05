@@ -150,7 +150,7 @@ export default function ChallengeDetail() {
           onPress={onCheckIn}
           accessibilityRole="button"
         >
-          <Text style={[styles.primaryText, { color: t.onAccent }]}>
+          <Text style={[styles.primaryText, { color: doneToday ? t.onSuccess : t.onAccent }]}>
             {doneToday ? tr('challenges.checkedIn') : tr('challenges.checkIn')}
           </Text>
         </Pressable>

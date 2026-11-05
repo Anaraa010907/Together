@@ -103,5 +103,5 @@ export default function Suggested() {
 const styles = StyleSheet.create({
   icon: { fontSize: 28 },
   name: { fontFamily: font.bold, fontSize: 17, color: t.text },
-  meta: { fontFamily: font.medium, fontSize: 13, color: '#5B6573', lineHeight: 18 },
+  meta: { fontFamily: font.medium, fontSize: 13, color: t.textMuted, lineHeight: 18 },
 });

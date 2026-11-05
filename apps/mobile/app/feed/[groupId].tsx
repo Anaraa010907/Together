@@ -32,7 +32,7 @@ export default function Feed() {
   const [end, setEnd] = useState(false);
 
   const replace = (p: Post) => setPosts((prev) => prev.map((x) => (x.id === p.id ? p : x)));
-  const { busyId, toggleHelpful, vote } = usePostActions(myId, replace);
+  const { busyId, toggleHelpful, vote, isSaved, toggleSave } = usePostActions(myId, replace);
 
   const addUrls = async (list: Post[]) => {
     const paths = list.flatMap((p) => p.attachments.map((a) => a.storage_path));
@@ -131,6 +131,8 @@ export default function Feed() {
             }
             onHelpful={() => toggleHelpful(item)}
             onVote={(v) => vote(item, v)}
+            saved={isSaved(item.id)}
+            onSave={() => toggleSave(item)}
           />
         )}
       />

@@ -1,3 +1,7 @@
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { decode } from 'base64-arraybuffer';
+import i18n from './i18n';
 import { supabase } from './supabase';
 
 export type GroupSummary = {
@@ -10,13 +14,14 @@ export type GroupSummary = {
   owner_id: string;
   kind: 'community' | 'course';
   category_id: string | null;
+  cover_url?: string | null;
 };
 
 export type MemberRow = {
   user_id: string;
   role: 'owner' | 'admin' | 'member';
   status: 'active' | 'pending' | 'banned';
-  profiles: { username: string; display_name: string } | null;
+  profiles: { username: string; display_name: string; avatar_url?: string | null } | null;
 };
 
 // Slug: латин үсэг/тоо/зураас. Монгол нэрнээс хоосон гарвал санамсаргүй үүсгэнэ.
@@ -51,7 +56,7 @@ export async function createGroup(input: {
 export async function fetchPublicGroups(): Promise<GroupSummary[]> {
   const { data, error } = await supabase
     .from('groups')
-    .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id')
+    .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id, cover_url')
     .eq('visibility', 'public')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
@@ -64,7 +69,7 @@ export async function fetchPublicGroups(): Promise<GroupSummary[]> {
 export async function fetchMyGroups(): Promise<GroupSummary[]> {
   const { data, error } = await supabase
     .from('group_members')
-    .select('groups(id, name, slug, description, visibility, join_policy, owner_id, kind, category_id)')
+    .select('groups(id, name, slug, description, visibility, join_policy, owner_id, kind, category_id, cover_url)')
     .eq('status', 'active');
   if (error) throw error;
   return (data ?? [])
@@ -75,7 +80,7 @@ export async function fetchMyGroups(): Promise<GroupSummary[]> {
 export async function fetchGroup(id: string): Promise<GroupSummary | null> {
   const { data, error } = await supabase
     .from('groups')
-    .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id')
+    .select('id, name, slug, description, visibility, join_policy, owner_id, kind, category_id, cover_url')
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;
@@ -98,7 +103,7 @@ export async function fetchMyMembership(groupId: string) {
 export async function fetchMembers(groupId: string): Promise<MemberRow[]> {
   const { data, error } = await supabase
     .from('group_members')
-    .select('user_id, role, status, profiles(username, display_name)')
+    .select('user_id, role, status, profiles(username, display_name, avatar_url)')
     .eq('group_id', groupId)
     .order('joined_at', { ascending: true });
   if (error) throw error;
@@ -140,4 +145,37 @@ export async function reviewJoinRequest(groupId: string, userId: string, approve
     p_approve: approve,
   });
   if (error) throw error;
+}
+
+// ---------- Группын нүүр зураг ----------
+// Сонгох (16:9) — үүсгэхээс өмнө ч сонгож болно. Буцаах: локал зураг эсвэл null.
+export async function pickGroupCover(): Promise<ImagePicker.ImagePickerAsset | null> {
+  const res = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsEditing: true,
+    aspect: [16, 9],
+    quality: 0.6,
+  });
+  if (res.canceled || !res.assets[0]) return null;
+  return res.assets[0];
+}
+
+// Эзэн: avatars/{user_id}/group-{id}-… руу хуулаад groups.cover_url-ийг шинэчилнэ.
+export async function uploadGroupCover(groupId: string, asset: ImagePicker.ImagePickerAsset): Promise<string> {
+  const { data: u } = await supabase.auth.getUser();
+  if (!u.user) throw new Error('not_authenticated');
+  const ext = asset.mimeType === 'image/png' ? 'png' : asset.mimeType === 'image/webp' ? 'webp' : 'jpg';
+  const path = `${u.user.id}/group-${groupId}-${Date.now()}.${ext}`;
+  const base64 = await FileSystem.readAsStringAsync(asset.uri, { encoding: FileSystem.EncodingType.Base64 });
+  const bytes = decode(base64);
+  if (bytes.byteLength > 2 * 1024 * 1024) throw new Error(i18n.t('settings.avatarTooBig'));
+  const up = await supabase.storage.from('avatars').upload(path, bytes, {
+    contentType: asset.mimeType ?? 'image/jpeg',
+    upsert: true,
+  });
+  if (up.error) throw up.error;
+  const url = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+  const { error } = await supabase.from('groups').update({ cover_url: url }).eq('id', groupId);
+  if (error) throw error;
+  return url;
 }

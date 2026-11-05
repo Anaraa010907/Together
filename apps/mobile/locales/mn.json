@@ -3,9 +3,10 @@
     "name": "TOGETHER"
   },
   "tabs": {
-    "home": "Өнөөдөр",
-    "groups": "Группууд",
-    "profile": "Профайл"
+    "home": "Нүүр",
+    "groups": "Групп",
+    "profile": "Профайл",
+    "notifications": "Мэдэгдэл"
   },
   "welcome": {
     "title": "Хамтдаа хөгжцгөөе",
@@ -73,30 +74,37 @@
   "home": {
     "level": "Түвшин",
     "streak": "Streak",
-    "todayGoals": "Өнөөдрийн зорилгууд",
-    "noGoals": "Одоохондоо зорилго алга. Доор нэмнэ үү.",
+    "todayGoals": "Өнөөдрийн зорилтууд",
+    "noGoals": "Эхний зорилгоо нэмээрэй",
     "doneLabel": "Биелсэн ✓",
     "addPlaceholder": "Шинэ зорилго…",
-    "greeting": "Сайн байна уу 👋",
+    "greeting": "Сайн байна уу",
     "toNext": "Дараагийн түвшин хүртэл {{n}} XP",
-    "searchPlaceholder": "Групп, хичээл, сонирхол хайх",
+    "searchPlaceholder": "Групп, хүмүүс, сонирхол хайх...",
     "explore": "Сонирхлоор судлах",
     "seeAll": "Бүгд",
     "yourProgress": "Таны ахиц",
-    "openSession": "Нээх"
+    "openSession": "Нээх",
+    "addGoal": "Шинэ зорилго нэмэх",
+    "bannerTitle": "Хамтдаа хөгжие",
+    "bannerSub": "Зорилго нэгт хүмүүсээ олоорой!"
   },
   "goals": {
     "titleInvalid": "Зорилгын нэр 1–120 тэмдэгт байна.",
     "hint": "Зорилгыг удаан дарж архивлана.",
     "archiveTitle": "Зорилгыг архивлах уу?",
     "archiveConfirm": "Жагсаалтаас нуугдана. Өмнө авсан XP хэвээр үлдэнэ.",
-    "archive": "Архивлах"
+    "archive": "Архивлах",
+    "title": "Зорилго",
+    "newHint": "Өдөр бүр хийх жижиг алхмаа бичээрэй. Биелүүлэх бүрт +20 XP.",
+    "ideas": "Санаа",
+    "create": "Нэмэх"
   },
   "groups": {
     "title": "Группууд",
     "create": "+ Шинэ",
     "joinByCode": "Код",
-    "createTitle": "Шинэ group",
+    "createTitle": "Групп үүсгэх",
     "createAction": "Үүсгэх",
     "mine": "Миний группууд",
     "discover": "Нээлттэй группууд",
@@ -133,7 +141,37 @@
     "search": "Групп хайх",
     "all": "Бүгд",
     "suggested": "Танд санал болгох",
-    "category": "Ангилал"
+    "category": "Ангилал",
+    "createShort": "Үүсгэх",
+    "featured": "Онцлох бүлэг",
+    "less": "Хураах",
+    "memberRole": "Гишүүн",
+    "admin": "Админ",
+    "forYou": "Танд",
+    "allCats": "Бүх ангилал",
+    "fewerCats": "Цөөн",
+    "coverPick": "Бүлгийн зураг сонгох",
+    "namePlaceholder": "Жишээ: AI & Tech Community",
+    "descPlaceholder": "Группийн тухай товч тайлбар...",
+    "categoryLabelA": "Ангилал",
+    "categoryLabelB": "сонгох",
+    "community": "Хамтын суралцахуй",
+    "share": "Хуваалцах",
+    "link": "Холбоо",
+    "shareText": "TOGETHER апп дээрх \"{{name}}\" группт нэгдээрэй!",
+    "changeCover": "Нүүр зураг солих",
+    "about": "Тухай",
+    "noDescription": "Тайлбар оруулаагүй байна.",
+    "readMore": "Дэлгэрэнгүй…",
+    "postsLocked": "Постуудыг гишүүд л харна. Нэгдээд хамтдаа хуваалцаарай.",
+    "membersLocked": "Гишүүдийн жагсаалтыг гишүүд л харна.",
+    "allPosts": "Бүх постыг харах",
+    "tab": {
+      "about": "Мэдээлэл",
+      "posts": "Пост",
+      "members": "Гишүүд",
+      "activity": "Үйл ажиллагаа"
+    }
   },
   "challenges": {
     "section": "Challenge-үүд",
@@ -218,7 +256,10 @@
     "deleteConfirm": "Таны профайл, зорилго, XP болон эзэмшдэг group-ууд бүрмөсөн устна. Буцаах боломжгүй.",
     "delete": "Устгах",
     "changePhoto": "Зураг солих",
-    "avatarTooBig": "Зураг 2MB-аас бага байх ёстой."
+    "avatarTooBig": "Зураг 2MB-аас бага байх ёстой.",
+    "title": "Тохиргоо",
+    "general": "Ерөнхий",
+    "noBlockedShort": "Байхгүй байна"
   },
   "feed": {
     "open": "Group feed",
@@ -275,7 +316,8 @@
       "post_not_found": "Пост олдсонгүй.",
       "not_proposal": "Энэ пост санал биш байна.",
       "voting_closed": "Санал авах хугацаа дууссан."
-    }
+    },
+    "composePlaceholder": "Юу хуваалцах вэ?"
   },
   "time": {
     "now": "одоо",
@@ -555,7 +597,8 @@
       "helpful": "{{name}} таны постыг тустай гэж тэмдэглэлээ",
       "proposal": "{{name}} шинэ санал гаргалаа",
       "session": "{{name}} шинэ сешн товлолоо: {{title}}",
-      "lesson": "Шинэ хичээл нэмэгдлээ: {{title}}"
+      "lesson": "Шинэ хичээл нэмэгдлээ: {{title}}",
+      "follow": "{{name}} таныг дагаж эхэллээ"
     }
   },
   "common": {
@@ -563,10 +606,80 @@
     "error": "Алдаа гарлаа. Дахин оролдоно уу.",
     "retry": "Дахин оролдох",
     "cancel": "Болих",
-    "notConfigured": "Туршилтын хувилбар: сервер холбогдоогүй тул нэвтрэх боломжгүй."
+    "notConfigured": "Туршилтын хувилбар: сервер холбогдоогүй тул нэвтрэх боломжгүй.",
+    "back": "Буцах",
+    "more": "Бусад"
   },
   "xp": {
     "label": "XP",
     "level": "Түвшин {{level}}"
+  },
+  "create": {
+    "title": "Үүсгэх",
+    "goal": "Зорилго нэмэх",
+    "goalSub": "Өдөр бүр биелүүлж +20 XP авна",
+    "group": "Групп үүсгэх",
+    "groupSub": "Хамтдаа суралцах, хөгжих бүлэг",
+    "join": "Кодоор нэгдэх",
+    "joinSub": "Урилгын кодоор хаалттай группт",
+    "people": "Хүмүүс хайх",
+    "peopleSub": "Найзуудаа олж дагаарай"
+  },
+  "search": {
+    "title": "Хүмүүс хайх",
+    "placeholder": "Хайх нэрээр...",
+    "people": "Хүмүүс",
+    "groups": "Группууд",
+    "featured": "Онцлох хүмүүс",
+    "suggested": "Санал болгож буй",
+    "noPeople": "Хүн олдсонгүй.",
+    "emptyHint": "Одоохондоо санал болгох зүйл алга."
+  },
+  "social": {
+    "follow": "Дагах",
+    "following": "Дагаж байна",
+    "notFound": "Хэрэглэгч олдсонгүй.",
+    "blocked": "Та энэ хэрэглэгчтэй харилцах боломжгүй."
+  },
+  "me": {
+    "posts": "Нийтлэл",
+    "followers": "Дагагч",
+    "followersLower": "дагагч",
+    "following": "Дагаж буй",
+    "groups": "Групп",
+    "activity": "Миний үйл ажиллагаа",
+    "myGroups": "Миний группууд",
+    "achievements": "Хүрсэн амжилт",
+    "xp": "Миний XP",
+    "liked": "Таалагдсан пост",
+    "saved": "Хадгалсан зүйлс",
+    "achievedOf": "{{total}}-аас {{n}} амжилт",
+    "totalXp": "Нийт XP",
+    "noXp": "XP хараахан алга. Эхний зорилгоо биелүүлээрэй!",
+    "noLiked": "Тустай гэж тэмдэглэсэн пост алга.",
+    "noSaved": "Хадгалсан пост алга. Пост дээрх 🔖 тэмдгийг дараарай.",
+    "save": "Хадгалах",
+    "unsave": "Хадгалснаа болих"
+  },
+  "achievements": {
+    "firstGoal": "Анхны зорилго",
+    "goals50": "50 зорилго",
+    "streak7": "7 хоног дараалан",
+    "streak30": "30 хоног дараалан",
+    "level5": "5-р түвшин",
+    "level10": "10-р түвшин",
+    "firstGroup": "Анхны групп",
+    "firstPost": "Анхны пост",
+    "helpful10": "10 удаа тустай",
+    "challenge": "Challenge дуусгасан",
+    "lessons10": "10 хичээл",
+    "followers10": "10 дагагч"
+  },
+  "xpSource": {
+    "goal_completion": "Зорилго биелүүлсэн",
+    "challenge_checkin": "Challenge check-in",
+    "challenge_complete": "Challenge дуусгасан",
+    "lesson_complete": "Хичээл дуусгасан",
+    "post_helpful": "Пост тань тустай болсон"
   }
 }

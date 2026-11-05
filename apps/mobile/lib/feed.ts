@@ -99,6 +99,15 @@ export async function fetchFeed(groupId: string, before?: string): Promise<Post[
   return (data ?? []).map(mapPost);
 }
 
+// Тодорхой постуудыг (таалагдсан/хадгалсан) — RLS-ээр харах эрхтэйг л буцаана.
+export async function fetchPostsByIds(ids: string[]): Promise<Post[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase.from('posts').select(SELECT).in('id', ids.slice(0, 100));
+  if (error) throw error;
+  const order = new Map(ids.map((id, i) => [id, i]));
+  return (data ?? []).map(mapPost).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
+
 export async function fetchPost(id: string): Promise<Post | null> {
   const { data, error } = await supabase.from('posts').select(SELECT).eq('id', id).maybeSingle();
   if (error) throw error;

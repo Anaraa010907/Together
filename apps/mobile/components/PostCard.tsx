@@ -1,7 +1,8 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
-import { font, lightTheme as t, radius, shadow, space } from '@together/ui/tokens';
+import { Ionicons } from '@expo/vector-icons';
+import { font, lightTheme as t, palette, radius, shadow, space } from '@together/ui/tokens';
 import { isImage, voteCounts, votingOpen, type Post, type Vote } from '../lib/feed';
 import { timeAgo } from '../lib/time';
 import { Avatar } from './Avatar';
@@ -16,11 +17,13 @@ type Props = {
   onLongPress?: () => void;
   onHelpful?: () => void;
   onVote?: (v: Vote) => void;
+  saved?: boolean;
+  onSave?: () => void;
 };
 
 const KIND_ICON: Record<Post['kind'], string> = { share: '📘', proposal: '🗳️', question: '❓' };
 
-export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, onHelpful, onVote }: Props) {
+export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, onHelpful, onVote, saved, onSave }: Props) {
   const { t: tr } = useTranslation();
   const { width } = useWindowDimensions();
 
@@ -38,7 +41,7 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
       onPress={onOpen}
       onLongPress={onLongPress}
       disabled={!onOpen && !onLongPress}
-      style={[styles.card, { backgroundColor: t.surface, borderColor: '#EFEAE0' }]}
+      style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}
     >
       <View style={styles.headRow}>
         <Avatar name={post.author_name} url={post.author_avatar} size={38} />
@@ -129,7 +132,7 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
                   accessibilityState={{ selected: active }}
                   style={[
                     styles.vote,
-                    { borderColor: t.border, backgroundColor: active ? t.accent : t.background },
+                    { borderColor: active ? t.accent : t.border, backgroundColor: active ? t.accent : 'rgba(255,255,255,0.04)' },
                   ]}
                 >
                   <Text style={{ color: active ? t.onAccent : t.text, fontSize: 13, fontFamily: font.semibold }}>
@@ -155,15 +158,29 @@ export function PostCard({ post, myId, urls, full, busy, onOpen, onLongPress, on
           disabled={!onHelpful || isMine || busy}
           accessibilityRole="button"
           accessibilityState={{ selected: helped }}
-          style={[styles.pill, { borderColor: t.border, backgroundColor: helped ? t.success : 'transparent' }]}
+          style={[
+            styles.pill,
+            { borderColor: helped ? 'rgba(196,181,253,0.6)' : t.border, backgroundColor: helped ? 'rgba(139,92,246,0.28)' : 'transparent' },
+          ]}
         >
-          <Text style={{ color: t.text, fontSize: 13 }}>
-            👍 {tr('feed.helpful')} {post.helpful_ids.length}
+          <Text style={{ color: t.text, fontSize: 13, fontFamily: font.semibold }}>
+            {helped ? '💜' : '👍'} {tr('feed.helpful')} {post.helpful_ids.length}
           </Text>
         </Pressable>
-        <Text style={{ color: t.textMuted, fontSize: 13 }}>
-          💬 {post.comment_count}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <Text style={{ color: t.textMuted, fontSize: 13, fontFamily: font.semibold }}>💬 {post.comment_count}</Text>
+          {!!onSave && (
+            <Pressable
+              onPress={onSave}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel={saved ? tr('me.unsave') : tr('me.save')}
+              accessibilityState={{ selected: !!saved }}
+            >
+              <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={19} color={saved ? palette.amber : t.textMuted} />
+            </Pressable>
+          )}
+        </View>
       </View>
     </Pressable>
   );
@@ -173,7 +190,7 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: space.sm, ...shadow.card },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   head: { gap: 2, flex: 1 },
-  meta: { fontFamily: font.medium, fontSize: 12, color: '#5B6573' },
+  meta: { fontFamily: font.medium, fontSize: 12, color: t.textMuted },
   author: { fontSize: 15, fontFamily: font.bold },
   body: { fontFamily: font.medium, fontSize: 15, lineHeight: 22 },
   link: { borderWidth: 1, borderRadius: radius.md, padding: space.sm, gap: 2 },

@@ -3,9 +3,10 @@
     "name": "TOGETHER"
   },
   "tabs": {
-    "home": "Today",
+    "home": "Home",
     "groups": "Groups",
-    "profile": "Profile"
+    "profile": "Profile",
+    "notifications": "Alerts"
   },
   "welcome": {
     "title": "Grow together",
@@ -74,29 +75,36 @@
     "level": "Level",
     "streak": "Streak",
     "todayGoals": "Today's goals",
-    "noGoals": "No goals yet. Add one below.",
+    "noGoals": "Add your first goal",
     "doneLabel": "Done ✓",
     "addPlaceholder": "New goal…",
-    "greeting": "Hello 👋",
+    "greeting": "Hello",
     "toNext": "{{n}} XP to next level",
-    "searchPlaceholder": "Search groups, classes, interests",
+    "searchPlaceholder": "Search groups, people, interests...",
     "explore": "Explore by interest",
     "seeAll": "See all",
     "yourProgress": "Your progress",
-    "openSession": "Open"
+    "openSession": "Open",
+    "addGoal": "Add a new goal",
+    "bannerTitle": "Grow together",
+    "bannerSub": "Find people who share your goals!"
   },
   "goals": {
     "titleInvalid": "Goal title must be 1–120 characters.",
     "hint": "Long-press a goal to archive it.",
     "archiveTitle": "Archive this goal?",
     "archiveConfirm": "It will be hidden from your list. XP you earned stays.",
-    "archive": "Archive"
+    "archive": "Archive",
+    "title": "Goal",
+    "newHint": "Write a small daily step. Each completion gives +20 XP.",
+    "ideas": "Ideas",
+    "create": "Add"
   },
   "groups": {
     "title": "Groups",
     "create": "+ New",
     "joinByCode": "Code",
-    "createTitle": "New group",
+    "createTitle": "Create group",
     "createAction": "Create",
     "mine": "My groups",
     "discover": "Open groups",
@@ -133,7 +141,37 @@
     "search": "Search groups",
     "all": "All",
     "suggested": "Suggested for you",
-    "category": "Category"
+    "category": "Category",
+    "createShort": "Create",
+    "featured": "Featured group",
+    "less": "Show less",
+    "memberRole": "Member",
+    "admin": "Admin",
+    "forYou": "For you",
+    "allCats": "All categories",
+    "fewerCats": "Fewer",
+    "coverPick": "Choose group image",
+    "namePlaceholder": "e.g. AI & Tech Community",
+    "descPlaceholder": "A short description of the group...",
+    "categoryLabelA": "Choose",
+    "categoryLabelB": "a category",
+    "community": "Learning together",
+    "share": "Share",
+    "link": "Link",
+    "shareText": "Join \"{{name}}\" on the TOGETHER app!",
+    "changeCover": "Change cover",
+    "about": "About",
+    "noDescription": "No description yet.",
+    "readMore": "Read more…",
+    "postsLocked": "Only members can see posts. Join to share together.",
+    "membersLocked": "Only members can see the member list.",
+    "allPosts": "See all posts",
+    "tab": {
+      "about": "About",
+      "posts": "Posts",
+      "members": "Members",
+      "activity": "Activity"
+    }
   },
   "challenges": {
     "section": "Challenges",
@@ -218,7 +256,10 @@
     "deleteConfirm": "Your profile, goals, XP and groups you own will be permanently deleted. This cannot be undone.",
     "delete": "Delete",
     "changePhoto": "Change photo",
-    "avatarTooBig": "Photo must be under 2MB."
+    "avatarTooBig": "Photo must be under 2MB.",
+    "title": "Settings",
+    "general": "General",
+    "noBlockedShort": "None"
   },
   "feed": {
     "open": "Group feed",
@@ -275,7 +316,8 @@
       "post_not_found": "Post not found.",
       "not_proposal": "This post is not a proposal.",
       "voting_closed": "Voting has closed."
-    }
+    },
+    "composePlaceholder": "What do you want to share?"
   },
   "time": {
     "now": "now",
@@ -555,7 +597,8 @@
       "helpful": "{{name}} found your post helpful",
       "proposal": "{{name}} made a new proposal",
       "session": "{{name}} scheduled a session: {{title}}",
-      "lesson": "New lesson added: {{title}}"
+      "lesson": "New lesson added: {{title}}",
+      "follow": "{{name}} started following you"
     }
   },
   "common": {
@@ -563,10 +606,80 @@
     "error": "Something went wrong. Please try again.",
     "retry": "Retry",
     "cancel": "Cancel",
-    "notConfigured": "Preview build: no server connected, sign-in will not work."
+    "notConfigured": "Preview build: no server connected, sign-in will not work.",
+    "back": "Back",
+    "more": "More"
   },
   "xp": {
     "label": "XP",
     "level": "Level {{level}}"
+  },
+  "create": {
+    "title": "Create",
+    "goal": "Add goal",
+    "goalSub": "Do it daily and earn +20 XP",
+    "group": "Create group",
+    "groupSub": "A place to learn and grow together",
+    "join": "Join with code",
+    "joinSub": "Enter a private group with an invite",
+    "people": "Find people",
+    "peopleSub": "Find and follow your friends"
+  },
+  "search": {
+    "title": "Find people",
+    "placeholder": "Search by name...",
+    "people": "People",
+    "groups": "Groups",
+    "featured": "Featured people",
+    "suggested": "Suggested for you",
+    "noPeople": "No people found.",
+    "emptyHint": "Nothing to suggest yet."
+  },
+  "social": {
+    "follow": "Follow",
+    "following": "Following",
+    "notFound": "User not found.",
+    "blocked": "You can't interact with this user."
+  },
+  "me": {
+    "posts": "Posts",
+    "followers": "Followers",
+    "followersLower": "followers",
+    "following": "Following",
+    "groups": "Groups",
+    "activity": "My activity",
+    "myGroups": "My groups",
+    "achievements": "Achievements",
+    "xp": "My XP",
+    "liked": "Liked posts",
+    "saved": "Saved items",
+    "achievedOf": "{{n}} of {{total}} achieved",
+    "totalXp": "Total XP",
+    "noXp": "No XP yet. Complete your first goal!",
+    "noLiked": "You haven't marked any post helpful.",
+    "noSaved": "No saved posts. Tap 🔖 on a post.",
+    "save": "Save",
+    "unsave": "Unsave"
+  },
+  "achievements": {
+    "firstGoal": "First goal",
+    "goals50": "50 goals",
+    "streak7": "7-day streak",
+    "streak30": "30-day streak",
+    "level5": "Level 5",
+    "level10": "Level 10",
+    "firstGroup": "First group",
+    "firstPost": "First post",
+    "helpful10": "Helpful ×10",
+    "challenge": "Challenge finished",
+    "lessons10": "10 lessons",
+    "followers10": "10 followers"
+  },
+  "xpSource": {
+    "goal_completion": "Goal completed",
+    "challenge_checkin": "Challenge check-in",
+    "challenge_complete": "Challenge finished",
+    "lesson_complete": "Lesson finished",
+    "post_helpful": "Your post was helpful"
   }
 }

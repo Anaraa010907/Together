@@ -15,17 +15,17 @@ export type SuggestedGroup = {
 
 export const categoryName = (c: Category) => (i18n.language === 'en' ? c.name_en : c.name_mn);
 
-// Ангилал бүрт тогтмол зөөлөн градиент (палитртай зохицсон). id-аас hash-аар сонгоно.
+// Ангилал бүрт тогтмол бараан градиент (Night Violet палитртай зохицсон). id-аас hash-аар сонгоно.
 const GRADIENTS: [string, string][] = [
-  ['#F3E7CF', '#E2CBA0'], // алтан
-  ['#E3ECE5', '#B9CCBF'], // sage
-  ['#F3E1DE', '#DDB3AC'], // rose
-  ['#E4E8EF', '#BAC4D3'], // navy-цэнхэр
-  ['#EFE6F1', '#CDB9D3'], // лаванда
-  ['#E6EEEA', '#A9C3B6'], // ногоон
+  ['#6D28D9', '#2E1065'], // нил ягаан
+  ['#1D4ED8', '#172554'], // цэнхэр
+  ['#BE185D', '#500724'], // ягаан
+  ['#C2410C', '#431407'], // улбар шар
+  ['#0F766E', '#042F2E'], // ногоон
+  ['#B45309', '#451A03'], // алтан
 ];
 export function categoryColor(id: string | null | undefined): [string, string] {
-  if (!id) return ['#EDE8DE', '#D8D0C0'];
+  if (!id) return ['#3B2F78', '#1C1638'];
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
   return GRADIENTS[Math.abs(h) % GRADIENTS.length];

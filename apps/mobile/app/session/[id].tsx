@@ -192,7 +192,7 @@ export default function SessionDetail() {
             { backgroundColor: going ? t.success : t.surface, borderWidth: 1, borderColor: t.border, opacity: busy ? 0.6 : 1 },
           ]}
         >
-          <Text style={[styles.primaryText, { color: t.text }]}>{going ? tr('sessions.going') : tr('sessions.rsvp')}</Text>
+          <Text style={[styles.primaryText, { color: going ? t.onSuccess : t.text }]}>{going ? tr('sessions.going') : tr('sessions.rsvp')}</Text>
         </Pressable>
       )}
 

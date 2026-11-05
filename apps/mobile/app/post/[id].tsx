@@ -51,7 +51,7 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
 
-  const { busyId, toggleHelpful, vote } = usePostActions(myId, setPost);
+  const { busyId, toggleHelpful, vote, isSaved, toggleSave } = usePostActions(myId, setPost);
 
   const load = useCallback(async () => {
     try {
@@ -145,6 +145,8 @@ export default function PostDetail() {
           }
           onHelpful={() => toggleHelpful(post)}
           onVote={(v) => vote(post, v)}
+          saved={isSaved(post.id)}
+          onSave={() => toggleSave(post)}
         />
 
         <Text style={[styles.section, { color: t.text }]}>
@@ -167,7 +169,7 @@ export default function PostDetail() {
                 },
               })
             }
-            style={[styles.comment, { borderColor: '#EFEAE0', backgroundColor: t.surface, flexDirection: 'row', gap: 10 }]}
+            style={[styles.comment, { borderColor: t.border, backgroundColor: t.surface, flexDirection: 'row', gap: 10 }]}
           >
             <Avatar name={c.author_name} url={c.author_avatar} size={32} />
             <View style={{ flex: 1, gap: 2 }}>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { lightTheme as t } from '@together/ui/tokens';
 import { FloatingTabBar } from '../../components/TabBar';
 
-// Доод таб: Өнөөдөр · Группууд · Профайл — хөвөгч navy pill цэс.
+// Доод таб: Нүүр · Групп · (+) · Мэдэгдэл · Профайл.
 export default function TabsLayout() {
   const { t: tr } = useTranslation();
   return (
@@ -13,6 +13,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="home" options={{ title: tr('tabs.home') }} />
       <Tabs.Screen name="groups" options={{ title: tr('tabs.groups') }} />
+      <Tabs.Screen name="notifications" options={{ title: tr('tabs.notifications') }} />
       <Tabs.Screen name="profile" options={{ title: tr('tabs.profile') }} />
     </Tabs>
   );

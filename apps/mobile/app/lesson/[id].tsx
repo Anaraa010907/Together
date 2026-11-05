@@ -130,7 +130,7 @@ export default function LessonPage() {
           onPress={onComplete}
           accessibilityRole="button"
         >
-          <Text style={[styles.primaryText, { color: t.onAccent }]}>
+          <Text style={[styles.primaryText, { color: done ? t.onSuccess : t.onAccent }]}>
             {done ? tr('lessons.completed') : tr('lessons.complete')}
           </Text>
         </Pressable>

@@ -1,45 +1,56 @@
-// TOGETHER design tokens.
-// Алтан өнгө (#C6A66B) дээр текст бичихгүй: Ivory дээр ~2:1 контраст, WCAG-д хүрэхгүй.
-// Gold дээрх текст = Midnight Navy (~7.7:1). Sage дээрх жижиг текст = Navy.
+// TOGETHER design tokens — "Night Violet" загвар.
+// Бараан нил ягаан дэвсгэр, шилэн (glass) картууд, улбар шар → ягаан → нил ягаан градиент.
+// Текст: цагаан (#FFF) бараан дэвсгэр дээр ~18:1; muted (#A8A3C7) ~8:1 — WCAG AA давна.
+// Градиент товч дээрх текст цагаан (хамгийн цайвар цэг #FF8A3D дээр ~2.6:1 тул товчны текст 16px+ bold).
 
 export const palette = {
-  midnightNavy: '#111923',
-  champagneGold: '#C6A66B',
-  warmIvory: '#F4F0E7',
-  sageGreen: '#718A7A',
-  mutedRose: '#B97870',
-  softGray: '#E8E4DA',
+  ink: '#0C0A1C',
+  night: '#17132E',
+  plum: '#221B42',
+  violet: '#8B5CF6',
+  violetDeep: '#6D28D9',
+  lilac: '#C4B5FD',
+  orange: '#FF8A3D',
+  pink: '#EC4899',
+  amber: '#FBBF24',
+  mint: '#34D399',
+  rose: '#FB7185',
+  white: '#FFFFFF',
 } as const;
 
-export const lightTheme = {
-  background: palette.warmIvory,
-  surface: '#FFFFFF',
-  surfaceMuted: palette.softGray,
-  text: palette.midnightNavy,
-  textMuted: '#4A5563',
-  accent: palette.champagneGold,     // fill, progress, icon, XP
-  onAccent: palette.midnightNavy,    // Gold дээрх текст
-  success: palette.sageGreen,        // амжилт, биелэлт (fill)
-  onSuccess: palette.midnightNavy,
-  warning: palette.mutedRose,        // анхааруулга (зөөлөн)
-  border: '#D9D3C4',
+export const theme = {
+  background: palette.ink,
+  surface: 'rgba(255,255,255,0.06)',       // шилэн карт
+  surfaceSolid: palette.night,              // modal, доод цэс
+  surfaceMuted: 'rgba(255,255,255,0.04)',
+  text: palette.white,
+  textMuted: '#A8A3C7',
+  textFaint: '#7D78A3',
+  accent: palette.violet,                   // fill, progress, icon, идэвхтэй төлөв
+  onAccent: palette.white,
+  success: palette.mint,
+  onSuccess: palette.ink,
+  warning: palette.rose,
+  xp: palette.amber,
+  border: 'rgba(255,255,255,0.10)',
+  borderSoft: 'rgba(255,255,255,0.06)',
 } as const;
 
-export const darkTheme = {
-  background: palette.midnightNavy,
-  surface: '#1B2633',
-  surfaceMuted: '#243142',
-  text: palette.warmIvory,
-  textMuted: '#B8BFC9',
-  accent: palette.champagneGold,
-  onAccent: palette.midnightNavy,
-  success: palette.sageGreen,
-  onSuccess: palette.midnightNavy,
-  warning: palette.mutedRose,
-  border: '#2E3B4E',
-} as const;
+// Хуучин импортуудтай нийцүүлэх нэрс (апп бүхэлдээ бараан загвартай).
+export const lightTheme = theme;
+export const darkTheme = theme;
 
-export const radius = { sm: 8, md: 14, lg: 20, pill: 999 } as const;
+// LinearGradient-д шууд дамжуулна.
+export const gradients = {
+  brand: ['#FF8A3D', '#EC4899', '#8B5CF6'] as const,      // гол товч, онцлох
+  violet: ['#A855F7', '#7C3AED'] as const,                 // идэвхтэй chip, + товч
+  sunset: ['#FF8A3D', '#F0568C'] as const,                 // жижиг тэмдэг, badge
+  card: ['rgba(139,92,246,0.38)', 'rgba(236,72,153,0.20)', 'rgba(255,138,61,0.30)'] as const,
+  glass: ['rgba(255,255,255,0.09)', 'rgba(255,255,255,0.03)'] as const,
+  ring: ['#FF8A3D', '#EC4899', '#8B5CF6'] as const,
+};
+
+export const radius = { sm: 10, md: 16, lg: 22, xl: 28, pill: 999 } as const;
 export const space = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 
 // Manrope (@expo-google-fonts/manrope) — Монгол кирилл дэмжинэ. _layout-д ачаална.
@@ -50,16 +61,23 @@ export const font = {
   extrabold: 'Manrope_800ExtraBold',
 } as const;
 
-// Зөөлөн сүүдэр: 0 8px 24px rgba(17,25,35,0.06)
+// Android-д тунгалаг дэвсгэртэй view дээр elevation сүүдэр "нэвт" харагддаг тул 0.
 export const shadow = {
   card: {
-    shadowColor: palette.midnightNavy,
-    shadowOpacity: 0.06,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 2,
+    shadowColor: '#000000',
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 0,
+  },
+  glow: {
+    shadowColor: palette.violet,
+    shadowOpacity: 0.55,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 10,
   },
 } as const;
 
-export type ThemeName = 'light' | 'dark';
-export const themes = { light: lightTheme, dark: darkTheme } as const;
+export type ThemeName = 'dark';
+export const themes = { dark: theme } as const;

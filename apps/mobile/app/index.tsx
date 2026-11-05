@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { font, lightTheme as t, palette } from '@together/ui/tokens';
@@ -12,9 +13,9 @@ export default function Welcome() {
   return (
     <Screen center>
       <View style={styles.art} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <View style={[styles.circle, { backgroundColor: palette.midnightNavy, left: 40, top: 40 }]} />
-        <View style={[styles.circle, { backgroundColor: palette.champagneGold, left: 110, top: 10, opacity: 0.92 }]} />
-        <View style={[styles.circle, { backgroundColor: palette.sageGreen, left: 80, top: 95, opacity: 0.85 }]} />
+        <LinearGradient colors={['#FF8A3D', '#F0568C']} style={[styles.circle, { left: 40, top: 40, opacity: 0.95 }]} />
+        <LinearGradient colors={['#A855F7', '#6D28D9']} style={[styles.circle, { left: 110, top: 10, opacity: 0.9 }]} />
+        <LinearGradient colors={['#EC4899', '#8B5CF6']} style={[styles.circle, { left: 80, top: 95, opacity: 0.8 }]} />
         <View style={[styles.dot, { left: 168, top: 76 }]} />
       </View>
 
@@ -33,7 +34,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   art: { height: 210, width: 280, alignSelf: 'center', marginBottom: 24 },
   circle: { position: 'absolute', width: 120, height: 120, borderRadius: 60 },
-  dot: { position: 'absolute', width: 18, height: 18, borderRadius: 9, backgroundColor: palette.warmIvory },
+  dot: { position: 'absolute', width: 18, height: 18, borderRadius: 9, backgroundColor: palette.white },
   wordmark: { fontFamily: font.extrabold, fontSize: 36, letterSpacing: 4, color: t.text },
   tagline: { fontFamily: font.bold, fontSize: 22, color: t.text, marginTop: 4 },
 });

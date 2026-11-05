@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, Pressable, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
-import { lightTheme as t } from '@together/ui/tokens';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { gradients, lightTheme as t } from '@together/ui/tokens';
 
 // Хөдөлгөөний туслахууд — RN-ийн суурь Animated API (нэмэлт сан шаардахгүй, native driver).
 
@@ -90,8 +90,8 @@ export function AnimatedRing({
   progress,
   size = 96,
   stroke = 9,
-  color = t.accent,
-  trackColor = 'rgba(244,240,231,0.15)',
+  color = 'url(#motionRing)',
+  trackColor = 'rgba(255,255,255,0.10)',
   children,
 }: {
   progress: number;
@@ -115,6 +115,13 @@ export function AnimatedRing({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <Defs>
+          <SvgGradient id="motionRing" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={gradients.ring[0]} />
+            <Stop offset="0.5" stopColor={gradients.ring[1]} />
+            <Stop offset="1" stopColor={gradients.ring[2]} />
+          </SvgGradient>
+        </Defs>
         <Circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
         <AnimatedCircle
           cx={size / 2}
@@ -150,7 +157,7 @@ export function Dots({ scrollX, count, pageWidth }: { scrollX: Animated.Value; c
               width: scrollX.interpolate({ inputRange: range, outputRange: [7, 22, 7], extrapolate: 'clamp' }),
               backgroundColor: scrollX.interpolate({
                 inputRange: range,
-                outputRange: ['#D5CDBD', t.accent, '#D5CDBD'],
+                outputRange: ['rgba(255,255,255,0.25)', t.accent, 'rgba(255,255,255,0.25)'],
                 extrapolate: 'clamp',
               }),
             }}
