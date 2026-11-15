@@ -1,6 +1,7 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import * as FileSystem from 'expo-file-system';
 import i18n from './i18n';
-import { supabase } from './supabase';
+import { SUPABASE_ANON_KEY, SUPABASE_URL, supabase } from './supabase';
 
 export type ConversationSummary = {
   id: string;
@@ -15,14 +16,23 @@ export type ConversationSummary = {
   unread: number;
 };
 
+export type MessageKind = 'text' | 'image' | 'video' | 'audio';
+
 export type Message = {
   id: string;
   conversation_id: string;
   sender_id: string;
   body: string;
   created_at: string;
+  kind?: MessageKind;
+  media_path?: string | null;
+  media_mime?: string | null;
+  media_duration_ms?: number | null;
+  media_width?: number | null;
+  media_height?: number | null;
   sender_name?: string;
   sender_avatar?: string | null;
+  local_uri?: string; // илгээж буй үед урьдчилан харах
 };
 
 export type ConversationInfo = {
@@ -35,6 +45,9 @@ export type ConversationInfo = {
 };
 
 const PAGE = 40;
+const MSG_COLS = 'id, conversation_id, sender_id, body, created_at, kind, media_path, media_mime, media_duration_ms, media_width, media_height';
+const MEDIA_BUCKET = 'chat-media';
+export const MAX_MEDIA_BYTES = 25 * 1024 * 1024;
 const one = (x: any) => (Array.isArray(x) ? x[0] : x);
 
 export function chatErrorKey(e: unknown): string | null {
@@ -43,6 +56,8 @@ export function chatErrorKey(e: unknown): string | null {
   if (msg.includes('user_not_found')) return 'chat.errors.userNotFound';
   if (msg.includes('not_member')) return 'chat.errors.notMember';
   if (msg.includes('row-level security')) return 'chat.errors.cannotSend';
+  if (msg.includes('media_too_big') || msg.includes('upload_failed_413')) return 'chat.errors.tooBig';
+  if (msg.includes('upload_failed')) return 'chat.errors.uploadFailed';
   return null;
 }
 
@@ -92,7 +107,7 @@ export async function fetchConversationInfo(id: string, myId: string): Promise<C
 export async function fetchMessages(conversationId: string, before?: string): Promise<Message[]> {
   let q = supabase
     .from('messages')
-    .select('id, conversation_id, sender_id, body, created_at, profiles(display_name, avatar_url)')
+    .select(`${MSG_COLS}, profiles(display_name, avatar_url)`)
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: false })
     .limit(PAGE);
@@ -110,6 +125,12 @@ function mapMessage(r: any): Message {
     sender_id: r.sender_id,
     body: r.body,
     created_at: r.created_at,
+    kind: r.kind ?? 'text',
+    media_path: r.media_path,
+    media_mime: r.media_mime,
+    media_duration_ms: r.media_duration_ms,
+    media_width: r.media_width,
+    media_height: r.media_height,
     sender_name: p?.display_name,
     sender_avatar: p?.avatar_url ?? null,
   };
@@ -119,10 +140,86 @@ export async function sendMessage(conversationId: string, senderId: string, body
   const { data, error } = await supabase
     .from('messages')
     .insert({ conversation_id: conversationId, sender_id: senderId, body: body.trim() })
-    .select('id, conversation_id, sender_id, body, created_at')
+    .select(MSG_COLS)
     .single();
   if (error) throw error;
   return data as Message;
+}
+
+export type OutgoingMedia = {
+  uri: string;
+  kind: Exclude<MessageKind, 'text'>;
+  mime: string;
+  durationMs?: number | null;
+  width?: number | null;
+  height?: number | null;
+};
+
+const EXT: Record<string, string> = {
+  'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/heic': 'heic', 'image/heif': 'heif',
+  'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/3gpp': '3gp',
+  'audio/mp4': 'm4a', 'audio/m4a': 'm4a', 'audio/x-m4a': 'm4a', 'audio/aac': 'aac', 'audio/mpeg': 'mp3', 'audio/3gpp': '3gp', 'audio/webm': 'webm',
+};
+
+// Файлыг chat-media/{conversation}/{sender}/… руу шууд (base64-гүй) upload хийгээд мессеж үүсгэнэ.
+export async function sendMedia(conversationId: string, senderId: string, media: OutgoingMedia, caption = ''): Promise<Message> {
+  const info = await FileSystem.getInfoAsync(media.uri);
+  if (info.exists && 'size' in info && info.size && info.size > MAX_MEDIA_BYTES) throw new Error('media_too_big');
+  const ext = EXT[media.mime] ?? media.uri.split('.').pop()?.toLowerCase() ?? 'bin';
+  const path = `${conversationId}/${senderId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { data: s } = await supabase.auth.getSession();
+  const token = s.session?.access_token;
+  if (!token) throw new Error('not_authenticated');
+  const res = await FileSystem.uploadAsync(`${SUPABASE_URL}/storage/v1/object/${MEDIA_BUCKET}/${path}`, media.uri, {
+    httpMethod: 'POST',
+    uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+    headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY, 'Content-Type': media.mime, 'x-upsert': 'false' },
+  });
+  if (res.status >= 300) throw new Error(`upload_failed_${res.status}`);
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      conversation_id: conversationId,
+      sender_id: senderId,
+      body: caption.trim(),
+      kind: media.kind,
+      media_path: path,
+      media_mime: media.mime,
+      media_duration_ms: media.durationMs ? Math.round(media.durationMs) : null,
+      media_width: media.width ? Math.round(media.width) : null,
+      media_height: media.height ? Math.round(media.height) : null,
+    })
+    .select(MSG_COLS)
+    .single();
+  if (error) {
+    await supabase.storage.from(MEDIA_BUCKET).remove([path]).catch(() => {});
+    throw error;
+  }
+  return data as Message;
+}
+
+// Хаалттай файлын түр (1 цаг) холбоос.
+export async function signedMediaUrls(paths: string[]): Promise<Record<string, string>> {
+  const unique = [...new Set(paths.filter(Boolean))];
+  if (unique.length === 0) return {};
+  const { data, error } = await supabase.storage.from(MEDIA_BUCKET).createSignedUrls(unique, 3600);
+  if (error) throw error;
+  const out: Record<string, string> = {};
+  for (const r of data ?? []) if (r.path && r.signedUrl) out[r.path] = r.signedUrl;
+  return out;
+}
+
+// Жагсаалтын "[image]" гэх мэт тэмдгийг орчуулна.
+export function previewText(body: string | null) {
+  if (body === '[image]') return `📷 ${i18n.t('chat.kind.image')}`;
+  if (body === '[video]') return `🎬 ${i18n.t('chat.kind.video')}`;
+  if (body === '[audio]') return `🎤 ${i18n.t('chat.kind.audio')}`;
+  return body ?? '';
+}
+
+export function formatDuration(ms: number | null | undefined) {
+  const total = Math.max(0, Math.round((ms ?? 0) / 1000));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 
 export async function deleteMessage(id: string) {

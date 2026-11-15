@@ -29,7 +29,7 @@ export default function Phone() {
   };
 
   return (
-    <Screen>
+    <Screen underHeader>
       <H1>{tr('login.withPhone')}</H1>
       <Body muted>{tr('login.phoneSubtitle')}</Body>
       <Field

@@ -318,7 +318,9 @@
       "voting_closed": "Voting has closed."
     },
     "composePlaceholder": "What do you want to share?",
-    "title": "Posts"
+    "title": "Posts",
+    "bodyRequired": "Write what you want to share (1–4000 characters).",
+    "linkInvalidTitle": "Invalid link"
   },
   "time": {
     "now": "now",
@@ -611,7 +613,8 @@
     "cancel": "Cancel",
     "notConfigured": "Preview build: no server connected, sign-in will not work.",
     "back": "Back",
-    "more": "More"
+    "more": "More",
+    "close": "Close"
   },
   "xp": {
     "label": "XP",
@@ -708,10 +711,33 @@
       "blocked": "You can't message this user.",
       "userNotFound": "User not found.",
       "notMember": "Only group members can chat.",
-      "cannotSend": "Can't send the message."
+      "cannotSend": "Can't send the message.",
+      "tooBig": "The file is larger than 25MB.",
+      "uploadFailed": "Upload failed. Check your connection and try again."
     },
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "kind": {
+      "image": "Photo",
+      "video": "Video",
+      "audio": "Voice message"
+    },
+    "attach": {
+      "title": "Attach",
+      "library": "Choose photos or videos",
+      "photo": "Take a photo",
+      "video": "Record a video"
+    },
+    "record": "Record a voice message",
+    "recording": "Recording… (up to {{max}} min)",
+    "cancelRecording": "Cancel recording",
+    "play": "Play",
+    "pause": "Pause",
+    "sendFailed": "Couldn't send",
+    "deleteMessage": "Delete message",
+    "permissionTitle": "Permission needed",
+    "cameraPermission": "Allow camera access in your phone settings.",
+    "micPermission": "Allow microphone access in your phone settings."
   },
   "admin": {
     "title": "Admin dashboard",

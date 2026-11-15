@@ -7,6 +7,9 @@ const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 // Тохиргоогүй build (жишээ нь туршилтын APK) унахгүй; _layout тохиргооны мэдэгдэл харуулна.
 export const supabaseConfigured = !!url && !!anonKey;
+// Storage руу файлыг шууд (base64-гүй) upload хийхэд хэрэгтэй.
+export const SUPABASE_URL = url || '';
+export const SUPABASE_ANON_KEY = anonKey || '';
 
 // Anon key нь нийтэд харагдах боломжтой; өгөгдлийг RLS хамгаална.
 // service_role key-г аппд хэзээ ч оруулахгүй.

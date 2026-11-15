@@ -78,7 +78,7 @@ export default function Login() {
   };
 
   return (
-    <Screen>
+    <Screen underHeader>
       <H1>{tr('login.title')}</H1>
       <Body muted>{tr('login.subtitle')}</Body>
 

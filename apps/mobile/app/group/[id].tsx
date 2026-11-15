@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { font, gradients, lightTheme as t, palette, radius, shadow } from '@together/ui/tokens';
 import { Avatar, AvatarStack } from '../../components/Avatar';
 import { Backdrop } from '../../components/Backdrop';
+import { ActionSheet, type SheetOption } from '../../components/ActionSheet';
 import { FadeIn, PressableScale } from '../../components/motion';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
@@ -88,6 +89,7 @@ export default function GroupDetail() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<Tab>('about');
   const [expanded, setExpanded] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -241,15 +243,14 @@ export default function GroupDetail() {
     }
   };
 
-  const onMore = () => {
-    const options: { text: string; style?: 'destructive' | 'cancel'; onPress?: () => void }[] = [];
-    if (isOwner) options.push({ text: tr('groups.changeCover'), onPress: onCover });
-    if (isOwner) options.push({ text: tr('groups.invite'), onPress: onShare });
-    if (isActive && !isOwner) options.push({ text: tr('groups.leave'), style: 'destructive', onPress: onLeave });
-    if (!isOwner) options.push({ text: tr('groups.reportGroup'), onPress: () => promptReport('group', groupId) });
-    options.push({ text: tr('common.cancel'), style: 'cancel' });
-    Alert.alert(group?.name ?? '', undefined, options);
-  };
+  // "…" цэс: бараан загвартай доороос гарах цэс (Android-ын цагаан Alert 3-аас олон товч харуулдаггүй).
+  const moreOptions: SheetOption[] = [
+    ...(isOwner ? [{ label: tr('groups.changeCover'), icon: 'image-outline' as const, onPress: onCover }] : []),
+    ...(isOwner ? [{ label: tr('groups.invite'), icon: 'person-add-outline' as const, onPress: onShare }] : []),
+    ...(!isOwner ? [{ label: tr('groups.share'), icon: 'share-outline' as const, onPress: onShare }] : []),
+    ...(isActive && !isOwner ? [{ label: tr('groups.leave'), icon: 'exit-outline' as const, destructive: true, onPress: onLeave }] : []),
+    ...(!isOwner ? [{ label: tr('groups.reportGroup'), icon: 'flag-outline' as const, destructive: true, onPress: () => promptReport('group', groupId) }] : []),
+  ];
 
   if (loading) {
     return (
@@ -293,7 +294,7 @@ export default function GroupDetail() {
             <GlassButton icon="chevron-back" label={tr('common.back')} onPress={() => router.back()} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <GlassButton icon="share-outline" label={tr('groups.share')} onPress={onShare} />
-              <GlassButton icon="ellipsis-horizontal" label={tr('common.more')} onPress={onMore} />
+              <GlassButton icon="ellipsis-horizontal" label={tr('common.more')} onPress={() => setMoreOpen(true)} />
             </View>
           </View>
         </View>
@@ -528,7 +529,7 @@ export default function GroupDetail() {
                   <Text style={styles.h}>{tr('sessions.section')}</Text>
                   {isActive && (
                     <Pressable onPress={() => router.push(`/session/new?groupId=${groupId}` as never)} hitSlop={8} accessibilityRole="button">
-                      <Text style={styles.more}>+ {tr('sessions.create')}</Text>
+                      <Text style={styles.more}>{tr('sessions.create')}</Text>
                     </Pressable>
                   )}
                 </View>
@@ -562,7 +563,7 @@ export default function GroupDetail() {
                 <Text style={styles.h}>{tr('challenges.section')}</Text>
                 {isActive && (
                   <Pressable onPress={() => router.push(`/challenge/new?groupId=${groupId}` as never)} hitSlop={8} accessibilityRole="button">
-                    <Text style={styles.more}>+ {tr('challenges.create')}</Text>
+                    <Text style={styles.more}>{tr('challenges.create')}</Text>
                   </Pressable>
                 )}
               </View>
@@ -589,6 +590,7 @@ export default function GroupDetail() {
           )}
         </View>
       </ScrollView>
+      <ActionSheet visible={moreOpen} title={group.name} options={moreOptions} onClose={() => setMoreOpen(false)} />
     </View>
   );
 }

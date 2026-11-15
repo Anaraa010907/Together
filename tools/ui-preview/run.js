@@ -144,6 +144,15 @@ async function route(page) {
     if (url.pathname.startsWith('/auth/v1/user')) return r.fulfill({ status: 200, headers, body: JSON.stringify(USER) });
     if (url.pathname.startsWith('/auth/v1/token')) return r.fulfill({ status: 200, headers, body: JSON.stringify(SESSION) });
     if (url.pathname.startsWith('/auth/v1/')) return r.fulfill({ status: 200, headers, body: '{}' });
+    if (url.pathname.startsWith('/storage/v1/object/sign/') && method === 'POST') {
+      let b = {};
+      try { b = req.postDataJSON() || {}; } catch {}
+      const bucket = url.pathname.split('/')[5];
+      return r.fulfill({ status: 200, headers, body: JSON.stringify((b.paths || []).map((p) => ({ path: p, signedURL: `/object/sign/${bucket}/${p}?token=x`, error: null }))) });
+    }
+    if (url.pathname.startsWith('/storage/v1/object/sign/')) {
+      return r.fulfill({ status: 200, headers: { 'Content-Type': 'image/jpeg', 'Access-Control-Allow-Origin': '*' }, body: fs.readFileSync(path.join(__dirname, 'photo.jpg')) });
+    }
     let body = {};
     try { body = req.postDataJSON() || {}; } catch { body = {}; }
     if (url.pathname.startsWith('/rest/v1/rpc/')) {
@@ -185,6 +194,8 @@ const SCREENS = [
   { name: '32-follows', url: '/follows/u-me?kind=followers' },
   { name: '40-chats', url: '/chats' },
   { name: '41-chat', url: '/chat/cv1' },
+  { name: '42-chat-attach', url: '/chat/cv1', click: 'Хавсаргах' },
+  { name: '24-group-more', url: '/group/g1', click: 'Бусад' },
   { name: '50-admin', url: '/admin', scroll: true },
   { name: '51-achievements', url: '/me/achievements' },
   { name: '52-xp', url: '/me/xp' },
@@ -210,6 +221,7 @@ const SCREENS = [
     await page.goto(`http://localhost:8099${s.url}`, { waitUntil: 'networkidle' }).catch(() => {});
     await page.waitForTimeout(2500);
     if (s.tab) { await page.getByText(s.tab, { exact: true }).first().click().catch(() => {}); await page.waitForTimeout(1500); }
+    if (s.click) { await page.getByLabel(s.click).first().click().catch(() => {}); await page.waitForTimeout(1200); }
     if (s.plus) { await page.getByLabel('Үүсгэх').first().click().catch(() => {}); await page.waitForTimeout(1200); }
     await page.screenshot({ path: path.join(OUT, `${s.name}.png`) });
     if (s.scroll) {

@@ -48,8 +48,10 @@ export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const BUCKET = 'post-media';
 const PAGE = 20;
 
+// profiles!posts_author_id_fkey: posts ба profiles хооронд post_helpful, post_saves, proposal_votes-оор
+// дамжсан олон зам байгаа тул зохиогчийг FK-ийн нэрээр заана (эс бөгөөс PostgREST "more than one relationship" алдаа өгнө).
 const SELECT = `id, group_id, author_id, kind, body, link_url, vote_deadline, created_at,
-  profiles(display_name, avatar_url),
+  profiles!posts_author_id_fkey(display_name, avatar_url),
   post_attachments(id, storage_path, mime_type, file_name, position),
   comments(count),
   post_helpful(user_id),

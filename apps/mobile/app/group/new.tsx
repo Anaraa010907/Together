@@ -74,7 +74,7 @@ export default function NewGroup() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.background }}>
-      <Stack.Screen options={{ title: isCourse ? tr('courses.createTitle') : tr('groups.createTitle'), headerTransparent: true }} />
+      <Stack.Screen options={{ title: isCourse ? tr('courses.createTitle') : tr('groups.createTitle'), headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
       <Backdrop />
       <ScrollView contentContainerStyle={styles.screen} keyboardShouldPersistTaps="handled">
         <FadeIn index={0}>

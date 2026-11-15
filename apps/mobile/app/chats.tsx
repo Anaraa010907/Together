@@ -9,7 +9,7 @@ import { Avatar } from '../components/Avatar';
 import { Backdrop } from '../components/Backdrop';
 import { FadeIn, PressableScale } from '../components/motion';
 import { useSession } from '../lib/session';
-import { chatTime, fetchConversations, subscribeInbox, type ConversationSummary } from '../lib/chat';
+import { chatTime, fetchConversations, previewText, subscribeInbox, type ConversationSummary } from '../lib/chat';
 
 // Чатууд: шууд болон группын харилцаа, сүүлийн мессеж, уншаагүй тоо.
 export default function Chats() {
@@ -110,7 +110,7 @@ export default function Chats() {
                     <View style={styles.titleRow}>
                       <Text style={[styles.preview, item.unread > 0 && styles.previewUnread]} numberOfLines={1}>
                         {mine ? `${tr('chat.you')}: ` : ''}
-                        {item.last_body}
+                        {previewText(item.last_body)}
                       </Text>
                       {item.unread > 0 && (
                         <LinearGradient colors={gradients.sunset} style={styles.badge}>

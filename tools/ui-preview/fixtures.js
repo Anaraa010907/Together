@@ -85,7 +85,11 @@ const conversations = [
   { id: 'cv4', kind: 'group', group_id: 'g3', title: 'Өглөөний гүйлт', avatar_url: null, other_id: null, last_body: 'Маргааш 6:30-д уулзъя', last_sender_id: 'u5', last_at: iso(-2 * day), unread: 0 },
 ];
 const M = (id, sender, body, minsAgo) => ({ id, conversation_id: 'cv1', sender_id: sender, body, created_at: iso(-minsAgo * 60000), profiles: { display_name: people[sender].display_name, avatar_url: null } });
+const MM = (id, sender, kind, minsAgo, extra) => ({ ...M(id, sender, '', minsAgo), kind, media_path: `cv1/${sender}/${id}`, media_mime: kind === 'image' ? 'image/jpeg' : kind === 'video' ? 'video/mp4' : 'audio/mp4', ...extra });
 const messages = [
+  MM('m12', ME, 'audio', 2, { media_duration_ms: 14000 }),
+  MM('m11', 'u2', 'image', 4, { media_width: 1080, media_height: 1350 }),
+  MM('m10', 'u2', 'video', 6, { media_duration_ms: 23000, media_width: 1920, media_height: 1080 }),
   M('m9', 'u2', 'Маргааш code review-д ирэх үү?', 8),
   M('m8', 'u2', 'Би PR-аа бэлдчихсэн байгаа', 9),
   M('m7', ME, 'Сайн байна, чи? Тэгэлгүй яах вэ 😄', 30),

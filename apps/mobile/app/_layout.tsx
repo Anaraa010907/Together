@@ -99,22 +99,22 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="interests" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="interests" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="suggested" options={{ headerShown: false }} />
         <Stack.Screen name="legal/[doc]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
-        <Stack.Screen name="goal/new" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="goal/new" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="chats" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="chat/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="follows/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="admin" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="settings" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="search" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
-        <Stack.Screen name="user/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="user/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="me/[list]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
-        <Stack.Screen name="register" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
-        <Stack.Screen name="login" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
-        <Stack.Screen name="phone" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
-        <Stack.Screen name="otp" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true }} />
+        <Stack.Screen name="register" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="login" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="phone" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="otp" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
         {/* Дэд дэлгэцүүдэд буцах товчтой header */}
         <Stack.Screen name="group/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="group/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />

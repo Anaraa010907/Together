@@ -46,7 +46,7 @@ export default function Register() {
   };
 
   return (
-    <Screen>
+    <Screen underHeader>
       <H1>{tr('register.title')}</H1>
       <Body muted>{tr('register.subtitle')}</Body>
 

@@ -60,7 +60,7 @@ export default function Interests() {
   }
 
   return (
-    <Screen>
+    <Screen underHeader>
       {!isEdit && <Steps total={3} current={3} />}
       <H1>{tr('interests.title')}</H1>
       <Body muted>{tr('interests.subtitle')}</Body>

@@ -18,8 +18,12 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { font, gradients, lightTheme as t, palette } from '@together/ui/tokens';
+import * as ImagePicker from 'expo-image-picker';
 import { Avatar } from '../../components/Avatar';
 import { Backdrop } from '../../components/Backdrop';
+import { ActionSheet, type SheetOption } from '../../components/ActionSheet';
+import { AudioBubble, ImageBubble, VideoBubble } from '../../components/ChatMedia';
+import { MAX_VOICE_MS, useVoiceRecorder, type VoiceClip } from '../../lib/recorder';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
 import { promptMemberActions, promptReport } from '../../lib/moderation';
@@ -30,11 +34,15 @@ import {
   deleteMessage,
   fetchConversationInfo,
   fetchMessages,
+  formatDuration,
   markRead,
+  sendMedia,
   sendMessage,
+  signedMediaUrls,
   subscribeMessages,
   type ConversationInfo,
   type Message,
+  type OutgoingMedia,
 } from '../../lib/chat';
 
 type Person = { name: string; avatar: string | null };
@@ -70,8 +78,24 @@ export default function ChatRoom() {
   const [older, setOlder] = useState(false);
   const [done, setDone] = useState(false);
   const [sending, setSending] = useState(false);
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  const [attachOpen, setAttachOpen] = useState(false);
+  const [menuFor, setMenuFor] = useState<Message | null>(null);
   const peopleRef = useRef(people);
   peopleRef.current = people;
+  const urlsRef = useRef(urls);
+  urlsRef.current = urls;
+
+  // Хаалттай медиа файлын түр холбоосыг татна (байхгүйг нь л).
+  const loadUrls = (list: Message[]) => {
+    const missing = list.map((m) => m.media_path).filter((p): p is string => !!p && !urlsRef.current[p]);
+    if (missing.length === 0) return;
+    signedMediaUrls(missing)
+      .then((u) => setUrls((prev) => ({ ...prev, ...u })))
+      .catch(() => {});
+  };
+
+  const recorder = useVoiceRecorder((clip) => clip && sendOutgoing({ uri: clip.uri, kind: 'audio', mime: clip.mime, durationMs: clip.durationMs }));
 
   const remember = (list: Message[]) => {
     const add: Record<string, Person> = {};
@@ -100,6 +124,7 @@ export default function ChatRoom() {
         setMessages(ms);
         setBlocked(b);
         remember(ms);
+        loadUrls(ms);
         setDone(ms.length < 40);
         markRead(conversationId).catch(() => {});
       } catch (e: any) {
@@ -111,6 +136,7 @@ export default function ChatRoom() {
     const unsub = subscribeMessages(conversationId, (m) => {
       setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [m, ...prev]));
       ensurePerson(m.sender_id);
+      loadUrls([m]);
       if (m.sender_id !== myId) markRead(conversationId).catch(() => {});
     });
     return () => {
@@ -126,6 +152,7 @@ export default function ChatRoom() {
     try {
       const more = await fetchMessages(conversationId, messages[messages.length - 1].created_at);
       remember(more);
+      loadUrls(more);
       setMessages((prev) => [...prev, ...more.filter((m) => !prev.some((x) => x.id === m.id))]);
       if (more.length < 40) setDone(true);
     } catch {
@@ -164,24 +191,115 @@ export default function ChatRoom() {
     }
   };
 
-  const onLongPress = (m: Message) => {
-    if (m.id.startsWith('tmp-')) return;
-    if (m.sender_id === myId) {
-      Alert.alert(tr('chat.deleteTitle'), undefined, [
-        { text: tr('common.cancel'), style: 'cancel' },
-        {
-          text: tr('feed.delete'),
-          style: 'destructive',
-          onPress: () =>
-            deleteMessage(m.id)
-              .then(() => setMessages((prev) => prev.filter((x) => x.id !== m.id)))
-              .catch((e) => Alert.alert(tr('common.error'), String(e?.message ?? e))),
-        },
-      ]);
-    } else {
-      promptReport('message', m.id);
+  // Зураг/видео/дуу: урьдчилан харагдах түр мессеж → upload → жинхэнэ мессежээр солино.
+  const sendOutgoing = async (media: OutgoingMedia) => {
+    const tempId = `tmp-${Date.now()}`;
+    const temp: Message = {
+      id: tempId,
+      conversation_id: conversationId,
+      sender_id: myId,
+      body: '',
+      created_at: new Date().toISOString(),
+      kind: media.kind,
+      media_duration_ms: media.durationMs ?? null,
+      media_width: media.width ?? null,
+      media_height: media.height ?? null,
+      local_uri: media.uri,
+    };
+    setMessages((prev) => [temp, ...prev]);
+    try {
+      const saved = await sendMedia(conversationId, myId, media);
+      // Илгээсэн файлыг дахин татахгүйн тулд локал файлаа холбоос болгон хадгална.
+      if (saved.media_path) setUrls((prev) => ({ ...prev, [saved.media_path!]: media.uri }));
+      setMessages((prev) => {
+        const without = prev.filter((m) => m.id !== tempId);
+        return without.some((m) => m.id === saved.id) ? without : [saved, ...without];
+      });
+    } catch (e) {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      const key = chatErrorKey(e);
+      Alert.alert(tr('chat.sendFailed'), key ? tr(key) : String((e as any)?.message ?? e));
     }
   };
+
+  const assetToMedia = (a: ImagePicker.ImagePickerAsset): OutgoingMedia => {
+    const isVideo = a.type === 'video';
+    return {
+      uri: a.uri,
+      kind: isVideo ? 'video' : 'image',
+      mime: a.mimeType ?? (isVideo ? 'video/mp4' : 'image/jpeg'),
+      durationMs: isVideo ? a.duration ?? null : null,
+      width: a.width || null,
+      height: a.height || null,
+    };
+  };
+
+  const pickFromLibrary = async () => {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      quality: 0.7,
+      videoMaxDuration: 180,
+      allowsMultipleSelection: true,
+      selectionLimit: 5,
+    });
+    if (res.canceled) return;
+    for (const a of res.assets) await sendOutgoing(assetToMedia(a));
+  };
+
+  const takeWithCamera = async (mode: 'photo' | 'video') => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(tr('chat.permissionTitle'), tr('chat.cameraPermission'));
+      return;
+    }
+    const res = await ImagePicker.launchCameraAsync({
+      mediaTypes: mode === 'video' ? ['videos'] : ['images'],
+      quality: 0.7,
+      videoMaxDuration: 180,
+    });
+    if (!res.canceled && res.assets[0]) await sendOutgoing(assetToMedia(res.assets[0]));
+  };
+
+  const startRecording = async () => {
+    try {
+      const ok = await recorder.start();
+      if (!ok) Alert.alert(tr('chat.permissionTitle'), tr('chat.micPermission'));
+    } catch (e: any) {
+      Alert.alert(tr('chat.sendFailed'), String(e?.message ?? e));
+    }
+  };
+
+  const stopAndSend = async () => {
+    const clip: VoiceClip | null = await recorder.stop();
+    if (clip) await sendOutgoing({ uri: clip.uri, kind: 'audio', mime: clip.mime, durationMs: clip.durationMs });
+  };
+
+  const attachOptions: SheetOption[] = [
+    { label: tr('chat.attach.library'), icon: 'images-outline', onPress: () => pickFromLibrary().catch(() => {}) },
+    { label: tr('chat.attach.photo'), icon: 'camera-outline', onPress: () => takeWithCamera('photo').catch(() => {}) },
+    { label: tr('chat.attach.video'), icon: 'videocam-outline', onPress: () => takeWithCamera('video').catch(() => {}) },
+  ];
+
+  const onLongPress = (m: Message) => {
+    if (m.id.startsWith('tmp-')) return;
+    setMenuFor(m);
+  };
+
+  const menuOptions: SheetOption[] = !menuFor
+    ? []
+    : menuFor.sender_id === myId
+      ? [
+          {
+            label: tr('chat.deleteMessage'),
+            icon: 'trash-outline',
+            destructive: true,
+            onPress: () =>
+              deleteMessage(menuFor.id)
+                .then(() => setMessages((prev) => prev.filter((x) => x.id !== menuFor.id)))
+                .catch((e) => Alert.alert(tr('common.error'), String(e?.message ?? e))),
+          },
+        ]
+      : [{ label: tr('report.action'), icon: 'flag-outline', destructive: true, onPress: () => promptReport('message', menuFor.id) }];
 
   const openHeader = () => {
     if (!info) return;
@@ -273,6 +391,7 @@ export default function ChatRoom() {
                   name={person?.name ?? item.sender_name ?? ''}
                   avatar={person?.avatar ?? item.sender_avatar ?? null}
                   pending={item.id.startsWith('tmp-')}
+                  url={item.media_path ? urls[item.media_path] : undefined}
                   onLongPress={() => onLongPress(item)}
                   onAvatar={() => router.push(`/user/${item.sender_id}` as never)}
                   indent={isGroup && !mine}
@@ -283,29 +402,75 @@ export default function ChatRoom() {
           />
         )}
 
-        <View style={[styles.inputBar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-          <TextInput
-            value={text}
-            onChangeText={setText}
-            placeholder={tr('chat.placeholder')}
-            placeholderTextColor={t.textFaint}
-            style={styles.input}
-            multiline
-            maxLength={2000}
-            accessibilityLabel={tr('chat.placeholder')}
-          />
-          <Pressable onPress={onSend} disabled={!text.trim()} accessibilityRole="button" accessibilityLabel={tr('chat.send')}>
-            <LinearGradient
-              colors={text.trim() ? gradients.violet : ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.06)']}
-              style={styles.send}
-            >
-              <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginLeft: 2 }} />
-            </LinearGradient>
-          </Pressable>
-        </View>
+        {recorder.recording ? (
+          <View style={[styles.inputBar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+            <Pressable onPress={recorder.cancel} accessibilityRole="button" accessibilityLabel={tr('chat.cancelRecording')} style={styles.iconBtn}>
+              <Ionicons name="trash-outline" size={20} color={palette.rose} />
+            </Pressable>
+            <View style={styles.recordBox}>
+              <RecDot />
+              <Text style={styles.recordTime}>{formatDuration(recorder.elapsed)}</Text>
+              <Text style={styles.recordHint} numberOfLines={1}>
+                {tr('chat.recording', { max: Math.round(MAX_VOICE_MS / 60000) })}
+              </Text>
+            </View>
+            <Pressable onPress={stopAndSend} accessibilityRole="button" accessibilityLabel={tr('chat.send')}>
+              <LinearGradient colors={gradients.violet} style={styles.send}>
+                <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginLeft: 2 }} />
+              </LinearGradient>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={[styles.inputBar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+            <Pressable onPress={() => setAttachOpen(true)} accessibilityRole="button" accessibilityLabel={tr('chat.attach.title')} style={styles.iconBtn}>
+              <Ionicons name="add" size={24} color={t.text} />
+            </Pressable>
+            <TextInput
+              value={text}
+              onChangeText={setText}
+              placeholder={tr('chat.placeholder')}
+              placeholderTextColor={t.textFaint}
+              style={styles.input}
+              multiline
+              maxLength={2000}
+              accessibilityLabel={tr('chat.placeholder')}
+            />
+            {text.trim() ? (
+              <Pressable onPress={onSend} accessibilityRole="button" accessibilityLabel={tr('chat.send')}>
+                <LinearGradient colors={gradients.violet} style={styles.send}>
+                  <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginLeft: 2 }} />
+                </LinearGradient>
+              </Pressable>
+            ) : (
+              <Pressable onPress={startRecording} accessibilityRole="button" accessibilityLabel={tr('chat.record')}>
+                <LinearGradient colors={['#FF8A3D', '#EC4899']} style={styles.send}>
+                  <Ionicons name="mic" size={20} color="#FFFFFF" />
+                </LinearGradient>
+              </Pressable>
+            )}
+          </View>
+        )}
       </KeyboardAvoidingView>
+      <ActionSheet visible={attachOpen} title={tr('chat.attach.title')} options={attachOptions} onClose={() => setAttachOpen(false)} />
+      <ActionSheet visible={!!menuFor} options={menuOptions} onClose={() => setMenuFor(null)} />
     </View>
   );
+}
+
+// Бичлэг явагдаж буйг заах анивчих улаан цэг.
+function RecDot() {
+  const v = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(v, { toValue: 0.25, duration: 600, useNativeDriver: true }),
+        Animated.timing(v, { toValue: 1, duration: 600, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [v]);
+  return <Animated.View style={[styles.recDot, { opacity: v }]} />;
 }
 
 function Bubble({
@@ -320,7 +485,9 @@ function Bubble({
   onLongPress,
   onAvatar,
   indent,
+  url,
 }: {
+  url?: string;
   message: Message;
   mine: boolean;
   showName: boolean;
@@ -359,7 +526,13 @@ function Bubble({
       <View style={{ maxWidth: '78%', alignItems: mine ? 'flex-end' : 'flex-start', gap: 3 }}>
         {showName && <Text style={styles.name}>{name}</Text>}
         <Pressable onLongPress={onLongPress} delayLongPress={300}>
-          {mine ? (
+          {message.kind === 'image' ? (
+            <ImageBubble message={message} url={url} mine={mine} pending={pending} />
+          ) : message.kind === 'video' ? (
+            <VideoBubble message={message} url={url} mine={mine} pending={pending} />
+          ) : message.kind === 'audio' ? (
+            <AudioBubble message={message} url={url} mine={mine} pending={pending} />
+          ) : mine ? (
             <LinearGradient
               colors={['#A855F7', '#7C3AED']}
               start={{ x: 0, y: 0 }}
@@ -415,4 +588,15 @@ const styles = StyleSheet.create({
     backgroundColor: t.surface, borderWidth: 1, borderColor: t.border, fontFamily: font.medium, fontSize: 15, color: t.text,
   },
   send: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
+  iconBtn: {
+    width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: t.surface, borderWidth: 1, borderColor: t.border,
+  },
+  recordBox: {
+    flex: 1, height: 46, borderRadius: 23, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16,
+    backgroundColor: 'rgba(251,113,133,0.10)', borderWidth: 1, borderColor: 'rgba(251,113,133,0.35)',
+  },
+  recDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: palette.rose },
+  recordTime: { fontFamily: font.bold, fontSize: 15, color: t.text, minWidth: 40 },
+  recordHint: { flex: 1, fontFamily: font.medium, fontSize: 12, color: t.textMuted },
 });

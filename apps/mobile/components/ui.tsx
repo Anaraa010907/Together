@@ -19,18 +19,29 @@ import { font, gradients, lightTheme as t, palette, radius, shadow, space } from
 import { Backdrop } from './Backdrop';
 
 // ---------- Дэлгэцийн суурь ----------
+// Статус мөр + буцах сумтай header-ийн өндөр (ойролцоогоор).
+export const HEADER_SPACE = 108;
+
 export function Screen({
   children,
   scroll = true,
   center = false,
+  underHeader = false,
   style,
 }: {
   children: ReactNode;
   scroll?: boolean;
   center?: boolean;
+  // Тунгалаг header (буцах сум)-тай дэлгэц: агуулгыг сумны доороос эхлүүлнэ.
+  underHeader?: boolean;
   style?: ViewStyle;
 }) {
-  const content = [styles.screen, center && { flexGrow: 1, justifyContent: 'center' as const }, style];
+  const content = [
+    styles.screen,
+    underHeader && { paddingTop: HEADER_SPACE },
+    center && { flexGrow: 1, justifyContent: 'center' as const },
+    style,
+  ];
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Backdrop />

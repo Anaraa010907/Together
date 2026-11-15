@@ -27,7 +27,7 @@ export default function Otp() {
   };
 
   return (
-    <Screen>
+    <Screen underHeader>
       <H1>{tr('otp.title')}</H1>
       <Body muted>{tr('otp.sentTo', { phone })}</Body>
       <Field

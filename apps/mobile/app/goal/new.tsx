@@ -35,7 +35,7 @@ export default function NewGoal() {
   };
 
   return (
-    <Screen style={{ paddingTop: 110 }}>
+    <Screen underHeader>
       <Stack.Screen options={{ title: tr('create.goal') }} />
       <Body muted>{tr('goals.newHint')}</Body>
       <Field

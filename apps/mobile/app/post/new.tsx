@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, lightTheme as t, palette, radius, space } from '@together/ui/tokens';
+import { Backdrop } from '../../components/Backdrop';
+import { Button } from '../../components/ui';
 import {
   createPost,
   MAX_FILE_BYTES,
@@ -28,6 +30,8 @@ export default function NewPost() {
   const [deadlineDays, setDeadlineDays] = useState(3);
   const [files, setFiles] = useState<LocalFile[]>([]);
   const [busy, setBusy] = useState(false);
+  const [bodyError, setBodyError] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const addFiles = (picked: LocalFile[]) => {
     const tooBig = picked.filter((f) => f.size > MAX_FILE_BYTES);
@@ -53,8 +57,12 @@ export default function NewPost() {
   const onSubmit = async () => {
     const text = body.trim();
     const url = link.trim();
-    if (text.length < 1 || text.length > 4000) return Alert.alert(tr('common.error'), tr('feed.bodyInvalid'));
-    if (url && !/^https?:\/\/\S+$/i.test(url)) return Alert.alert(tr('common.error'), tr('feed.linkInvalid'));
+    // Хоосон бол алдааны цонх биш, талбарын доор сануулна.
+    if (text.length < 1 || text.length > 4000) {
+      setBodyError(true);
+      return;
+    }
+    if (url && !/^https?:\/\/\S+$/i.test(url)) return Alert.alert(tr('feed.linkInvalidTitle'), tr('feed.linkInvalid'));
 
     setBusy(true);
     try {
@@ -79,7 +87,9 @@ export default function NewPost() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: t.background }} contentContainerStyle={styles.screen}>
+    <View style={{ flex: 1, backgroundColor: t.background }}>
+    <Backdrop />
+    <ScrollView contentContainerStyle={styles.screen} keyboardShouldPersistTaps="handled">
       <View style={styles.chips}>
         {KINDS.map((k) => (
           <Chip key={k} label={tr(`feed.kind.${k}`)} active={kind === k} onPress={() => setKind(k)} />
@@ -88,15 +98,25 @@ export default function NewPost() {
       <Text style={[styles.hint, { color: t.textMuted }]}>{tr(`feed.kindHint.${kind}`)}</Text>
 
       <TextInput
-        style={[styles.input, styles.multiline, { borderColor: t.border, backgroundColor: t.surface, color: t.text }]}
+        style={[
+          styles.input,
+          styles.multiline,
+          { borderColor: bodyError ? palette.rose : focused ? palette.violet : t.border, backgroundColor: t.surface, color: t.text },
+        ]}
         value={body}
-        onChangeText={setBody}
+        onChangeText={(v) => {
+          setBody(v);
+          if (bodyError && v.trim()) setBodyError(false);
+        }}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         multiline
         maxLength={4000}
         placeholder={tr(`feed.placeholder.${kind}`)}
-        placeholderTextColor={t.textMuted}
+        placeholderTextColor={t.textFaint}
         accessibilityLabel={tr('feed.body')}
       />
+      {bodyError && <Text style={styles.error}>{tr('feed.bodyRequired')}</Text>}
 
       <TextInput
         style={[styles.input, { borderColor: t.border, backgroundColor: t.surface, color: t.text }]}
@@ -106,7 +126,7 @@ export default function NewPost() {
         autoCorrect={false}
         keyboardType="url"
         placeholder={tr('feed.linkPlaceholder')}
-        placeholderTextColor={t.textMuted}
+        placeholderTextColor={t.textFaint}
         accessibilityLabel={tr('feed.linkPlaceholder')}
       />
 
@@ -163,19 +183,11 @@ export default function NewPost() {
 
       <Text style={[styles.hint, { color: t.textMuted }]}>{tr('feed.helpfulHint')}</Text>
 
-      <Pressable
-        style={[styles.primary, { backgroundColor: t.accent, opacity: busy ? 0.6 : 1 }]}
-        disabled={busy}
-        onPress={onSubmit}
-        accessibilityRole="button"
-      >
-        {busy ? (
-          <ActivityIndicator color={t.onAccent} />
-        ) : (
-          <Text style={[styles.primaryText, { color: t.onAccent }]}>{tr('feed.publish')}</Text>
-        )}
-      </Pressable>
+      <View style={{ marginTop: space.md }}>
+        <Button label={tr('feed.publish')} icon="paper-plane-outline" onPress={onSubmit} loading={busy} />
+      </View>
     </ScrollView>
+    </View>
   );
 }
 
@@ -185,9 +197,14 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ selected: active }}
-      style={[styles.chip, { borderColor: t.border, backgroundColor: active ? t.accent : t.surface }]}
+      style={[
+        styles.chip,
+        active
+          ? { borderColor: 'rgba(196,181,253,0.6)', backgroundColor: 'rgba(139,92,246,0.35)' }
+          : { borderColor: t.border, backgroundColor: t.surface },
+      ]}
     >
-      <Text style={{ color: active ? t.onAccent : t.text, fontFamily: font.semibold, fontSize: 13 }}>{label}</Text>
+      <Text style={{ color: active ? '#FFFFFF' : t.textMuted, fontFamily: active ? font.bold : font.semibold, fontSize: 13 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -198,10 +215,9 @@ const styles = StyleSheet.create({
   chip: { flex: 1, borderWidth: 1, borderRadius: radius.pill, paddingVertical: 10, alignItems: 'center' },
   label: { fontSize: 13, marginTop: space.sm },
   hint: { fontSize: 12 },
-  input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: 12, fontSize: 16 },
+  input: { borderWidth: 1, borderRadius: 18, paddingHorizontal: space.md, paddingVertical: 14, fontSize: 16, fontFamily: font.medium },
   multiline: { minHeight: 140, textAlignVertical: 'top' },
-  attach: { flex: 1, borderWidth: 1, borderRadius: radius.md, paddingVertical: 12, alignItems: 'center' },
+  attach: { flex: 1, borderWidth: 1, borderRadius: 18, paddingVertical: 13, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' },
   fileRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: radius.md, padding: space.sm },
-  primary: { borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', marginTop: space.md },
-  primaryText: { fontSize: 16, fontFamily: font.semibold },
+  error: { fontSize: 13, fontFamily: font.semibold, color: palette.rose, marginTop: -2 },
 });
