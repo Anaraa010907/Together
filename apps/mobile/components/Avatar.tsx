@@ -1,6 +1,7 @@
 import { Image, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { font, gradients, lightTheme as t } from '@together/ui/tokens';
+import { compact } from '../lib/social';
 
 // Профайлын зураг эсвэл нэрийн эхний үсэг (нил ягаан градиент дээр).
 // ring=true үед улбар шар → нил ягаан градиент хүрээтэй.
@@ -88,7 +89,7 @@ export function AvatarStack({
             paddingHorizontal: 5,
           }}
         >
-          <Text style={{ fontFamily: font.bold, fontSize: 10, color: '#FFFFFF' }}>+{extra > 99 ? '99' : extra}</Text>
+          <Text style={{ fontFamily: font.bold, fontSize: 10, color: '#FFFFFF' }}>+{compact(extra)}</Text>
         </View>
       )}
     </View>

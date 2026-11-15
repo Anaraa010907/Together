@@ -104,8 +104,18 @@ export default function Notifications() {
         renderItem={({ item, index }) => {
           const target = targetOf(item);
           const [icon, colors] = TYPE_ICON[item.type] ?? TYPE_ICON.comment;
+          const prevItem = items[index - 1];
+          const header =
+            index === 0
+              ? item.read_at
+                ? tr('notifications.earlier')
+                : tr('notifications.new')
+              : !prevItem?.read_at && item.read_at
+                ? tr('notifications.earlier')
+                : null;
           return (
             <FadeIn index={index + 1}>
+              {!!header && <Text style={styles.sectionLabel}>{header}</Text>}
               <PressableScale
                 onPress={() => target && router.push(target as never)}
                 accessibilityRole="button"
@@ -159,6 +169,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   title: { fontFamily: font.extrabold, fontSize: 20, color: t.text },
   clear: { fontFamily: font.semibold, fontSize: 14, color: palette.lilac },
+  sectionLabel: { fontFamily: font.bold, fontSize: 13, color: t.textMuted, marginTop: 6, marginBottom: 8, letterSpacing: 0.3 },
   emptyBox: { alignItems: 'center', gap: 14, marginTop: 60 },
   emptyIcon: { width: 84, height: 84, borderRadius: 42, alignItems: 'center', justifyContent: 'center' },
   empty: { fontFamily: font.medium, fontSize: 15, color: t.textMuted, textAlign: 'center' },

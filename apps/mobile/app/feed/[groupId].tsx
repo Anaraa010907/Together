@@ -1,12 +1,15 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { font, lightTheme as t, radius, space } from '@together/ui/tokens';
+import { font, gradients, lightTheme as t, radius, shadow, space } from '@together/ui/tokens';
+import { Backdrop } from '../../components/Backdrop';
 import { PostCard } from '../../components/PostCard';
 import { useSession } from '../../lib/session';
 import { fetchBlockedIds } from '../../lib/account';
-import { fetchMyMembership } from '../../lib/groups';
+import { fetchGroup, fetchMyMembership } from '../../lib/groups';
 import { promptContentActions } from '../../lib/moderation';
 import { usePostActions } from '../../lib/usePostActions';
 import { deletePost, fetchFeed, signedUrls, type Post } from '../../lib/feed';
@@ -26,6 +29,7 @@ export default function Feed() {
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [blocked, setBlocked] = useState<Set<string>>(new Set());
   const [isOwner, setIsOwner] = useState(false);
+  const [groupName, setGroupName] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -50,6 +54,9 @@ export default function Feed() {
       setPosts(list);
       setBlocked(b);
       setIsOwner(m?.role === 'owner' && m?.status === 'active');
+      fetchGroup(gid)
+        .then((g) => setGroupName(g?.name ?? ''))
+        .catch(() => {});
       setEnd(list.length < PAGE);
       await addUrls(list);
     } catch (e: any) {
@@ -93,12 +100,15 @@ export default function Feed() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.background }}>
+      <Stack.Screen options={{ title: groupName || tr('feed.title') }} />
+      <Backdrop />
       <FlatList
         data={visible}
         keyExtractor={(p) => p.id}
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl
+            tintColor={t.accent}
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
@@ -138,12 +148,15 @@ export default function Feed() {
       />
 
       <Pressable
-        style={[styles.fab, { backgroundColor: t.accent }]}
+        style={({ pressed }) => [styles.fab, shadow.glow, { opacity: pressed ? 0.85 : 1 }]}
         onPress={() => router.push(`/post/new?groupId=${gid}` as never)}
         accessibilityRole="button"
         accessibilityLabel={tr('feed.newPost')}
       >
-        <Text style={[styles.fabText, { color: t.onAccent }]}>+ {tr('feed.newPost')}</Text>
+        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.fabInner}>
+          <Ionicons name="create-outline" size={18} color="#FFFFFF" />
+          <Text style={styles.fabText}>{tr('feed.newPost')}</Text>
+        </LinearGradient>
       </Pressable>
     </View>
   );
@@ -153,9 +166,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   list: { padding: space.lg, gap: space.md, paddingBottom: 100 },
   empty: { textAlign: 'center', marginTop: space.xl },
-  fab: {
-    position: 'absolute', right: space.lg, bottom: space.xl,
-    borderRadius: radius.pill, paddingVertical: 14, paddingHorizontal: space.lg,
-  },
-  fabText: { fontSize: 16, fontFamily: font.bold },
+  fab: { position: 'absolute', right: 20, bottom: 34 },
+  fabInner: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 999, paddingVertical: 14, paddingHorizontal: 20 },
+  fabText: { fontSize: 15, fontFamily: font.bold, color: '#FFFFFF' },
 });

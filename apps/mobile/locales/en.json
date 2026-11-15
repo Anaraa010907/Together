@@ -317,7 +317,8 @@
       "not_proposal": "This post is not a proposal.",
       "voting_closed": "Voting has closed."
     },
-    "composePlaceholder": "What do you want to share?"
+    "composePlaceholder": "What do you want to share?",
+    "title": "Posts"
   },
   "time": {
     "now": "now",
@@ -599,7 +600,9 @@
       "session": "{{name}} scheduled a session: {{title}}",
       "lesson": "New lesson added: {{title}}",
       "follow": "{{name}} started following you"
-    }
+    },
+    "new": "New",
+    "earlier": "Earlier"
   },
   "common": {
     "loading": "Loading…",
@@ -706,7 +709,9 @@
       "userNotFound": "User not found.",
       "notMember": "Only group members can chat.",
       "cannotSend": "Can't send the message."
-    }
+    },
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "admin": {
     "title": "Admin dashboard",

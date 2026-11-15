@@ -54,6 +54,13 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
   return (
     <>
+      {/* Доод цэсний ард агуулга зөөлөн бүдгэрнэ (гүйлгэхэд текст цэсний доогуур харагдахгүй). */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={['rgba(12,10,28,0)', 'rgba(12,10,28,0.85)', palette.ink]}
+        locations={[0, 0.45, 1]}
+        style={[styles.fade, { height: BAR + Math.max(insets.bottom, 10) + 36 }]}
+      />
       <View pointerEvents="box-none" style={[styles.wrap, { bottom: Math.max(insets.bottom, 10) }]}>
         <View style={[styles.bar, shadow.card]}>
           {items.slice(0, mid)}
@@ -133,6 +140,7 @@ function PlusButton({ onPress }: { onPress: () => void }) {
         style={[
           shadow.glow,
           {
+            marginTop: -26,
             transform: [
               { scale: s },
               { rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '90deg'] }) },
@@ -248,10 +256,11 @@ function SheetAction({
 }
 
 // Доод цэсний ард агуулга нуугдахгүйн тулд дэлгэцийн доод зай.
-export const TAB_BAR_SPACE = BAR + 44;
+export const TAB_BAR_SPACE = BAR + 60;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 12, right: 12 },
+  fade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   bar: {
     height: BAR,
     borderRadius: 26,
@@ -295,7 +304,6 @@ const styles = StyleSheet.create({
     borderRadius: PLUS / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -26,
     borderWidth: 4,
     borderColor: t.background,
   },

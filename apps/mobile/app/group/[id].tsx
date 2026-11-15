@@ -612,23 +612,32 @@ function CoverPattern({ width }: { width: number }) {
   );
 }
 
-// Табын мөр: идэвхтэй табын доор градиент зураас пүршээр гулсана.
+// Табын мөр: таб бүр текстийнхээ өргөнтэй, идэвхтэй табын доор градиент зураас пүршээр гулсана.
 function TabsBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   const { t: tr } = useTranslation();
-  const [w, setW] = useState(0);
+  const [layouts, setLayouts] = useState<Record<string, { x: number; width: number }>>({});
   const x = useRef(new Animated.Value(0)).current;
-  const slot = w / TABS.length;
+  const w = useRef(new Animated.Value(0)).current;
+  const current = layouts[tab];
   useEffect(() => {
-    if (!slot) return;
-    Animated.spring(x, { toValue: TABS.indexOf(tab) * slot + slot * 0.2, useNativeDriver: true, speed: 18, bounciness: 8 }).start();
-  }, [tab, slot, x]);
+    if (!current) return;
+    const inset = 10;
+    Animated.parallel([
+      Animated.spring(x, { toValue: current.x + inset, useNativeDriver: false, speed: 18, bounciness: 8 }),
+      Animated.spring(w, { toValue: Math.max(16, current.width - inset * 2), useNativeDriver: false, speed: 18, bounciness: 8 }),
+    ]).start();
+  }, [current, x, w]);
   return (
     <View style={styles.tabsWrap}>
-      <View style={styles.tabs} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      <View style={styles.tabs}>
         {TABS.map((k) => (
           <Pressable
             key={k}
             onPress={() => onChange(k)}
+            onLayout={(e) => {
+              const { x: lx, width } = e.nativeEvent.layout;
+              setLayouts((prev) => ({ ...prev, [k]: { x: lx, width } }));
+            }}
             accessibilityRole="tab"
             accessibilityState={{ selected: tab === k }}
             style={styles.tab}
@@ -638,8 +647,8 @@ function TabsBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
             </Text>
           </Pressable>
         ))}
-        {slot > 0 && (
-          <Animated.View style={[styles.indicator, { width: slot * 0.6, transform: [{ translateX: x }] }]}>
+        {!!current && (
+          <Animated.View style={[styles.indicator, { width: w, transform: [{ translateX: x }] }]}>
             <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={{ flex: 1, borderRadius: 2 }} />
           </Animated.View>
         )}
@@ -798,8 +807,8 @@ const styles = StyleSheet.create({
   secondaryText: { fontFamily: font.bold, fontSize: 15, color: t.text },
   tabsWrap: { backgroundColor: t.background, paddingTop: 16, paddingHorizontal: 20 },
   tabs: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: t.borderSoft },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 12 },
-  tabText: { fontFamily: font.semibold, fontSize: 14, color: t.textMuted },
+  tab: { flexGrow: 1, alignItems: 'center', paddingVertical: 12, paddingHorizontal: 10 },
+  tabText: { fontFamily: font.semibold, fontSize: 13.5, color: t.textMuted },
   tabTextOn: { fontFamily: font.bold, color: t.text },
   indicator: { position: 'absolute', bottom: -1, left: 0, height: 3 },
   body: { padding: 20, gap: 12 },

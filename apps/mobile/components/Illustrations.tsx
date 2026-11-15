@@ -1,45 +1,67 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
-import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, RadialGradient, Stop } from 'react-native-svg';
 
-// "Хамтдаа хөгжие" баннерын зураг: жаргах нар, толгод, гараа өргөсөн хүмүүсийн дүрс.
+// "Хамтдаа хөгжие" баннерын зураг: жаргах нар, толгод, гараа өргөж баярласан хүмүүсийн дүрс, оддын гялбаа.
 export function TogetherArt({ width = 170, height = 124 }: { width?: number; height?: number }) {
-  const figures = [
-    { x: 30, h: 50 },
-    { x: 58, h: 62 },
-    { x: 88, h: 70 },
-    { x: 118, h: 60 },
-    { x: 145, h: 52 },
+  // x: байрлал, h: өндөр, arms: 'both' | 'left' | 'right' — аль гараа өргөсөн.
+  const figures: { x: number; h: number; arms: 'both' | 'left' | 'right' }[] = [
+    { x: 28, h: 50, arms: 'right' },
+    { x: 56, h: 60, arms: 'both' },
+    { x: 86, h: 68, arms: 'both' },
+    { x: 116, h: 58, arms: 'both' },
+    { x: 144, h: 48, arms: 'left' },
   ];
+  const ink = '#1A0E33';
   return (
     <Svg width={width} height={height} viewBox="0 0 170 124">
       <Defs>
         <RadialGradient id="sun" cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor="#FFE3B3" stopOpacity="1" />
-          <Stop offset="0.6" stopColor="#FFB36B" stopOpacity="0.85" />
+          <Stop offset="0" stopColor="#FFE9C2" stopOpacity="1" />
+          <Stop offset="0.55" stopColor="#FFB36B" stopOpacity="0.9" />
           <Stop offset="1" stopColor="#FF8A3D" stopOpacity="0" />
         </RadialGradient>
         <LinearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#2A1450" stopOpacity="0.9" />
+          <Stop offset="0" stopColor="#2A1450" stopOpacity="0.95" />
           <Stop offset="1" stopColor="#140A2A" stopOpacity="1" />
         </LinearGradient>
       </Defs>
-      <Circle cx="96" cy="70" r="44" fill="url(#sun)" />
-      <Path d="M0 104 Q 42 88 86 100 T 170 96 L170 124 L0 124 Z" fill="url(#hill)" />
-      <G fill="#160B2C" stroke="#160B2C" strokeLinecap="round">
-        {figures.map(({ x, h }, i) => {
-          const top = 124 - h;
-          const shoulder = top + 14;
-          return (
-            <G key={i}>
-              <Circle cx={x} cy={top + 6} r={6.5} strokeWidth={0} />
-              <Path d={`M${x - 8} 124 L${x - 7} ${shoulder} Q${x} ${shoulder - 5} ${x + 7} ${shoulder} L${x + 8} 124 Z`} strokeWidth={0} />
-              <Line x1={x - 5} y1={shoulder + 2} x2={x - 15 + (i % 2) * 2} y2={top - 14} strokeWidth={4.5} />
-              <Line x1={x + 5} y1={shoulder + 2} x2={x + 15 - (i % 2) * 2} y2={top - 14} strokeWidth={4.5} />
+      <Circle cx="92" cy="74" r="46" fill="url(#sun)" />
+      {[
+        [20, 22, 3],
+        [150, 16, 2.5],
+        [128, 40, 2],
+        [40, 46, 2],
+      ].map(([cx, cy, r], i) => (
+        <Path
+          key={i}
+          d={`M${cx} ${cy - r * 2} L${cx + r * 0.5} ${cy - r * 0.5} L${cx + r * 2} ${cy} L${cx + r * 0.5} ${cy + r * 0.5} L${cx} ${cy + r * 2} L${cx - r * 0.5} ${cy + r * 0.5} L${cx - r * 2} ${cy} L${cx - r * 0.5} ${cy - r * 0.5} Z`}
+          fill="#FFFFFF"
+          opacity={0.85}
+        />
+      ))}
+      <Path d="M0 106 Q 44 92 88 103 T 170 99 L170 124 L0 124 Z" fill="url(#hill)" />
+      {figures.map(({ x, h, arms }, i) => {
+        const top = 124 - h;
+        const sh = top + 15; // мөрний түвшин
+        const arm = (dir: -1 | 1, up: boolean) =>
+          up ? (
+            <G key={dir}>
+              <Path d={`M${x + dir * 7} ${sh + 2} Q${x + dir * 14} ${sh - 6} ${x + dir * 12} ${top - 8}`} stroke={ink} strokeWidth={4.2} strokeLinecap="round" fill="none" />
+              <Circle cx={x + dir * 12} cy={top - 9} r={2.6} fill={ink} />
             </G>
+          ) : (
+            <Path key={dir} d={`M${x + dir * 8} ${sh + 3} Q${x + dir * 12} ${sh + 14} ${x + dir * 11} ${sh + 24}`} stroke={ink} strokeWidth={4.2} strokeLinecap="round" fill="none" />
           );
-        })}
-      </G>
+        return (
+          <G key={i}>
+            {arm(-1, arms !== 'right')}
+            {arm(1, arms !== 'left')}
+            <Path d={`M${x - 10} 124 L${x - 10} ${sh + 7} Q${x - 10} ${sh} ${x - 3} ${sh} L${x + 3} ${sh} Q${x + 10} ${sh} ${x + 10} ${sh + 7} L${x + 10} 124 Z`} fill={ink} />
+            <Circle cx={x} cy={top + 6} r={7} fill={ink} />
+          </G>
+        );
+      })}
     </Svg>
   );
 }

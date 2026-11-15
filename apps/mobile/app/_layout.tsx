@@ -42,7 +42,9 @@ function AuthGate() {
     const isPublic = current === 'legal';
 
     if (!session) {
-      if (!isAuthScreen && !isPublic && current !== 'index') router.replace('/login' as never);
+      // Эхлэл (Welcome) дэлгэц: segments хоосон эсвэл 'index'.
+      const isWelcome = !current || current === 'index';
+      if (!isAuthScreen && !isPublic && !isWelcome) router.replace('/login' as never);
       return;
     }
     if (!hasProfile) {
@@ -119,7 +121,7 @@ export default function RootLayout() {
         <Stack.Screen name="join" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="challenge/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="challenge/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
-        <Stack.Screen name="feed/[groupId]" options={{ headerShown: true, title: 'Feed', headerBackTitle: '' }} />
+        <Stack.Screen name="feed/[groupId]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="post/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="post/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="session/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />

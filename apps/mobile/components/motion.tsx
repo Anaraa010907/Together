@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Easing, Pressable, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { gradients, lightTheme as t } from '@together/ui/tokens';
 
@@ -51,9 +51,13 @@ export function PressableScale({
   const s = useRef(new Animated.Value(1)).current;
   const to = (value: number) =>
     Animated.spring(s, { toValue: value, useNativeDriver: true, speed: 40, bounciness: value === 1 ? 8 : 0 }).start();
+  // flex/өргөн/margin зэрэг байршлын шинжийг Pressable-д, харагдах байдлыг дотор талын view-д.
+  // (Өмнө нь бүгд дотор view-д очиж flex: 1 ажилладаггүй байсан.)
+  const { outer, inner } = splitLayout(style);
   return (
     <Pressable
       {...props}
+      style={outer}
       onPressIn={(e) => {
         to(scaleTo);
         props.onPressIn?.(e);
@@ -63,9 +67,26 @@ export function PressableScale({
         props.onPressOut?.(e);
       }}
     >
-      <Animated.View style={[style, { transform: [{ scale: s }] }]}>{children}</Animated.View>
+      <Animated.View style={[inner, { transform: [{ scale: s }] }]}>{children}</Animated.View>
     </Pressable>
   );
+}
+
+const OUTER_KEYS = new Set([
+  'flex', 'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf',
+  'width', 'minWidth', 'maxWidth',
+  'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'marginHorizontal', 'marginVertical',
+  'position', 'top', 'bottom', 'left', 'right', 'zIndex',
+]);
+
+function splitLayout(style: StyleProp<ViewStyle>) {
+  const flat = (StyleSheet.flatten(style) ?? {}) as Record<string, unknown>;
+  const outer: Record<string, unknown> = {};
+  const inner: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(flat)) (OUTER_KEYS.has(k) ? outer : inner)[k] = v;
+  // Гадна тал сунавал дотор тал ч дүүргэнэ.
+  if (outer.flex != null || outer.flexGrow != null) inner.flexGrow = 1;
+  return { outer: outer as ViewStyle, inner: inner as ViewStyle };
 }
 
 // value өөрчлөгдөхөд "pop" хийнэ (жишээ нь чек тэмдэглэхэд).

@@ -70,7 +70,9 @@ export const shadow = {
     shadowOffset: { width: 0, height: 10 },
     elevation: 0,
   },
+  // Гэрэлтэх сүүдэр — зөвхөн дугуй/pill товчны гадна талд (borderRadius-гүй бол дөрвөлжин сүүдэр гардаг).
   glow: {
+    borderRadius: 999,
     shadowColor: palette.violet,
     shadowOpacity: 0.55,
     shadowRadius: 18,

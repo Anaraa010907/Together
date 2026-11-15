@@ -142,7 +142,7 @@ export type GroupStat = { members: number; preview: { name: string; url: string 
 // 12500 → "12.5K", 2800000 → "2.8M".
 export function compact(n: number) {
   if (n < 1000) return String(n);
-  if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0).replace(/\.0$/, '')}K`;
+  if (n < 1_000_000) return `${(n / 1000).toFixed(n < 100_000 ? 1 : 0).replace(/\.0$/, '')}K`;
   return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
 }
 

@@ -493,9 +493,9 @@ export default function Home() {
         <FadeIn index={row++}>
           <LinearGradient colors={['#6D28D9', '#C026D3', '#FF8A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.banner}>
             <View style={styles.bannerArt} pointerEvents="none">
-              <TogetherArt width={190} height={138} />
+              <TogetherArt width={170} height={124} />
             </View>
-            <View style={{ gap: 6, maxWidth: '62%' }}>
+            <View style={{ gap: 6, width: '66%' }}>
               <Text style={styles.bannerTitle}>{tr('home.bannerTitle')} ✨</Text>
               <Text style={styles.bannerSub}>{tr('home.bannerSub')}</Text>
               <PressableScale onPress={() => router.push('/group/new' as never)} accessibilityRole="button" style={styles.bannerBtn}>
@@ -593,8 +593,8 @@ const styles = StyleSheet.create({
   liveTag: { borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10 },
   liveText: { fontFamily: font.bold, fontSize: 11, color: '#FFFFFF' },
   banner: { borderRadius: 26, padding: 20, minHeight: 150, overflow: 'hidden', justifyContent: 'center', ...shadow.card },
-  bannerArt: { position: 'absolute', right: -10, bottom: 0 },
-  bannerTitle: { fontFamily: font.extrabold, fontSize: 21, color: '#FFFFFF' },
+  bannerArt: { position: 'absolute', right: -14, bottom: 0, opacity: 0.95 },
+  bannerTitle: { fontFamily: font.extrabold, fontSize: 20, color: '#FFFFFF' },
   bannerSub: { fontFamily: font.medium, fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 18 },
   bannerBtn: {
     marginTop: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6,

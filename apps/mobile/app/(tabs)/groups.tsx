@@ -325,7 +325,10 @@ function FeaturedCard({
         <Image source={{ uri: g.cover_url }} style={StyleSheet.absoluteFill} />
       ) : (
         <LinearGradient colors={categoryColor(g.category_id)} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill}>
-          <Text style={styles.featuredEmoji}>{g.kind === 'course' ? '📚' : cat?.icon ?? '👥'}</Text>
+          <View style={styles.featuredOrb} />
+          <View style={styles.featuredEmojiWrap}>
+            <Text style={styles.featuredEmoji}>{g.kind === 'course' ? '📚' : cat?.icon ?? '👥'}</Text>
+          </View>
         </LinearGradient>
       )}
       <LinearGradient colors={['rgba(12,10,28,0)', 'rgba(12,10,28,0.85)']} style={StyleSheet.absoluteFill} />
@@ -442,7 +445,12 @@ const styles = StyleSheet.create({
     height: 170, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(196,181,253,0.25)',
     justifyContent: 'space-between', padding: 14,
   },
-  featuredEmoji: { position: 'absolute', right: 26, top: 22, fontSize: 70, opacity: 0.9 },
+  featuredOrb: { position: 'absolute', right: -40, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.10)' },
+  featuredEmojiWrap: {
+    position: 'absolute', right: 16, top: 14, width: 64, height: 64, borderRadius: 22, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)',
+  },
+  featuredEmoji: { fontSize: 34 },
   featuredTag: {
     alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(251,191,36,0.18)',
     borderWidth: 1, borderColor: 'rgba(251,191,36,0.45)', borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10,

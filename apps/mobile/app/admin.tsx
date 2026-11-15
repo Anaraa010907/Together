@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
@@ -53,6 +53,8 @@ export default function Admin() {
   const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
+  const { width } = useWindowDimensions();
+  const tileW = Math.floor((width - 32 - 8 * 3) / 4);
 
   const fail = (e: unknown) => {
     const key = adminErrorKey(e);
@@ -169,7 +171,7 @@ export default function Admin() {
         <FadeIn index={0}>
           <View style={styles.grid}>
             {tiles.map((tile) => (
-              <View key={tile.key} style={styles.tile}>
+              <View key={tile.key} style={[styles.tile, { width: tileW }]}>
                 <LinearGradient colors={tile.colors} style={styles.tileIcon}>
                   <Ionicons name={tile.icon} size={16} color="#FFFFFF" />
                 </LinearGradient>
@@ -431,12 +433,11 @@ const styles = StyleSheet.create({
   screen: { padding: 16, gap: 14, paddingBottom: 48 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tile: {
-    width: '23.5%', flexGrow: 1, minWidth: 76, backgroundColor: t.surface, borderWidth: 1, borderColor: t.border,
-    borderRadius: 18, padding: 10, gap: 4,
+    backgroundColor: t.surface, borderWidth: 1, borderColor: t.border, borderRadius: 18, padding: 10, gap: 4,
   },
   tileIcon: { width: 28, height: 28, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  tileValue: { fontFamily: font.extrabold, fontSize: 20, color: t.text },
-  tileLabel: { fontFamily: font.medium, fontSize: 11, color: t.textMuted, lineHeight: 14 },
+  tileValue: { fontFamily: font.extrabold, fontSize: 18, color: t.text },
+  tileLabel: { fontFamily: font.medium, fontSize: 10.5, color: t.textMuted, lineHeight: 13 },
   chip: { borderRadius: radius.pill, paddingVertical: 8, paddingHorizontal: 14 },
   chipOff: { backgroundColor: t.surface, borderWidth: 1, borderColor: t.border },
   chipText: { fontFamily: font.semibold, fontSize: 13, color: '#FFFFFF' },

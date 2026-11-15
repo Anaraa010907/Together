@@ -39,6 +39,19 @@ import {
 
 type Person = { name: string; avatar: string | null };
 
+const dayKey = (iso: string) => new Date(iso).toDateString();
+
+// "Өнөөдөр", "Өчигдөр", эсвэл "Ба · 11/14".
+function dayLabel(iso: string, tr: (k: string) => string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(Date.now() - 86400000);
+  if (d.toDateString() === today.toDateString()) return tr('chat.today');
+  if (d.toDateString() === yesterday.toDateString()) return tr('chat.yesterday');
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${tr(`time.wd${d.getDay()}`)} · ${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+}
+
 // Харилцаа: мессежүүд шууд (realtime) ирнэ, өөрийн мессеж баруун талд градиент бөмбөлгөөр.
 export default function ChatRoom() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -241,7 +254,16 @@ export default function ChatRoom() {
               const firstOfRun = !prev || prev.sender_id !== item.sender_id;
               const lastOfRun = !next || next.sender_id !== item.sender_id;
               const person = people[item.sender_id];
+              const showDay = !prev || dayKey(prev.created_at) !== dayKey(item.created_at);
               return (
+                <View>
+                  {showDay && (
+                    <View style={styles.dayRow}>
+                      <View style={styles.dayLine} />
+                      <Text style={styles.dayText}>{dayLabel(item.created_at, tr)}</Text>
+                      <View style={styles.dayLine} />
+                    </View>
+                  )}
                 <Bubble
                   message={item}
                   mine={mine}
@@ -255,6 +277,7 @@ export default function ChatRoom() {
                   onAvatar={() => router.push(`/user/${item.sender_id}` as never)}
                   indent={isGroup && !mine}
                 />
+                </View>
               );
             }}
           />
@@ -368,6 +391,9 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: font.bold, fontSize: 16, color: t.text, maxWidth: 190 },
   headerSub: { fontFamily: font.medium, fontSize: 11, color: t.textMuted },
   list: { paddingHorizontal: 14, paddingVertical: 12, gap: 2 },
+  dayRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12, paddingHorizontal: 20 },
+  dayLine: { flex: 1, height: 1, backgroundColor: t.borderSoft },
+  dayText: { fontFamily: font.semibold, fontSize: 11, color: t.textFaint },
   empty: { alignItems: 'center', gap: 8, transform: [{ scaleY: -1 }], marginTop: 60 },
   emptyText: { fontFamily: font.medium, fontSize: 14, color: t.textMuted },
   bubbleRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 6, marginVertical: 2 },
