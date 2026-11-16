@@ -31,11 +31,14 @@ import {
   checkInChallenge,
   dayNumber,
   fetchMyChallenges,
+  isVerified,
+  trackKind,
   fetchMyCheckinsOn,
   statusOf,
   totalDays,
   type Challenge,
 } from '../../lib/challenges';
+import { KIND_ICON } from '../../lib/activities';
 import { fetchMyUpcomingSessions, statusOf as sessionStatus, type Session } from '../../lib/sessions';
 import { formatDateTime } from '../../lib/time';
 
@@ -361,13 +364,14 @@ export default function Home() {
 
         {challenges.map((c) => {
           const checked = checkedToday.has(c.id);
+          const tracked = isVerified(c);
           const day = dayNumber(c, today);
           const total = totalDays(c);
           return (
             <FadeIn key={c.id} index={row++}>
               <PressableScale onPress={() => router.push(`/challenge/${c.id}` as never)} accessibilityRole="button" style={styles.task}>
                 <LinearGradient colors={['rgba(251,191,36,0.28)', 'rgba(255,138,61,0.12)']} style={styles.taskIcon}>
-                  <Text style={{ fontSize: 24 }}>🏆</Text>
+                  <Text style={{ fontSize: 24 }}>{tracked ? KIND_ICON[trackKind(c) ?? 'run'] : '🏆'}</Text>
                 </LinearGradient>
                 <View style={{ flex: 1, gap: 6 }}>
                   <Text style={styles.taskTitle} numberOfLines={2}>
@@ -386,17 +390,22 @@ export default function Home() {
                   </View>
                 </View>
                 <PressableScale
-                  onPress={() => !checked && busyId === null && onCheckIn(c)}
+                  onPress={() => {
+                    if (checked || busyId !== null) return;
+                    // Баталгаажуулалттай challenge: гараар биш — GPS/байршил/фокус хянагч нээгдэнэ.
+                    if (tracked) router.push(`/track/${c.id}` as never);
+                    else onCheckIn(c);
+                  }}
                   disabled={checked || busyId !== null}
                   accessibilityRole="button"
-                  accessibilityLabel={checked ? tr('challenges.checkedIn') : tr('challenges.checkIn')}
+                  accessibilityLabel={checked ? tr('challenges.checkedIn') : tracked ? tr('track.start') : tr('challenges.checkIn')}
                   style={[styles.arrowBtn, checked && { backgroundColor: 'rgba(52,211,153,0.2)', borderColor: 'rgba(52,211,153,0.5)' }]}
                 >
                   {busyId === c.id ? (
                     <ActivityIndicator size="small" color={t.text} />
                   ) : (
                     <Pop trigger={checked}>
-                      <Ionicons name={checked ? 'checkmark' : 'arrow-forward'} size={18} color={checked ? palette.mint : t.text} />
+                      <Ionicons name={checked ? 'checkmark' : tracked ? 'play' : 'arrow-forward'} size={18} color={checked ? palette.mint : t.text} />
                     </Pop>
                   )}
                 </PressableScale>

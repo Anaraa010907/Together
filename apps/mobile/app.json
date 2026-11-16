@@ -44,6 +44,16 @@
         {
           "microphonePermission": "Дуут мессеж бичихэд микрофон хэрэгтэй."
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Гүйлт, алхалт, байршлын challenge-ийг утас түгжээтэй үед ч баталгаажуулахад байршил хэрэгтэй.",
+          "locationWhenInUsePermission": "Гүйлт, алхалт, байршлын challenge-ийг баталгаажуулахад байршил хэрэгтэй.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true
+        }
       ]
     ],
     "experiments": {

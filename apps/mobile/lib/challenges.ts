@@ -8,6 +8,15 @@ export type Challenge = {
   description: string | null;
   start_on: string; // YYYY-MM-DD
   end_on: string;
+  // Баталгаажуулалт (0017): manual — гараар check-in; gps/place/focus — утсаар шалгана.
+  verification?: 'manual' | 'gps' | 'place' | 'focus';
+  activity?: 'run' | 'walk' | 'ride' | null;
+  min_distance_m?: number | null;
+  min_minutes?: number | null;
+  place_name?: string | null;
+  place_lat?: number | null;
+  place_lng?: number | null;
+  place_radius_m?: number | null;
 };
 
 export type ChallengeStatus = 'upcoming' | 'active' | 'ended';
@@ -27,7 +36,8 @@ export type CheckinResult = {
   days_total: number;
 };
 
-const COLS = 'id, group_id, creator_id, title, description, start_on, end_on';
+const COLS =
+  'id, group_id, creator_id, title, description, start_on, end_on, verification, activity, min_distance_m, min_minutes, place_name, place_lat, place_lng, place_radius_m';
 
 // ---------- огнооны тооцоо (YYYY-MM-DD, timezone-гүй) ----------
 const dayNum = (iso: string) =>
@@ -60,6 +70,7 @@ const ERROR_CODES = [
   'already_checked_in',
   'date_out_of_range',
   'outside_challenge',
+  'verification_required',
 ] as const;
 
 export function challengeErrorKey(e: unknown): string | null {
@@ -177,4 +188,13 @@ export async function checkInChallenge(id: string, date: string) {
   });
   if (error) throw error;
   return data as CheckinResult;
+}
+
+// Баталгаажуулалттай эсэх ба шаардлагын тайлбар.
+export const isVerified = (c: Challenge) => !!c.verification && c.verification !== 'manual';
+export function trackKind(c: Challenge): 'run' | 'walk' | 'ride' | 'place' | 'focus' | null {
+  if (c.verification === 'gps') return c.activity ?? 'run';
+  if (c.verification === 'place') return 'place';
+  if (c.verification === 'focus') return 'focus';
+  return null;
 }

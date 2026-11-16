@@ -56,7 +56,25 @@ const goals = [
   { id: 'go4', title: '1 цаг код бичих', frequency: 'daily', target: 1, status: 'active' },
 ];
 const doneGoals = ['go1', 'go3'];
-const challenge = { id: 'c1', group_id: 'g2', creator_id: 'u3', title: '30 хоног — өдөрт 20 англи үг', description: 'Өдөр бүр check-in хийнэ.', start_on: dateOnly(-11), end_on: dateOnly(18) };
+const challenge = { id: 'c1', group_id: 'g2', creator_id: 'u3', title: '30 хоног — өдөрт 20 англи үг', description: 'Өдөр бүр check-in хийнэ.', start_on: dateOnly(-11), end_on: dateOnly(18), verification: 'manual' };
+// Утсаар баталгаажих challenge-үүд (GPS гүйлт, байршил, фокус).
+const PLACE = { lat: 47.9185, lng: 106.9177 };
+const verifiedChallenges = [
+  { id: 'c2', group_id: 'g2', creator_id: 'u3', title: 'Өглөөний гүйлт — өдөрт 3 км', description: 'Утасны GPS-ээр баталгаажна. Машинаар явбал тооцогдохгүй 😉', start_on: dateOnly(-5), end_on: dateOnly(24), verification: 'gps', activity: 'run', min_distance_m: 3000, min_minutes: null, place_name: null, place_lat: null, place_lng: null, place_radius_m: null },
+  { id: 'c3', group_id: 'g2', creator_id: ME, title: 'Заалны 30 хоног', description: null, start_on: dateOnly(-3), end_on: dateOnly(26), verification: 'place', activity: null, min_distance_m: null, min_minutes: 45, place_name: 'Фитнес заал', place_lat: PLACE.lat, place_lng: PLACE.lng, place_radius_m: 100 },
+  { id: 'c4', group_id: 'g2', creator_id: 'u2', title: 'Өдөрт 25 минут гүн фокус', description: null, start_on: dateOnly(-2), end_on: dateOnly(12), verification: 'focus', activity: null, min_distance_m: null, min_minutes: 25, place_name: null, place_lat: null, place_lng: null, place_radius_m: null },
+];
+const activities = [
+  { id: 'a1', kind: 'run', status: 'verified', started_at: iso(-1 * day), distance_m: 3420, duration_s: 1188, avg_speed_mps: 2.88, reject_reason: null, checked_in: true },
+  { id: 'a2', kind: 'run', status: 'rejected', started_at: iso(-2 * day), distance_m: 9120, duration_s: 640, avg_speed_mps: 14.2, reject_reason: 'too_fast', checked_in: false },
+  { id: 'a3', kind: 'run', status: 'verified', started_at: iso(-3 * day), distance_m: 2150, duration_s: 760, avg_speed_mps: 2.83, reject_reason: null, checked_in: false },
+];
+const board = [
+  { user_id: 'u3', display_name: 'Мөнхсайхан', avatar_url: null, days: 5, distance_m: 18400, minutes: 0 },
+  { user_id: ME, display_name: 'Анараа', avatar_url: null, days: 3, distance_m: 9630, minutes: 0 },
+  { user_id: 'u2', display_name: 'Тэмүүжин', avatar_url: null, days: 2, distance_m: 7010, minutes: 0 },
+  { user_id: 'u4', display_name: 'Сараа', avatar_url: null, days: 1, distance_m: 3100, minutes: 0 },
+];
 const session = { id: 's1', group_id: 'g1', host_id: 'u2', title: 'React Native code review', description: 'Долоо хоногийн code review', starts_at: iso(day + 3 * hour), duration_min: 60, meeting_url: 'https://meet.google.com/abc', notes: null, cancelled_at: null, profiles: { display_name: 'Тэмүүжин' } };
 
 const notifications = [
@@ -107,4 +125,4 @@ const searchPeople = [
   { id: 'u6', username: 'saraa', display_name: 'Сараа', avatar_url: null, followers: 310, i_follow: true, verified: false },
 ];
 
-module.exports = { ME, people, categories, groups, myGroupIds, groupStats, goals, doneGoals, challenge, session, notifications, posts, conversations, messages, searchPeople, iso, day, hour, dateOnly };
+module.exports = { ME, people, categories, groups, myGroupIds, groupStats, goals, doneGoals, challenge, verifiedChallenges, activities, board, PLACE, session, notifications, posts, conversations, messages, searchPeople, iso, day, hour, dateOnly };

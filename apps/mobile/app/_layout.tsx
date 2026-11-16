@@ -13,6 +13,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { font, lightTheme as t } from '@together/ui/tokens';
+// Арын GPS бүртгэлийн task-ыг апп ачаалахад бүртгэнэ (TaskManager.defineTask).
+import '../lib/tracking';
 import { SessionProvider, useSession } from '../lib/session';
 import { supabaseConfigured } from '../lib/supabase';
 
@@ -107,6 +109,7 @@ export default function RootLayout() {
         <Stack.Screen name="chat/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="follows/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="admin" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="track/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', gestureEnabled: false, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="settings" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="search" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="user/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
@@ -119,7 +122,7 @@ export default function RootLayout() {
         <Stack.Screen name="group/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="group/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="join" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
-        <Stack.Screen name="challenge/[id]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
+        <Stack.Screen name="challenge/[id]" options={{ headerShown: true, title: '', headerBackTitle: '', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="challenge/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="feed/[groupId]" options={{ headerShown: true, title: '', headerBackTitle: '' }} />
         <Stack.Screen name="post/new" options={{ headerShown: true, title: '', headerBackTitle: '' }} />

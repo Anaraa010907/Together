@@ -218,8 +218,10 @@
       "not_participant": "You have not joined this challenge.",
       "already_checked_in": "Already checked in today.",
       "date_out_of_range": "You can only check in for today or yesterday.",
-      "outside_challenge": "That day is outside the challenge."
-    }
+      "outside_challenge": "That day is outside the challenge.",
+      "verification_required": "This challenge is verified by phone — use the tracker."
+    },
+    "titleInvalidTitle": "Invalid name"
   },
   "join": {
     "title": "Join with an invite code",
@@ -803,5 +805,181 @@
       "banSelf": "You can't ban yourself.",
       "banAdmin": "Admins can't be banned."
     }
+  },
+  "track": {
+    "notifTitle": "TOGETHER is tracking",
+    "notifBody": {
+      "run": "Recording your run with GPS",
+      "walk": "Recording your walk with GPS",
+      "ride": "Recording your ride with GPS",
+      "place": "Checking your location every minute"
+    },
+    "howVerified": "How is it verified?",
+    "mode": {
+      "manual": "Manual",
+      "run": "Run",
+      "walk": "Walk",
+      "ride": "Ride",
+      "place": "Place",
+      "focus": "Focus"
+    },
+    "modeHint": {
+      "manual": "Participants check in themselves every day.",
+      "run": "Measures distance with the phone's GPS and checks the speed. Driving doesn't count.",
+      "walk": "Measures walking distance with GPS. Movement that's too fast doesn't count.",
+      "ride": "Measures cycling distance with GPS. Car speeds don't count.",
+      "place": "Checks by location that you stayed at a set place (gym, library…) for the required time.",
+      "focus": "You must stay in the app while the timer runs. Leaving breaks it."
+    },
+    "minDistance": "Minimum daily distance",
+    "placeName": "Place name",
+    "placeNamePlaceholder": "e.g. Fitness gym",
+    "placeDefault": "Set place",
+    "useHere": "Use my current location",
+    "useHereHint": "Tap this while you're at the place",
+    "placeSet": "Location set",
+    "placeMissingTitle": "No location chosen",
+    "placeMissing": "Tap “Use my current location” to set the place.",
+    "radius": "Zone radius",
+    "stayMinutes": "Time to stay",
+    "focusMinutes": "Focus duration",
+    "min": "{{n}} min",
+    "permTitle": "Location permission needed",
+    "permBody": "To verify activities, allow TOGETHER to use your location in Settings.",
+    "fgOnlyTitle": "Won't track while locked",
+    "fgOnlyBody": "Without “Allow all the time”, tracking stops when the screen locks. Change Settings → Location → “Always” to track while locked.",
+    "startAnyway": "Start anyway",
+    "otherTitle": "Another activity is running",
+    "otherBody": "The previous recording will be cancelled and a new one started. Continue?",
+    "otherHint": "A recording for another challenge isn't finished. Starting a new one cancels it.",
+    "otherReplace": "Cancel it and start",
+    "openOther": "Go to that recording",
+    "title": {
+      "run": "Run",
+      "walk": "Walk",
+      "ride": "Ride",
+      "place": "Location check-in",
+      "focus": "Focus timer"
+    },
+    "req": {
+      "manual": "Check in manually every day",
+      "run": "Run at least {{km}} km a day",
+      "walk": "Walk at least {{km}} km a day",
+      "ride": "Ride at least {{km}} km a day",
+      "place": "Stay at “{{name}}” for {{min}} minutes ({{r}} m radius)",
+      "focus": "Focus for {{min}} minutes without a break each day"
+    },
+    "rules": {
+      "run": [
+        "GPS keeps recording while the screen is locked — just pocket your phone and run.",
+        "Movement that's too fast (car, bus) doesn't count.",
+        "Detected fake-location apps void the run."
+      ],
+      "walk": [
+        "GPS keeps recording while the screen is locked.",
+        "Stretches at vehicle speed don't count.",
+        "Detected fake-location apps void the walk."
+      ],
+      "ride": [
+        "GPS keeps recording while the screen is locked.",
+        "Car-speed movement doesn't count.",
+        "Detected fake-location apps void the ride."
+      ],
+      "place": [
+        "Location is checked every minute — the screen can be locked.",
+        "You must be inside the zone for over 90% of the time.",
+        "Tap “Finish” once the time is reached."
+      ],
+      "focus": [
+        "The app stays open and the screen stays on until the timer ends.",
+        "Leaving the app for more than 15 seconds breaks it.",
+        "It's verified automatically when the time is up."
+      ]
+    },
+    "howItWorks": "How it's checked",
+    "doneToday": "Today's check-in is done. Extra activities are still saved to your history.",
+    "notStarted": "This challenge hasn't started yet.",
+    "start": "Start",
+    "startKind": {
+      "run": "Start run",
+      "walk": "Start walk",
+      "ride": "Start ride",
+      "place": "Start location check-in",
+      "focus": "Start focus"
+    },
+    "recording": "Recording",
+    "bgOn": "Tracks while locked",
+    "bgOff": "Keep the screen unlocked",
+    "gpsSearching": "Searching for GPS…",
+    "gpsWeak": "Weak GPS",
+    "km": "km",
+    "time": "Time",
+    "pace": "Pace /km",
+    "speed": "km/h",
+    "goalReached": "Daily goal reached! Finish to verify it.",
+    "goalLeft": "{{done}} / {{goal}} km",
+    "routeEmpty": "Your route will appear here",
+    "inside": "Inside “{{name}}”",
+    "outside": "Outside the zone",
+    "fromCenter": "{{m}} m from the center",
+    "samples": "In zone / total checks",
+    "remaining": "Remaining",
+    "focusLeft": "left",
+    "focusStay": "Put your phone down and focus. Leaving the app breaks the session.",
+    "finish": "Finish",
+    "keepGoing": "Keep going",
+    "cancel": "Cancel",
+    "giveUp": "Give up",
+    "cancelTitle": "Cancel?",
+    "cancelBody": "This recording won't be saved.",
+    "cancelYes": "Cancel it",
+    "shortTitle": "Goal not reached yet",
+    "shortBody": "So far {{done}} / {{goal}} km. If you finish now it's saved to history, but today's check-in won't count.",
+    "placeShortBody": "{{left}} more minutes to go. Finishing now won't verify.",
+    "sendFailed": "Couldn't send. Check your connection and try again — the recording is saved on your phone.",
+    "retry": "Send again",
+    "okTitle": "Verified! 🎉",
+    "okBody": "Today's check-in counted. +{{xp}} XP",
+    "okNoCheckin": "Activity verified. Today's check-in was already done.",
+    "shortResultTitle": "Verified, but short of the goal",
+    "shortResultBody": "You covered {{done}} / {{goal}} km. Today's check-in didn't count — give it another go.",
+    "failTitle": "Not verified",
+    "reason": {
+      "too_long": "The recording lasted longer than 6 hours.",
+      "mock_location": "A fake location was detected.",
+      "too_few_points": "Not enough GPS points. Try again somewhere open.",
+      "bad_points": "The location data is invalid.",
+      "bad_timestamps": "Location times don't match. Set your phone's clock to automatic.",
+      "too_fast": "Movement was too fast (vehicle).",
+      "too_slow": "Movement was too slow.",
+      "no_place": "This challenge has no place set.",
+      "gaps": "Location checks were interrupted for too long.",
+      "outside_place": "You were outside the zone most of the time.",
+      "too_short": "The required time wasn't reached.",
+      "interrupted": "You left the app, so the focus session broke.",
+      "unknown": "Unknown reason."
+    },
+    "errors": {
+      "not_participant": "Join the challenge first.",
+      "kind_mismatch": "This challenge needs a different type of activity.",
+      "outside_challenge": "The challenge isn't active right now.",
+      "activity_closed": "This recording has already finished.",
+      "activity_not_found": "Recording not found.",
+      "too_many_points": "The recording is too long.",
+      "invalid_kind": "Invalid activity type.",
+      "banned": "Your account is temporarily suspended.",
+      "already_started": "Check-ins have started, so verification can't be changed.",
+      "not_creator": "Only the challenge creator can change this."
+    },
+    "done": "Done",
+    "tryAgain": "Try again",
+    "verifiedBadge": "Phone-verified",
+    "manualBadge": "Manual check-in",
+    "history": "My activities",
+    "counted": "Check-in counted",
+    "notCounted": "Not counted",
+    "board": "Leaderboard",
+    "boardKm": "{{km}} km total",
+    "boardMin": "{{n}} min total"
   }
 }

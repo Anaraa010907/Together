@@ -44,14 +44,16 @@ function respond(table, params, method, body) {
     case 'goals': return F.goals;
     case 'goal_completions': return F.doneGoals.map((goal_id) => ({ goal_id }));
     case 'challenge_participants':
-      if (sel.includes('challenges(')) return [{ challenges: F.challenge }];
+      if (sel.includes('challenges(')) return [F.challenge, ...F.verifiedChallenges].map((c) => ({ challenges: c }));
       return [{ user_id: 'u3', joined_at: F.iso(-11 * F.day), profiles: { display_name: 'Мөнхсайхан' } }, { user_id: F.ME, joined_at: F.iso(-10 * F.day), profiles: { display_name: 'Анараа' } }];
     case 'challenge_checkins':
       if (params.get('checked_on')) return [];
       return [];
     case 'challenges':
-      if (id) return [F.challenge];
-      return eqParam(params, 'group_id') === 'g2' ? [F.challenge] : [];
+      if (id) return [F.challenge, ...F.verifiedChallenges].filter((c) => c.id === id);
+      return eqParam(params, 'group_id') === 'g2' ? [F.challenge, ...F.verifiedChallenges] : [];
+    case 'activities':
+      return eqParam(params, 'challenge_id') === 'c2' ? F.activities : [];
     case 'session_rsvps':
       if (sel.includes('group_sessions(')) return [{ group_sessions: F.session }];
       return [];
@@ -108,6 +110,8 @@ function respond(table, params, method, body) {
 
 function rpc(fn, args) {
   switch (fn) {
+    case 'challenge_board': return args.p_challenge === 'c2' ? F.board : F.board.map((r) => ({ ...r, distance_m: 0, minutes: r.days * 47 }));
+    case 'start_activity': return { id: 'a9', started_at: new Date().toISOString() };
     case 'profile_stats':
       if (args.p_user === F.ME) return { posts: 12, followers: 24, following: 31, groups: 3, verified: true, i_follow: false, blocked: false, viewer_admin: true, banned: false, is_admin: true, goals_done: 64, checkins: 11, challenges_done: 1, helpful_received: 18, lessons_done: 4, liked: 842 > 0 ? 42 : 0, saved: 7 };
       return { posts: 48, followers: 12500, following: 180, groups: 6, verified: args.p_user === 'u3', i_follow: false, blocked: false, viewer_admin: true, banned: false };
@@ -202,7 +206,38 @@ const SCREENS = [
   { name: '53-settings', url: '/settings' },
   { name: '54-goal-new', url: '/goal/new' },
   { name: '55-interests', url: '/interests?edit=1' },
+  { name: '56-challenge-new', url: '/challenge/new?groupId=g2', clickText: 'Гүйлт', scroll: true },
+  { name: '57-challenge-new-place', url: '/challenge/new?groupId=g2', clickText: 'Байршил' },
+  { name: '58-challenge-run', url: '/challenge/c2', scroll: true },
+  { name: '59-track-ready', url: '/track/c2', scroll: true },
+  { name: '60-track-running', url: '/track/c2', seed: 'run', scroll: true },
+  { name: '61-track-place', url: '/track/c3', seed: 'place' },
+  { name: '62-track-focus', url: '/track/c4', clickText: 'Эхлэх' },
 ];
+
+// Хянагчийн "явагдаж буй" төлөвийг харуулахын тулд AsyncStorage (вэб дээр localStorage)-д бүртгэл суулгана.
+function seedTracking({ kind, place }) {
+  const now = Date.now();
+  const pts = [];
+  if (kind === 'run') {
+    const start = now - 18 * 60000;
+    const lat0 = 47.9205, lng0 = 106.9125, R = 450;
+    for (let i = 0; i <= 216; i++) {
+      const th = (i / 216) * 1.65 * Math.PI;
+      const r = R + 40 * Math.sin(th * 3);
+      pts.push({ lat: lat0 + (r * Math.sin(th)) / 111320, lng: lng0 + (r * Math.cos(th)) / (111320 * Math.cos((lat0 * Math.PI) / 180)), t: start + i * 5000, acc: 6 });
+    }
+    localStorage.setItem('together:track:session', JSON.stringify({ activityId: 'a9', challengeId: 'c2', kind: 'run', startedAt: new Date(start).toISOString(), background: true, offsetMs: 0 }));
+  } else {
+    const start = now - 32 * 60000;
+    for (let i = 0; i <= 32; i++) {
+      const a = i * 1.7, d = 15 + 20 * Math.abs(Math.sin(i));
+      pts.push({ lat: place.lat + (d * Math.sin(a)) / 111320, lng: place.lng + (d * Math.cos(a)) / (111320 * 0.67), t: start + i * 60000, acc: 12 });
+    }
+    localStorage.setItem('together:track:session', JSON.stringify({ activityId: 'a8', challengeId: 'c3', kind: 'place', startedAt: new Date(start).toISOString(), background: true, offsetMs: 0 }));
+  }
+  localStorage.setItem('together:track:points', JSON.stringify(pts));
+}
 
 (async () => {
   await new Promise((ok) => server.listen(8099, ok));
@@ -214,6 +249,7 @@ const SCREENS = [
     if (s.auth !== false) {
       await ctx.addInitScript(([k, v]) => { localStorage.setItem(k, v); }, ['sb-ttkvvclhtcngushymdkc-auth-token', JSON.stringify(SESSION)]);
     }
+    if (s.seed) await ctx.addInitScript(seedTracking, { kind: s.seed, place: F.PLACE });
     const page = await ctx.newPage();
     page.on('console', (m) => { if (m.type() === 'error') logs.push(`[${s.name}] ${m.text().slice(0, 300)}`); });
     page.on('pageerror', (e) => logs.push(`[${s.name}] PAGEERROR ${String(e).slice(0, 300)}`));
@@ -222,6 +258,7 @@ const SCREENS = [
     await page.waitForTimeout(2500);
     if (s.tab) { await page.getByText(s.tab, { exact: true }).first().click().catch(() => {}); await page.waitForTimeout(1500); }
     if (s.click) { await page.getByLabel(s.click).first().click().catch(() => {}); await page.waitForTimeout(1200); }
+    if (s.clickText) { await page.getByText(s.clickText, { exact: true }).first().click().catch(() => {}); await page.waitForTimeout(1800); }
     if (s.plus) { await page.getByLabel('Үүсгэх').first().click().catch(() => {}); await page.waitForTimeout(1200); }
     await page.screenshot({ path: path.join(OUT, `${s.name}.png`) });
     if (s.scroll) {
