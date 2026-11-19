@@ -50,12 +50,12 @@ const groupStats = {
 };
 
 const goals = [
-  { id: 'go1', title: '30 минут ном унших', frequency: 'daily', target: 1, status: 'active' },
-  { id: 'go2', title: '20 шинэ англи үг цээжлэх', frequency: 'daily', target: 1, status: 'active' },
-  { id: 'go3', title: '5 км гүйх', frequency: 'daily', target: 1, status: 'active' },
-  { id: 'go4', title: '1 цаг код бичих', frequency: 'daily', target: 1, status: 'active' },
+  { id: 'go1', title: '💧 2 л ус уух', frequency: 'daily', target: 1, status: 'active', verification: 'manual', activity: null, min_distance_m: null, min_minutes: null },
+  { id: 'go2', title: '20 шинэ англи үг цээжлэх', frequency: 'daily', target: 1, status: 'active', verification: 'manual', activity: null, min_distance_m: null, min_minutes: null },
+  { id: 'go3', title: '🏃 5 км гүйх', frequency: 'daily', target: 1, status: 'active', verification: 'gps', activity: 'run', min_distance_m: 5000, min_minutes: null },
+  { id: 'go4', title: '📚 30 мин ном унших', frequency: 'daily', target: 1, status: 'active', verification: 'focus', activity: null, min_distance_m: null, min_minutes: 30 },
 ];
-const doneGoals = ['go1', 'go3'];
+const doneGoals = ['go1'];
 const challenge = { id: 'c1', group_id: 'g2', creator_id: 'u3', title: '30 хоног — өдөрт 20 англи үг', description: 'Өдөр бүр check-in хийнэ.', start_on: dateOnly(-11), end_on: dateOnly(18), verification: 'manual' };
 // Утсаар баталгаажих challenge-үүд (GPS гүйлт, байршил, фокус).
 const PLACE = { lat: 47.9185, lng: 106.9177 };

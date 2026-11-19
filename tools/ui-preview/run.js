@@ -41,7 +41,10 @@ function respond(table, params, method, body) {
       return p ? [p] : [];
     }
     case 'user_progress': return [{ total_xp: 520, current_level: 3, current_streak: 5, longest_streak: 12 }];
-    case 'goals': return F.goals;
+    case 'goals': {
+      const gid = eqParam(params, 'id');
+      return gid ? F.goals.filter((g) => g.id === gid) : F.goals;
+    }
     case 'goal_completions': return F.doneGoals.map((goal_id) => ({ goal_id }));
     case 'challenge_participants':
       if (sel.includes('challenges(')) return [F.challenge, ...F.verifiedChallenges].map((c) => ({ challenges: c }));
@@ -112,6 +115,7 @@ function rpc(fn, args) {
   switch (fn) {
     case 'challenge_board': return args.p_challenge === 'c2' ? F.board : F.board.map((r) => ({ ...r, distance_m: 0, minutes: r.days * 47 }));
     case 'start_activity': return { id: 'a9', started_at: new Date().toISOString() };
+    case 'start_goal_activity': return { id: 'a7', started_at: new Date().toISOString(), kind: 'focus' };
     case 'profile_stats':
       if (args.p_user === F.ME) return { posts: 12, followers: 24, following: 31, groups: 3, verified: true, i_follow: false, blocked: false, viewer_admin: true, banned: false, is_admin: true, goals_done: 64, checkins: 11, challenges_done: 1, helpful_received: 18, lessons_done: 4, liked: 842 > 0 ? 42 : 0, saved: 7 };
       return { posts: 48, followers: 12500, following: 180, groups: 6, verified: args.p_user === 'u3', i_follow: false, blocked: false, viewer_admin: true, banned: false };
@@ -213,6 +217,9 @@ const SCREENS = [
   { name: '60-track-running', url: '/track/c2', seed: 'run', scroll: true },
   { name: '61-track-place', url: '/track/c3', seed: 'place' },
   { name: '62-track-focus', url: '/track/c4', clickText: 'Эхлэх' },
+  { name: '63-track-goal', url: '/track/go3?type=goal', scroll: true },
+  { name: '64-goal-new-run', url: '/goal/new', clickText: '🏃 5 км гүйх' },
+  { name: '65-home-goal-confirm', url: '/home', clickText: '20 шинэ англи үг цээжлэх' },
 ];
 
 // Хянагчийн "явагдаж буй" төлөвийг харуулахын тулд AsyncStorage (вэб дээр localStorage)-д бүртгэл суулгана.

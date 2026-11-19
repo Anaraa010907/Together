@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { decode } from 'base64-arraybuffer';
 import i18n from './i18n';
 import { supabase } from './supabase';
+import { disableBiometric, setRemember } from './biometric';
 
 export type Locale = 'mn' | 'en';
 export type ReportType = 'profile' | 'group' | 'goal' | 'post' | 'comment' | 'review' | 'message';
@@ -54,6 +55,8 @@ export async function setLanguage(locale: Locale) {
 export async function deleteMyAccount() {
   const { error } = await supabase.rpc('delete_my_account');
   if (error) throw error;
+  await disableBiometric();
+  await setRemember(false);
   await supabase.auth.signOut().catch(() => {});
 }
 

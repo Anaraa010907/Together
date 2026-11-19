@@ -22,6 +22,7 @@ import {
   fetchActiveGoals,
   fetchCompletionsOn,
   fetchProgress,
+  goalKind,
   todayIso,
   type Goal,
   type Progress,
@@ -158,6 +159,14 @@ export default function Home() {
     } finally {
       setBusyId(null);
     }
+  };
+
+  // Нэг товшилтоор санамсаргүй биелүүлэхээс сэргийлж асууна (биелэлтийг буцаах боломжгүй).
+  const confirmComplete = (goal: Goal) => {
+    Alert.alert(tr('goals.confirmTitle'), tr('goals.confirmBody', { title: goal.title }), [
+      { text: tr('goals.notYet'), style: 'cancel' },
+      { text: tr('goals.yesDone'), onPress: () => onComplete(goal) },
+    ]);
   };
 
   // Удаан дарж архивлах: өмнөх биелэлт ба XP хэвээр үлдэнэ.
@@ -394,7 +403,11 @@ export default function Home() {
                     if (checked || busyId !== null) return;
                     // Баталгаажуулалттай challenge: гараар биш — GPS/байршил/фокус хянагч нээгдэнэ.
                     if (tracked) router.push(`/track/${c.id}` as never);
-                    else onCheckIn(c);
+                    else
+                      Alert.alert(tr('goals.confirmTitle'), tr('challenges.confirmCheckIn', { title: c.title }), [
+                        { text: tr('goals.notYet'), style: 'cancel' },
+                        { text: tr('goals.yesDone'), onPress: () => onCheckIn(c) },
+                      ]);
                   }}
                   disabled={checked || busyId !== null}
                   accessibilityRole="button"
@@ -416,27 +429,42 @@ export default function Home() {
 
         {goals.map((g) => {
           const done = doneToday.has(g.id);
+          const kind = goalKind(g);
+          const req =
+            kind === 'focus'
+              ? tr('goals.reqFocus', { min: g.min_minutes ?? 0 })
+              : kind
+                ? tr('goals.reqGps', { km: ((g.min_distance_m ?? 0) / 1000).toString() })
+                : null;
           return (
             <FadeIn key={g.id} index={row++}>
               <PressableScale
-                onPress={() => !done && busyId === null && onComplete(g)}
+                onPress={() => {
+                  if (done || busyId !== null) return;
+                  // GPS/фокусын зорилго: хянагч нээгдэнэ. Гараар: санамсаргүй дарахаас сэргийлж баталгаажуулна.
+                  if (kind) router.push(`/track/${g.id}?type=goal` as never);
+                  else confirmComplete(g);
+                }}
                 onLongPress={() => onArchive(g)}
                 disabled={busyId !== null}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: done }}
+                accessibilityRole={kind ? 'button' : 'checkbox'}
+                accessibilityState={kind ? undefined : { checked: done }}
+                accessibilityLabel={kind ? `${g.title}, ${tr('track.start')}` : g.title}
                 style={[styles.task, done && styles.taskDone]}
               >
                 <LinearGradient
                   colors={done ? ['rgba(52,211,153,0.3)', 'rgba(14,165,233,0.12)'] : ['rgba(168,85,247,0.35)', 'rgba(236,72,153,0.14)']}
                   style={styles.taskIcon}
                 >
-                  <Text style={{ fontSize: 22 }}>{done ? '✅' : '🎯'}</Text>
+                  <Text style={{ fontSize: 22 }}>{done ? '✅' : kind ? KIND_ICON[kind] : '🎯'}</Text>
                 </LinearGradient>
                 <View style={{ flex: 1, gap: 4 }}>
                   <Text style={[styles.taskTitle, done && styles.doneText]} numberOfLines={2}>
                     {g.title}
                   </Text>
-                  <Text style={[styles.taskXp, done && { color: palette.mint }]}>{done ? tr('home.doneLabel') : '+20 XP'}</Text>
+                  <Text style={[styles.taskXp, done && { color: palette.mint }]}>
+                    {done ? tr('home.doneLabel') : req ? `+20 XP · ${req}` : '+20 XP'}
+                  </Text>
                 </View>
                 <Pop trigger={done}>
                   {done ? (
@@ -446,6 +474,10 @@ export default function Home() {
                   ) : busyId === g.id ? (
                     <View style={styles.check}>
                       <ActivityIndicator size="small" color={t.text} />
+                    </View>
+                  ) : kind ? (
+                    <View style={styles.arrowBtn}>
+                      <Ionicons name="play" size={18} color={t.text} />
                     </View>
                   ) : (
                     <View style={[styles.check, styles.checkEmpty]} />

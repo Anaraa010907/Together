@@ -16,7 +16,9 @@ export type ActivityKind = 'run' | 'walk' | 'ride' | 'place' | 'focus';
 export type TrackPoint = { lat: number; lng: number; t: number; acc: number; mocked?: boolean };
 export type TrackSession = {
   activityId: string;
+  // Challenge эсвэл (target = 'goal' үед) өдрийн зорилгын id.
   challengeId: string | null;
+  target?: 'challenge' | 'goal';
   kind: ActivityKind;
   startedAt: string;
   background: boolean;

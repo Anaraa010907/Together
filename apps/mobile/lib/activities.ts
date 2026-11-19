@@ -34,6 +34,13 @@ export async function startActivity(challengeId: string | null, kind: ActivityKi
   return data as { id: string; started_at: string };
 }
 
+// Баталгаажуулалттай өдрийн зорилгын идэвхжил (GPS / фокус).
+export async function startGoalActivity(goalId: string): Promise<{ id: string; started_at: string; kind: ActivityKind }> {
+  const { data, error } = await supabase.rpc('start_goal_activity', { p_goal: goalId });
+  if (error) throw error;
+  return data as { id: string; started_at: string; kind: ActivityKind };
+}
+
 export async function finishActivity(id: string, points: TrackPoint[], interrupted = false): Promise<FinishResult> {
   const mocked = points.some((p) => p.mocked);
   const clean = points.map((p) => ({ lat: Number(p.lat.toFixed(6)), lng: Number(p.lng.toFixed(6)), t: Math.round(p.t), acc: Math.round(p.acc) }));
@@ -88,7 +95,7 @@ export async function setChallengeVerification(challengeId: string, c: Verificat
 
 export function activityErrorKey(e: unknown): string | null {
   const msg = String((e as any)?.message ?? e);
-  for (const k of ['not_participant', 'kind_mismatch', 'outside_challenge', 'activity_closed', 'activity_not_found', 'too_many_points', 'invalid_kind', 'banned', 'already_started', 'not_creator']) {
+  for (const k of ['not_participant', 'kind_mismatch', 'outside_challenge', 'activity_closed', 'activity_not_found', 'too_many_points', 'invalid_kind', 'goal_not_found', 'not_verified', 'banned', 'already_started', 'not_creator']) {
     if (msg.includes(k)) return `track.errors.${k}`;
   }
   return null;

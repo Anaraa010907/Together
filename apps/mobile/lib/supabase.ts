@@ -1,4 +1,5 @@
 import 'react-native-url-polyfill/auto';
+import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 
@@ -16,8 +17,20 @@ export const SUPABASE_ANON_KEY = anonKey || '';
 export const supabase = createClient(url || 'https://not-configured.invalid', anonKey || 'not-configured', {
   auth: {
     storage: AsyncStorage,
-    autoRefreshToken: supabaseConfigured,
+    // Утсан дээр token сэргээлтийг AppState-ээр өөрсдөө удирдана (доор).
+    autoRefreshToken: supabaseConfigured && Platform.OS === 'web',
     persistSession: true,
     detectSessionInUrl: false,
   },
 });
+
+// Апп нээлттэй үед л token-ийг арын горимд сэргээнэ. Ар талд (эсвэл GPS-ийн headless task дотор)
+// сэргээж байгаад Android процессыг хаавал шинэ token хадгалагдахгүй, хуучин нь "already used"
+// болж хэрэглэгч гарчихдаг. Хугацаа дууссан token-ийг анхны хүсэлт дээр автоматаар сэргээнэ.
+if (supabaseConfigured && Platform.OS !== 'web') {
+  if (AppState.currentState === 'active') supabase.auth.startAutoRefresh();
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') supabase.auth.startAutoRefresh();
+    else supabase.auth.stopAutoRefresh();
+  });
+}

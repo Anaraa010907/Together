@@ -1,12 +1,33 @@
 import { supabase } from './supabase';
 
+export type GoalVerification = 'manual' | 'gps' | 'focus';
+
 export type Goal = {
   id: string;
   title: string;
   frequency: 'daily' | 'weekly';
   target: number;
   status: 'active' | 'paused' | 'archived';
+  verification: GoalVerification;
+  activity: 'run' | 'walk' | 'ride' | null;
+  min_distance_m: number | null;
+  min_minutes: number | null;
 };
+
+// Шинэ зорилгын баталгаажуулалт.
+export type GoalConfig =
+  | { verification: 'manual' }
+  | { verification: 'gps'; activity: 'run' | 'walk' | 'ride'; minDistanceM: number }
+  | { verification: 'focus'; minMinutes: number };
+
+const GOAL_COLS = 'id, title, frequency, target, status, verification, activity, min_distance_m, min_minutes';
+
+// GPS эсвэл фокусаар баталгаажих зорилгын төрөл (гараар бол null).
+export function goalKind(g: Pick<Goal, 'verification' | 'activity'>): 'run' | 'walk' | 'ride' | 'focus' | null {
+  if (g.verification === 'gps') return g.activity ?? 'run';
+  if (g.verification === 'focus') return 'focus';
+  return null;
+}
 
 export type Progress = {
   total_xp: number;
@@ -23,7 +44,7 @@ export function todayIso(timeZone = 'Asia/Ulaanbaatar') {
 export async function fetchActiveGoals(): Promise<Goal[]> {
   const { data, error } = await supabase
     .from('goals')
-    .select('id, title, frequency, target, status')
+    .select(GOAL_COLS)
     .eq('status', 'active')
     .order('created_at', { ascending: true });
   if (error) throw error;
@@ -50,15 +71,26 @@ export async function fetchProgress(): Promise<Progress> {
   );
 }
 
-export async function createGoal(title: string) {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) throw userError ?? new Error('Нэвтрээгүй байна.');
+export async function fetchGoal(id: string): Promise<Goal | null> {
+  const { data, error } = await supabase.from('goals').select(GOAL_COLS).eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data as Goal | null;
+}
+
+export async function createGoal(title: string, config: GoalConfig = { verification: 'manual' }) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const uid = sessionData.session?.user.id;
+  if (!uid) throw new Error('Нэвтрээгүй байна.');
 
   const { error } = await supabase.from('goals').insert({
-    user_id: userData.user.id,
+    user_id: uid,
     title,
     frequency: 'daily',
     target: 1,
+    verification: config.verification,
+    activity: config.verification === 'gps' ? config.activity : null,
+    min_distance_m: config.verification === 'gps' ? config.minDistanceM : null,
+    min_minutes: config.verification === 'focus' ? config.minMinutes : null,
   });
   if (error) throw error;
 }

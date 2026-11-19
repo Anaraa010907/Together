@@ -10,9 +10,9 @@ import { font, gradients, lightTheme as t, palette, radius, space } from '@toget
 import { Backdrop } from '../../components/Backdrop';
 import { Button, HEADER_SPACE, ProgressRing } from '../../components/ui';
 import { FadeIn, Pop } from '../../components/motion';
-import { todayIso } from '../../lib/goals';
+import { fetchCompletionsOn, fetchGoal, todayIso, type Goal } from '../../lib/goals';
 import { fetchChallenge, fetchMyCheckinsOn, statusOf, trackKind, type Challenge } from '../../lib/challenges';
-import { activityErrorKey, cancelActivity, finishActivity, KIND_ICON, startActivity, type FinishResult } from '../../lib/activities';
+import { activityErrorKey, cancelActivity, finishActivity, KIND_ICON, startActivity, startGoalActivity, type FinishResult } from '../../lib/activities';
 import {
   captureNow,
   clearTracking,
@@ -50,10 +50,32 @@ const ask = (title: string, body: string, ok: string, cancel: string) =>
     ], { cancelable: true, onDismiss: () => resolve(false) }),
   );
 
-// Баталгаажуулалттай challenge-ийн хянагч: GPS (гүйлт/алхалт/дугуй), байршил, фокус таймер.
+// Өдрийн зорилгыг хянагчид challenge хэлбэрээр дамжуулна (шаардлагын талбарууд ижил).
+function goalAsChallenge(g: Goal, today: string): Challenge {
+  return {
+    id: g.id,
+    group_id: '',
+    creator_id: '',
+    title: g.title,
+    description: null,
+    start_on: today,
+    end_on: today,
+    verification: g.verification,
+    activity: g.activity,
+    min_distance_m: g.min_distance_m,
+    min_minutes: g.min_minutes,
+    place_name: null,
+    place_lat: null,
+    place_lng: null,
+    place_radius_m: null,
+  } as Challenge;
+}
+
+// Баталгаажуулалттай challenge эсвэл өдрийн зорилгын хянагч: GPS (гүйлт/алхалт/дугуй), байршил, фокус.
 export default function Tracker() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, type } = useLocalSearchParams<{ id: string; type?: string }>();
   const challengeId = String(id);
+  const isGoal = type === 'goal';
   const { t: tr } = useTranslation();
   const router = useRouter();
 
@@ -78,17 +100,19 @@ export default function Tracker() {
     let alive = true;
     (async () => {
       try {
-        const [c, checked] = await Promise.all([
-          fetchChallenge(challengeId),
-          fetchMyCheckinsOn(today).catch(() => new Set<string>()),
-        ]);
+        const [c, checked] = isGoal
+          ? await Promise.all([
+              fetchGoal(challengeId).then((g) => (g && g.status === 'active' ? goalAsChallenge(g, today) : null)),
+              fetchCompletionsOn(today).catch(() => new Set<string>()),
+            ])
+          : await Promise.all([fetchChallenge(challengeId), fetchMyCheckinsOn(today).catch(() => new Set<string>())]);
         if (!alive) return;
         setChallenge(c);
         setDoneToday(checked.has(challengeId));
         const k = c ? trackKind(c) : null;
         if (k && k !== 'focus') {
           const s = await getActiveSession();
-          if (s && s.challengeId === challengeId) {
+          if (s && s.challengeId === challengeId && (s.target === 'goal') === isGoal) {
             setSession(s);
             setPoints(await getPoints());
             await ensureTracking(s).catch(() => {});
@@ -228,10 +252,18 @@ export default function Tracker() {
           if (!go) return;
         }
       }
-      const a = await startActivity(challengeId, kind);
+      const a = isGoal ? await startGoalActivity(challengeId) : await startActivity(challengeId, kind);
       const serverMs = parseTs(a.started_at);
       const offsetMs = Number.isFinite(serverMs) ? serverMs - Date.now() : 0;
-      let s: TrackSession = { activityId: a.id, challengeId, kind, startedAt: a.started_at, background, offsetMs };
+      let s: TrackSession = {
+        activityId: a.id,
+        challengeId,
+        target: isGoal ? 'goal' : 'challenge',
+        kind,
+        startedAt: a.started_at,
+        background,
+        offsetMs,
+      };
       if (kind !== 'focus') {
         try {
           s = await startTracking(s);
@@ -304,7 +336,7 @@ export default function Tracker() {
   }
 
   const status = statusOf(challenge, today);
-  const title = tr(`track.title.${kind}`);
+  const title = isGoal ? `${tr('track.goalKicker')} · ${tr(`track.title.${kind}`)}` : tr(`track.title.${kind}`);
 
   return (
     <View style={{ flex: 1, backgroundColor: t.background }}>
@@ -335,7 +367,11 @@ export default function Tracker() {
             other={other}
             busy={busy}
             onStart={begin}
-            onOpenOther={() => other?.challengeId && router.replace(`/track/${other.challengeId}` as never)}
+            isGoal={isGoal}
+            onOpenOther={() =>
+              other?.challengeId &&
+              router.replace((other.target === 'goal' ? `/track/${other.challengeId}?type=goal` : `/track/${other.challengeId}`) as never)
+            }
           />
         )}
 
@@ -375,6 +411,7 @@ export default function Tracker() {
         {phase === 'result' && result && (
           <ResultView
             kind={kind}
+            isGoal={isGoal}
             result={result}
             goalM={goalM}
             onDone={() => router.back()}
@@ -406,10 +443,12 @@ function ReadyView({
   doneToday,
   other,
   busy,
+  isGoal,
   onStart,
   onOpenOther,
 }: {
   kind: ActivityKind;
+  isGoal: boolean;
   canStart: boolean;
   status: 'upcoming' | 'active' | 'ended';
   doneToday: boolean;
@@ -449,7 +488,7 @@ function ReadyView({
       {doneToday && (
         <View style={styles.doneBanner}>
           <Ionicons name="checkmark-circle" size={18} color={palette.mint} />
-          <Text style={[styles.note, { flex: 1 }]}>{tr('track.doneToday')}</Text>
+          <Text style={[styles.note, { flex: 1 }]}>{isGoal ? tr('track.doneTodayGoal') : tr('track.doneToday')}</Text>
         </View>
       )}
 
@@ -692,12 +731,14 @@ function FocusView({ elapsed, requiredSec }: { elapsed: number; requiredSec: num
 
 function ResultView({
   kind,
+  isGoal,
   result,
   goalM,
   onDone,
   onAgain,
 }: {
   kind: ActivityKind;
+  isGoal: boolean;
   result: FinishResult;
   goalM: number;
   onDone: () => void;
@@ -710,10 +751,10 @@ function ResultView({
   const headline = ok ? tr('track.okTitle') : result.verified ? tr('track.shortResultTitle') : tr('track.failTitle');
   const body = ok
     ? result.checked_in
-      ? tr('track.okBody', { xp: result.checkin?.xp_gained ?? 25 })
-      : tr('track.okNoCheckin')
+      ? tr(isGoal ? 'track.okBodyGoal' : 'track.okBody', { xp: result.checkin?.xp_gained ?? (isGoal ? 20 : 25) })
+      : tr(isGoal ? 'track.okNoCheckinGoal' : 'track.okNoCheckin')
     : result.verified
-      ? tr('track.shortResultBody', { done: km(result.distance_m), goal: km(goalM) })
+      ? tr(isGoal ? 'track.shortResultBodyGoal' : 'track.shortResultBody', { done: km(result.distance_m), goal: km(goalM) })
       : tr(`track.reason.${result.reason ?? 'unknown'}`, { defaultValue: tr('track.reason.unknown') });
   return (
     <>

@@ -52,7 +52,8 @@
     "resetSent": "We sent a password reset link.",
     "noAccount": "Don't have an account?",
     "wrongCredentials": "Wrong email or password.",
-    "notConfirmed": "Your email is not confirmed yet. Tap the link we sent."
+    "notConfirmed": "Your email is not confirmed yet. Tap the link we sent.",
+    "remember": "Remember me"
   },
   "otp": {
     "title": "Verification code",
@@ -98,7 +99,20 @@
     "title": "Goal",
     "newHint": "Write a small daily step. Each completion gives +20 XP.",
     "ideas": "Ideas",
-    "create": "Add"
+    "create": "Add",
+    "confirmTitle": "Done?",
+    "confirmBody": "Mark “{{title}}” as done for today? This can’t be undone.",
+    "notYet": "Not yet",
+    "yesDone": "Yes, done",
+    "reqGps": "GPS · {{km}} km",
+    "reqFocus": "⏱ {{min}} min",
+    "modeHint": {
+      "manual": "You mark it yourself when it’s done (with a confirmation).",
+      "run": "Measured with the phone’s GPS. Completes automatically when you reach the distance; driving doesn’t count.",
+      "walk": "Measured with GPS. Completes automatically when you reach the distance.",
+      "ride": "Measured with GPS. Completes automatically when you reach the distance.",
+      "focus": "Completes automatically if you stay in the app until the focus timer ends."
+    }
   },
   "groups": {
     "title": "Groups",
@@ -221,7 +235,8 @@
       "outside_challenge": "That day is outside the challenge.",
       "verification_required": "This challenge is verified by phone — use the tracker."
     },
-    "titleInvalidTitle": "Invalid name"
+    "titleInvalidTitle": "Invalid name",
+    "confirmCheckIn": "“{{title}}” — mark today’s task as done?"
   },
   "join": {
     "title": "Join with an invite code",
@@ -969,7 +984,9 @@
       "invalid_kind": "Invalid activity type.",
       "banned": "Your account is temporarily suspended.",
       "already_started": "Check-ins have started, so verification can't be changed.",
-      "not_creator": "Only the challenge creator can change this."
+      "not_creator": "Only the challenge creator can change this.",
+      "goal_not_found": "Goal not found (it may be archived).",
+      "not_verified": "This goal is marked manually."
     },
     "done": "Done",
     "tryAgain": "Try again",
@@ -980,6 +997,32 @@
     "notCounted": "Not counted",
     "board": "Leaderboard",
     "boardKm": "{{km}} km total",
-    "boardMin": "{{n}} min total"
+    "boardMin": "{{n}} min total",
+    "goalKicker": "Daily goal",
+    "doneTodayGoal": "This goal is already done today. Extra activities are still saved to your history.",
+    "okBodyGoal": "Today’s goal is complete. +{{xp}} XP",
+    "okNoCheckinGoal": "Activity verified. This goal was already done today.",
+    "shortResultBodyGoal": "You covered {{done}} / {{goal}} km. Goal not complete — give it another go."
+  },
+  "bio": {
+    "fingerprint": "Sign in with fingerprint",
+    "face": "Sign in with Face ID",
+    "prompt": "Sign in to TOGETHER",
+    "confirmPrompt": "Confirm with your fingerprint",
+    "offerTitle": "{{method}}?",
+    "offerBody": "Next time, sign in with one touch instead of typing your password. Your sign-in details are stored securely on this phone only.",
+    "later": "Later",
+    "enable": "Turn on",
+    "expiredTitle": "Enter your password",
+    "expired": "Your password has changed. Sign in with your password to link your fingerprint again.",
+    "section": "Sign-in",
+    "on": "On",
+    "off": "Off",
+    "enableTitle": "{{method}}",
+    "enableBody": "Enter your password to confirm, then scan your fingerprint.",
+    "disableTitle": "Turn off {{method}}?",
+    "disableBody": "Saved sign-in details will be removed from this phone.",
+    "disable": "Turn off",
+    "wrongPassword": "Wrong password."
   }
 }
